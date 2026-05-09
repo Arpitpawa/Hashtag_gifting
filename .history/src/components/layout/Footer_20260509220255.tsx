@@ -1,0 +1,264 @@
+"use client";
+
+import Link from "next/link";
+import { MapPin, Phone, Mail, ChevronRight } from "lucide-react";
+
+const InstagramIcon = ({ size = 18 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+  </svg>
+);
+
+const WhatsAppIcon = ({ size = 18 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+  </svg>
+);
+
+const FacebookIcon = ({ size = 18 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+  </svg>
+);
+
+const YouTubeIcon = ({ size = 18 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+  </svg>
+);
+
+const promptFont = { fontFamily: "var(--font-prompt)" };
+const caveatFont = { fontFamily: "var(--font-caveat)" };
+const greatVibesFont = { fontFamily: "var(--font-great-vibes)" };
+
+const footerLinks = [
+  {
+    title: "Quick Links",
+    links: [
+      { label: "Home", href: "/" },
+      { label: "Best Sellers", href: "/collections/best-sellers" },
+      { label: "New Arrivals", href: "/collections/new-arrivals" },
+      { label: "Bulk Gifting", href: "/bulk-gifting" },
+      { label: "Track Order", href: "/track-order" },
+      { label: "About Us", href: "/about" },
+    ],
+  },
+  {
+    title: "Shop by Occasion",
+    links: [
+      { label: "Birthday Gifts", href: "/category/birthday-gifts" },
+      { label: "Anniversary Gifts", href: "/category/anniversary-gifts" },
+      { label: "Wedding Gifts", href: "/category/wedding-gifts" },
+      { label: "Valentine's Day", href: "/category/valentines-day" },
+      { label: "Mother's Day", href: "/category/mothers-day" },
+      { label: "Raksha Bandhan", href: "/category/raksha-bandhan" },
+    ],
+  },
+  {
+    title: "Shop by Relationship",
+    links: [
+      { label: "Gifts for Girlfriend", href: "/category/gifts-for-girlfriend" },
+      { label: "Gifts for Boyfriend", href: "/category/gifts-for-boyfriend" },
+      { label: "Gifts for Wife", href: "/category/gifts-for-wife" },
+      { label: "Gifts for Husband", href: "/category/gifts-for-husband" },
+      { label: "Gifts for Parents", href: "/category/gifts-for-parents" },
+      { label: "Gifts for Friends", href: "/category/gifts-for-friends" },
+    ],
+  },
+  {
+    title: "Help & Support",
+    links: [
+      { label: "FAQs", href: "/faqs" },
+      { label: "Shipping Policy", href: "/shipping-policy" },
+      { label: "Return & Refund", href: "/return-policy" },
+      { label: "Privacy Policy", href: "/privacy-policy" },
+      { label: "Terms & Conditions", href: "/terms" },
+      { label: "Contact Us", href: "/contact" },
+    ],
+  },
+];
+
+export default function Footer() {
+  return (
+    <footer className="bg-[#1a1a2e] text-white">
+
+      {/* TOP STRIP — 3hr delivery */}
+      <div className="bg-[#2f3e7a] py-4 px-4">
+        <div className="max-w-[1450px] mx-auto flex flex-col md:flex-row items-center justify-center gap-3 md:gap-12 text-center">
+          {[
+            "⚡ 3-Hour Express Delivery in Jaipur",
+            "🎁 Free Gift Wrapping on Every Order",
+            "✅ 100% Customized & Made with Love",
+            "🔄 Easy Returns & Hassle-Free Refunds",
+          ].map((item, i) => (
+            <span
+              key={i}
+              className="text-[13px] text-white/90 font-medium"
+              style={promptFont}
+            >
+              {item}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* MAIN FOOTER */}
+      <div className="max-w-[1450px] mx-auto px-4 md:px-6 lg:px-10 pt-14 pb-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10">
+
+          {/* BRAND COLUMN */}
+          <div className="lg:col-span-2">
+
+            {/* LOGO */}
+            <Link
+              href="/"
+              className="text-[52px] leading-none text-white mb-4 block"
+              style={greatVibesFont}
+            >
+              hashtag
+            </Link>
+
+            <p
+              className="text-[14px] text-white/60 leading-relaxed mb-6 max-w-xs"
+              style={promptFont}
+            >
+              Jaipur's most loved personalized gifting brand. Crafting memories,
+              one gift at a time — with love, care & creativity.
+            </p>
+
+            {/* CONTACT */}
+            <div className="flex flex-col gap-3 mb-8">
+            <a
+                href="https://maps.google.com/?q=Hashtag+Gifts+Jaipur"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-start gap-2.5 text-[13px] text-white/60 hover:text-white transition-colors"
+                style={promptFont}
+              >
+                <MapPin size={15} className="mt-0.5 flex-shrink-0 text-[#c4922a]" />
+                Shankar Nagar Main Road, Raipur, Jaipur
+              </a>
+              
+                href="tel:+918640030112"
+                className="flex items-center gap-2.5 text-[13px] text-white/60 hover:text-white transition-colors"
+                style={promptFont}
+              >
+                <Phone size={15} className="flex-shrink-0 text-[#c4922a]" />
+                +91 86400 30112
+              </a>
+              
+                href="mailto:hashtaggifts@gmail.com"
+                className="flex items-center gap-2.5 text-[13px] text-white/60 hover:text-white transition-colors"
+                style={promptFont}
+              >
+                <Mail size={15} className="flex-shrink-0 text-[#c4922a]" />
+                hashtaggifts@gmail.com
+              </a>
+            </div>
+
+            {/* SOCIAL */}
+            <div className="flex items-center gap-3">
+              {[
+                { icon: <InstagramIcon size={17} />, href: "https://www.instagram.com/hashtagifting/", label: "Instagram" },
+                { icon: <WhatsAppIcon size={17} />, href: "https://wa.me/918640030112", label: "WhatsApp" },
+                { icon: <FacebookIcon size={17} />, href: "https://facebook.com/hashtagifting", label: "Facebook" },
+                { icon: <YouTubeIcon size={17} />, href: "https://youtube.com/@hashtagifting", label: "YouTube" },
+              ].map((social, i) => (
+                
+                  key={i}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={social.label}
+                  className="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center text-white/60 hover:text-white hover:border-white hover:bg-white/10 transition-all duration-300"
+                >
+                  {social.icon}
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* LINKS COLUMNS */}
+          {footerLinks.map((col, i) => (
+            <div key={i} className="lg:col-span-1">
+              <h4
+                className="text-[12px] font-semibold uppercase tracking-[2px] text-white/40 mb-5"
+                style={promptFont}
+              >
+                {col.title}
+              </h4>
+              <ul className="flex flex-col gap-3">
+                {col.links.map((link, j) => (
+                  <li key={j}>
+                    <Link
+                      href={link.href}
+                      className="text-[13.5px] text-white/60 hover:text-white transition-colors duration-200 flex items-center gap-1 group"
+                      style={promptFont}
+                    >
+                      <ChevronRight
+                        size={12}
+                        className="opacity-0 group-hover:opacity-100 -ml-1 transition-all duration-200 text-[#c4922a]"
+                      />
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+
+        {/* NEWSLETTER */}
+        <div className="mt-12 pt-10 border-t border-white/10">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div>
+              <h4
+                className="text-2xl font-bold text-white mb-1"
+                style={caveatFont}
+              >
+                Get Gifting Ideas in Your Inbox
+              </h4>
+              <p className="text-[13px] text-white/50" style={promptFont}>
+                Subscribe for exclusive deals, new arrivals & gifting inspiration.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 w-full md:w-auto">
+              <input
+                type="email"
+                placeholder="Enter your email..."
+                className="flex-1 md:w-[280px] bg-white/10 border border-white/20 text-white placeholder:text-white/30 text-[13px] px-4 py-3 rounded-xl outline-none focus:border-[#c4922a] transition-colors"
+                style={promptFont}
+              />
+              <button
+                className="bg-[#c4922a] text-white text-[13px] font-semibold px-5 py-3 rounded-xl hover:bg-[#b07d22] transition-colors whitespace-nowrap"
+                style={promptFont}
+              >
+                Subscribe
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* BOTTOM BAR */}
+        <div className="mt-10 pt-6 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-3">
+          <p className="text-[12px] text-white/30 text-center" style={promptFont}>
+            © {new Date().getFullYear()} Hashtag Gifting, Jaipur. All rights reserved.
+          </p>
+          <div className="flex items-center gap-2">
+            {["Visa", "Mastercard", "UPI", "Razorpay", "COD"].map((method, i) => (
+              <span
+                key={i}
+                className="text-[10px] font-semibold px-2.5 py-1 rounded-md bg-white/10 text-white/50"
+                style={promptFont}
+              >
+                {method}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+}
