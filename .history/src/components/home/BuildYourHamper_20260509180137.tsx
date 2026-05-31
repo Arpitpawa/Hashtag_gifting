@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 
-const promptFont = { fontFamily: "var(--font-prompt)" };
 const caveatFont = { fontFamily: "var(--font-caveat)" };
 
 const images = [
@@ -46,15 +45,10 @@ export default function BuildYourHamper() {
   return (
     <section className="pt-0 pb-0 relative overflow-hidden">
       <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[600px] md:min-h-[700px]">
-
         {/* ── LEFT — dark content side ── */}
         <div className="bg-[#111111] flex flex-col justify-center px-8 md:px-14 lg:px-16 py-16 md:py-20">
-
           {/* EYEBROW */}
-          <p
-            className="text-[#c4922a] text-[11px] font-semibold uppercase tracking-[4px] mb-6"
-            style={promptFont}
-          >
+          <p className="text-[#c4922a] text-[11px] font-semibold uppercase tracking-[4px] mb-6">
             Build something truly yours
           </p>
 
@@ -74,10 +68,7 @@ export default function BuildYourHamper() {
           </h2>
 
           {/* DESCRIPTION */}
-          <p
-            className="text-white/50 text-[14px] md:text-[15px] leading-relaxed max-w-md mb-10"
-            style={promptFont}
-          >
+          <p className="text-white/50 text-[14px] md:text-[15px] leading-relaxed max-w-md mb-10">
             Mix and match from 500+ personalised products — mugs, frames, lamps,
             cushions, and more. Every piece customised with your name, photo, or
             message. One piece or a thousand — we make it happen.
@@ -87,23 +78,14 @@ export default function BuildYourHamper() {
           <div className="flex flex-col gap-6 mb-12">
             {steps.map((step) => (
               <div key={step.number} className="flex items-start gap-5">
-                <span
-                  className="text-[#c4922a] text-[13px] font-bold tracking-widest flex-shrink-0 mt-0.5"
-                  style={promptFont}
-                >
+                <span className="text-[#c4922a] text-[13px] font-bold tracking-widest flex-shrink-0 mt-0.5">
                   {step.number}
                 </span>
                 <div>
-                  <p
-                    className="text-white text-[14px] md:text-[15px] font-semibold mb-0.5"
-                    style={promptFont}
-                  >
+                  <p className="text-white text-[14px] md:text-[15px] font-semibold mb-0.5">
                     {step.title}
                   </p>
-                  <p
-                    className="text-white/40 text-[13px] md:text-[14px]"
-                    style={promptFont}
-                  >
+                  <p className="text-white/40 text-[13px] md:text-[14px]">
                     {step.desc}
                   </p>
                 </div>
@@ -114,11 +96,17 @@ export default function BuildYourHamper() {
           {/* CTA */}
           <Link
             href="/build-hamper"
-            style={promptFont}
             className="inline-flex items-center justify-center gap-3 bg-[#c4922a] text-black text-[12px] font-bold uppercase tracking-[3px] px-10 py-5 hover:bg-[#d4a23a] transition-all duration-300 w-full md:w-auto"
           >
             Build Your Hamper
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+            >
               <path d="M5 12h14M12 5l7 7-7 7" />
             </svg>
           </Link>
@@ -141,7 +129,6 @@ export default function BuildYourHamper() {
             </div>
           ))}
         </div>
-
       </div>
     </section>
   );

@@ -86,7 +86,7 @@ const reviews = [
   },
 ];
 
-const promptFont = { fontFamily: "var(--font-prompt)" };
+
 const caveatFont = { fontFamily: "var(--font-caveat)" };
 
 function StarRating({ rating }: { rating: number }) {
@@ -158,7 +158,7 @@ export default function Testimonials() {
                 </span>
                 <Star size={18} className="fill-[#f4b56a] text-[#f4b56a]" />
               </div>
-              <span className="text-[11px] text-[#888]" style={promptFont}>
+              <span className="text-[11px] text-[#888]" >
                 Google Reviews
               </span>
             </div>
@@ -197,10 +197,10 @@ export default function Testimonials() {
                       {review.avatar}
                     </div>
                     <div>
-                      <p className="text-[14px] font-semibold text-[#1a1a1a]" style={promptFont}>
+                      <p className="text-[14px] font-semibold text-[#1a1a1a]" >
                         {review.name}
                       </p>
-                      <p className="text-[12px] text-[#888]" style={promptFont}>
+                      <p className="text-[12px] text-[#888]" >
                         {review.location}
                       </p>
                     </div>
@@ -217,7 +217,7 @@ export default function Testimonials() {
                 {/* STARS + DATE */}
                 <div className="flex items-center justify-between">
                   <StarRating rating={review.rating} />
-                  <span className="text-[11px] text-[#aaa]" style={promptFont}>
+                  <span className="text-[11px] text-[#aaa]" >
                     {review.date}
                   </span>
                 </div>
@@ -231,7 +231,7 @@ export default function Testimonials() {
                   />
                   <p
                     className="text-[13.5px] text-[#444] leading-relaxed pl-4"
-                    style={promptFont}
+                    
                   >
                     {review.text}
                   </p>
@@ -241,7 +241,7 @@ export default function Testimonials() {
                 <div className="mt-auto pt-2 border-t border-[#f0ebe4]">
                   <span
                     className="text-[11px] text-[#c4922a] font-medium"
-                    style={promptFont}
+                    
                   >
                     ✦ {review.product}
                   </span>
@@ -265,7 +265,7 @@ export default function Testimonials() {
             href="https://share.google/RFY4e3Lh2z4f1zR90"
             target="_blank"
             rel="noopener noreferrer"
-            style={promptFont}
+            
             className="inline-flex items-center gap-3 px-8 py-4 border-2 border-black text-black font-semibold text-sm tracking-wider hover:bg-black hover:text-white transition-all duration-300 rounded-full"
           >
             Read All Reviews on Google

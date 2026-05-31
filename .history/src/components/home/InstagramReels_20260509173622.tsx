@@ -64,7 +64,7 @@ const reels = [
   },
 ];
 
-const promptFont = { fontFamily: "var(--font-prompt)" };
+
 const caveatFont = { fontFamily: "var(--font-caveat)" };
 
 export default function InstagramReels() {
@@ -83,7 +83,7 @@ export default function InstagramReels() {
           <div>
             <p
               className="text-[#c4922a] text-sm uppercase tracking-[3px] font-medium mb-2"
-              style={promptFont}
+              
             >
               Follow Us
             </p>
@@ -100,7 +100,7 @@ export default function InstagramReels() {
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-6 py-3 bg-black text-white text-[13px] font-medium rounded-full hover:bg-[#2f3e7a] transition-all duration-300 w-fit"
-            style={promptFont}
+            
           >
             <InstagramIcon size={16} />
             Follow on Instagram
@@ -161,7 +161,7 @@ export default function InstagramReels() {
                     {/* VIEWS */}
                     <div
                       className="absolute top-3 right-3 flex items-center gap-1 bg-black/50 backdrop-blur-sm text-white text-[12px] px-2.5 py-1 rounded-full"
-                      style={promptFont}
+                      
                     >
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
@@ -195,13 +195,13 @@ export default function InstagramReels() {
                   <div className="flex-1 min-w-0">
                     <p
                       className="text-[13px] font-medium text-[#1a1a1a] leading-snug line-clamp-2"
-                      style={promptFont}
+                      
                     >
                       {reel.product}
                     </p>
                     <p
                       className="text-[13px] font-bold text-[#1a1a1a] mt-0.5"
-                      style={promptFont}
+                      
                     >
                       {reel.price}
                     </p>
@@ -212,7 +212,7 @@ export default function InstagramReels() {
                 
                   href={reel.link}
                   className="mt-3 w-full bg-black text-white text-[13px] font-medium py-3 rounded-xl text-center hover:bg-[#2f3e7a] transition-all duration-300 block"
-                  style={promptFont}
+                  
                 >
                   Add to Cart
                 </a>

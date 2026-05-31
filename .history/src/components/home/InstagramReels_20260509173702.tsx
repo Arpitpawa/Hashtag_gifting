@@ -3,7 +3,13 @@
 import { useRef } from "react";
 import { ChevronRight, Play } from "lucide-react";
 
-const InstagramIcon = ({ size = 16, className = "" }: { size?: number; className?: string }) => (
+const InstagramIcon = ({
+  size = 16,
+  className = "",
+}: {
+  size?: number;
+  className?: string;
+}) => (
   <svg
     width={size}
     height={size}
@@ -23,7 +29,8 @@ const InstagramIcon = ({ size = 16, className = "" }: { size?: number; className
 
 const reels = [
   {
-    thumbnail: "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=600&auto=format&fit=crop",
+    thumbnail:
+      "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=600&auto=format&fit=crop",
     views: "3.2k",
     product: "Custom LED Name Lamp",
     price: "Rs. 590",
@@ -31,7 +38,8 @@ const reels = [
     reelUrl: "https://www.instagram.com/hashtagifting/",
   },
   {
-    thumbnail: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=600&auto=format&fit=crop",
+    thumbnail:
+      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=600&auto=format&fit=crop",
     views: "2.5k",
     product: "CineMagic Clap Board",
     price: "Rs. 690",
@@ -39,7 +47,8 @@ const reels = [
     reelUrl: "https://www.instagram.com/hashtagifting/",
   },
   {
-    thumbnail: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=600&auto=format&fit=crop",
+    thumbnail:
+      "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=600&auto=format&fit=crop",
     views: "4.1k",
     product: "Wedding Caricature",
     price: "Rs. 490",
@@ -47,7 +56,8 @@ const reels = [
     reelUrl: "https://www.instagram.com/hashtagifting/",
   },
   {
-    thumbnail: "https://images.unsplash.com/photo-1513885535751-8b9238bd345a?q=80&w=600&auto=format&fit=crop",
+    thumbnail:
+      "https://images.unsplash.com/photo-1513885535751-8b9238bd345a?q=80&w=600&auto=format&fit=crop",
     views: "1.8k",
     product: "Metal Wallet Card",
     price: "Rs. 990",
@@ -55,7 +65,8 @@ const reels = [
     reelUrl: "https://www.instagram.com/hashtagifting/",
   },
   {
-    thumbnail: "https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?q=80&w=600&auto=format&fit=crop",
+    thumbnail:
+      "https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?q=80&w=600&auto=format&fit=crop",
     views: "3.7k",
     product: "Travel Memory Box",
     price: "Rs. 1290",
@@ -64,7 +75,6 @@ const reels = [
   },
 ];
 
-const promptFont = { fontFamily: "var(--font-prompt)" };
 const caveatFont = { fontFamily: "var(--font-caveat)" };
 
 export default function InstagramReels() {
@@ -77,14 +87,10 @@ export default function InstagramReels() {
   return (
     <section className="py-16 md:py-24 bg-[#f7f4ef]">
       <div className="max-w-[1450px] mx-auto px-4 md:px-6 lg:px-10">
-
         {/* HEADING */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10">
           <div>
-            <p
-              className="text-[#c4922a] text-sm uppercase tracking-[3px] font-medium mb-2"
-              style={promptFont}
-            >
+            <p className="text-[#c4922a] text-sm uppercase tracking-[3px] font-medium mb-2">
               Follow Us
             </p>
             <h2
@@ -100,7 +106,6 @@ export default function InstagramReels() {
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-6 py-3 bg-black text-white text-[13px] font-medium rounded-full hover:bg-[#2f3e7a] transition-all duration-300 w-fit"
-            style={promptFont}
           >
             <InstagramIcon size={16} />
             Follow on Instagram
@@ -109,11 +114,12 @@ export default function InstagramReels() {
 
         {/* REELS SLIDER */}
         <div className="relative">
-
           {/* Right fade */}
           <div
             className="absolute right-0 top-0 bottom-16 w-32 z-10 pointer-events-none"
-            style={{ background: "linear-gradient(to left, #f7f4ef, transparent)" }}
+            style={{
+              background: "linear-gradient(to left, #f7f4ef, transparent)",
+            }}
           />
 
           {/* NEXT BUTTON */}
@@ -154,16 +160,23 @@ export default function InstagramReels() {
                     {/* PLAY BUTTON */}
                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <div className="w-14 h-14 bg-white/90 rounded-full flex items-center justify-center shadow-lg">
-                        <Play size={22} className="text-black fill-black ml-1" />
+                        <Play
+                          size={22}
+                          className="text-black fill-black ml-1"
+                        />
                       </div>
                     </div>
 
                     {/* VIEWS */}
-                    <div
-                      className="absolute top-3 right-3 flex items-center gap-1 bg-black/50 backdrop-blur-sm text-white text-[12px] px-2.5 py-1 rounded-full"
-                      style={promptFont}
-                    >
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <div className="absolute top-3 right-3 flex items-center gap-1 bg-black/50 backdrop-blur-sm text-white text-[12px] px-2.5 py-1 rounded-full">
+                      <svg
+                        width="13"
+                        height="13"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                         <circle cx="12" cy="12" r="3" />
                       </svg>
@@ -172,9 +185,11 @@ export default function InstagramReels() {
 
                     {/* INSTAGRAM ICON */}
                     <div className="absolute top-3 left-3">
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center shadow"
+                      <div
+                        className="w-8 h-8 rounded-full flex items-center justify-center shadow"
                         style={{
-                          background: "radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%)"
+                          background:
+                            "radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%)",
                         }}
                       >
                         <InstagramIcon size={14} className="text-white" />
@@ -193,16 +208,10 @@ export default function InstagramReels() {
                     />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p
-                      className="text-[13px] font-medium text-[#1a1a1a] leading-snug line-clamp-2"
-                      style={promptFont}
-                    >
+                    <p className="text-[13px] font-medium text-[#1a1a1a] leading-snug line-clamp-2">
                       {reel.product}
                     </p>
-                    <p
-                      className="text-[13px] font-bold text-[#1a1a1a] mt-0.5"
-                      style={promptFont}
-                    >
+                    <p className="text-[13px] font-bold text-[#1a1a1a] mt-0.5">
                       {reel.price}
                     </p>
                   </div>
@@ -212,7 +221,6 @@ export default function InstagramReels() {
                 <a
                   href={reel.link}
                   className="mt-3 w-full bg-black text-white text-[13px] font-medium py-3 rounded-xl text-center hover:bg-[#2f3e7a] transition-all duration-300 block"
-                  style={promptFont}
                 >
                   Add to Cart
                 </a>

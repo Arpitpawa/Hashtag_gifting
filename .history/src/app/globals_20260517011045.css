@@ -1,0 +1,116 @@
+@import "tailwindcss";
+
+:root {
+  --primary: #c0555a;
+  --background: #f3efe8;
+  --bg-section: #f3efe8;
+  --white: #ffffff;
+  --text: #2c2c2c;
+  --muted: #6e6e6e;
+  --border: #e5e5e5;
+
+  /* ── FONTS ── */
+  --font-body: "Poppins", sans;
+  --font-heading: "Poppins", sans;
+  --font-logo: "Great Vibes", cursive;
+}
+
+html {
+  scroll-behavior: smooth;
+  box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+  font-family: var(--font-body);
+}
+
+body {
+  background: var(--background);
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+/* ── UTILITY CLASSES ── */
+
+.font-body {
+  font-family: var(--font-body);
+}
+
+.font-heading {
+  font-family: var(--font-heading);
+}
+
+.font-logo {
+  font-family: var(--font-logo);
+}
+
+.container-custom {
+  width: 100%;
+  max-width: 120%;
+  margin-inline: auto;
+  padding-inline: 16px;
+}
+
+@media (min-width: 768px) {
+  .container-custom {
+    padding-inline: 32px;
+  }
+}
+
+button {
+  cursor: pointer;
+}
+
+img {
+  user-select: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ── GLOBAL THEME COLORS ── */
+
+.text-primary {
+  color: var(--primary);
+}
+
+.bg-primary {
+  background-color: var(--primary);
+}
+
+.border-primary {
+  border-color: var(--primary);
+}
+
+.hover-primary:hover {
+  color: var(--primary);
+}
+
+.hover-bg-primary:hover {
+  background-color: var(--primary);
+}
+
+/* ── MARQUEE ── */
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}

@@ -53,7 +53,7 @@ const testimonials = [
   },
 ];
 
-const promptFont = { fontFamily: "var(--font-prompt)" };
+
 const caveatFont = { fontFamily: "var(--font-caveat)" };
 
 const GoogleIcon = ({ size = 14 }: { size?: number }) => (
@@ -80,7 +80,7 @@ export default function Testimonials() {
           </h2>
           <p
             className="text-[#c4922a] text-sm uppercase tracking-[3px] font-medium"
-            style={promptFont}
+            
           >
             Big Love From Our Community
           </p>
@@ -114,7 +114,7 @@ export default function Testimonials() {
               <div className="mb-3">
                 <p
                   className="text-[13px] font-bold text-[#1a1a1a] uppercase tracking-wide"
-                  style={promptFont}
+                  
                 >
                   {t.name}
                 </p>
@@ -136,19 +136,19 @@ export default function Testimonials() {
               {/* REVIEW */}
               <p
                 className="text-[13.5px] text-[#555] leading-relaxed flex-1"
-                style={promptFont}
+                
               >
                 "{t.review}"
               </p>
 
               {/* FOOTER */}
               <div className="flex items-center justify-between mt-4 pt-4 border-t border-[#f0ece6]">
-                <p className="text-[11px] text-[#aaa]" style={promptFont}>
+                <p className="text-[11px] text-[#aaa]" >
                   {t.reviews} · {t.time}
                 </p>
                 <div className="flex items-center gap-1 bg-[#f7f4ef] px-2 py-1 rounded-full">
                   <GoogleIcon size={12} />
-                  <span className="text-[10px] text-[#555] font-medium" style={promptFont}>
+                  <span className="text-[10px] text-[#555] font-medium" >
                     Google
                   </span>
                 </div>
@@ -167,10 +167,10 @@ export default function Testimonials() {
                 <Star key={i} size={18} className="fill-[#f4b56a] text-[#f4b56a]" />
               ))}
             </div>
-            <span className="text-[15px] font-semibold text-[#1a1a1a]" style={promptFont}>
+            <span className="text-[15px] font-semibold text-[#1a1a1a]" >
               4.9
             </span>
-            <span className="text-[14px] text-[#888]" style={promptFont}>
+            <span className="text-[14px] text-[#888]" >
               from 2,000+ happy customers on Google
             </span>
           </div>
@@ -181,7 +181,7 @@ export default function Testimonials() {
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-6 py-3 border border-[#e8e0d5] rounded-full text-[13px] text-[#555] hover:border-black hover:text-black transition-all duration-300 bg-white whitespace-nowrap"
-            style={promptFont}
+            
           >
             <GoogleIcon size={16} />
             View all Google Reviews

@@ -86,7 +86,6 @@ const testimonials = [
   },
 ];
 
-const promptFont = { fontFamily: "var(--font-prompt)" };
 const caveatFont = { fontFamily: "var(--font-caveat)" };
 
 export default function Testimonials() {
@@ -105,9 +104,7 @@ export default function Testimonials() {
 
   return (
     <section className="pt-0 pb-16 md:pb-24 relative overflow-hidden">
-
       <div className="max-w-[1450px] mx-auto px-4 md:px-6 lg:px-10">
-
         {/* ── HEADING ── */}
         <div className="text-center mb-12 md:mb-14">
           <span
@@ -122,10 +119,7 @@ export default function Testimonials() {
           >
             What Our Customers Say
           </h2>
-          <p
-            className="text-[#6b6b6b] text-base md:text-lg mt-4 max-w-md mx-auto"
-            style={promptFont}
-          >
+          <p className="text-[#6b6b6b] text-base md:text-lg mt-4 max-w-md mx-auto">
             Real stories from real people who gifted with love
           </p>
 
@@ -140,16 +134,10 @@ export default function Testimonials() {
                 />
               ))}
             </div>
-            <span
-              className="text-[15px] font-semibold text-[#1a1a1a]"
-              style={promptFont}
-            >
+            <span className="text-[15px] font-semibold text-[#1a1a1a]">
               4.9
             </span>
-            <span
-              className="text-[14px] text-[#6b6b6b]"
-              style={promptFont}
-            >
+            <span className="text-[14px] text-[#6b6b6b]">
               from 2,000+ happy customers
             </span>
           </div>
@@ -157,7 +145,6 @@ export default function Testimonials() {
 
         {/* ── SLIDER ── */}
         <div className="relative">
-
           {/* LEFT ARROW */}
           <button
             onClick={scrollLeft}
@@ -188,10 +175,7 @@ export default function Testimonials() {
                 </div>
 
                 {/* REVIEW */}
-                <p
-                  className="text-[14px] md:text-[15px] text-[#3d3d3d] leading-relaxed flex-1"
-                  style={promptFont}
-                >
+                <p className="text-[14px] md:text-[15px] text-[#3d3d3d] leading-relaxed flex-1">
                   "{t.review}"
                 </p>
 
@@ -216,30 +200,22 @@ export default function Testimonials() {
                 <div className="flex items-center gap-3">
                   <div
                     className="w-10 h-10 rounded-full flex items-center justify-center text-white text-[13px] font-bold flex-shrink-0"
-                    style={{ backgroundColor: t.color === "#f4d35e" ? "#c4922a" : t.color }}
+                    style={{
+                      backgroundColor:
+                        t.color === "#f4d35e" ? "#c4922a" : t.color,
+                    }}
                   >
                     {t.avatar}
                   </div>
                   <div>
-                    <p
-                      className="text-[14px] font-semibold text-[#1a1a1a]"
-                      style={promptFont}
-                    >
+                    <p className="text-[14px] font-semibold text-[#1a1a1a]">
                       {t.name}
                     </p>
-                    <p
-                      className="text-[12px] text-[#888]"
-                      style={promptFont}
-                    >
-                      📍 {t.location}
-                    </p>
+                    <p className="text-[12px] text-[#888]">📍 {t.location}</p>
                   </div>
                   {/* VERIFIED */}
                   <div className="ml-auto">
-                    <span
-                      className="text-[10px] font-semibold text-[#2f3e7a] bg-[#2f3e7a]/10 px-2 py-1 rounded-full"
-                      style={promptFont}
-                    >
+                    <span className="text-[10px] font-semibold text-[#2f3e7a] bg-[#2f3e7a]/10 px-2 py-1 rounded-full">
                       ✓ Verified
                     </span>
                   </div>
@@ -256,7 +232,6 @@ export default function Testimonials() {
             <ChevronRight size={20} strokeWidth={2} />
           </button>
         </div>
-
       </div>
     </section>
   );

@@ -70,7 +70,7 @@ const reels = [
   },
 ];
 
-const promptFont = { fontFamily: "var(--font-prompt)" };
+
 const caveatFont = { fontFamily: "var(--font-caveat)" };
 
 export default function InstagramReels() {
@@ -198,7 +198,7 @@ export default function InstagramReels() {
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-6 py-3 bg-black text-white text-[13px] font-medium rounded-full hover:bg-[#2f3e7a] transition-all duration-300 w-fit"
-              style={promptFont}
+              
             >
               <InstagramIcon size={16} />
               Follow on Instagram
@@ -254,7 +254,7 @@ export default function InstagramReels() {
                       </div>
 
                       {/* Views */}
-                      <div className="absolute top-3 right-3 flex items-center gap-1 bg-black/50 backdrop-blur-sm text-white text-[11px] px-2 py-0.5 rounded-full" style={promptFont}>
+                      <div className="absolute top-3 right-3 flex items-center gap-1 bg-black/50 backdrop-blur-sm text-white text-[11px] px-2 py-0.5 rounded-full" >
                         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />
                         </svg>
@@ -263,8 +263,8 @@ export default function InstagramReels() {
 
                       {/* Product name overlay */}
                       <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/70 to-transparent">
-                        <p className="text-white text-[12px] font-medium line-clamp-1" style={promptFont}>{reel.product}</p>
-                        <p className="text-white text-[13px] font-bold" style={promptFont}>{reel.price}</p>
+                        <p className="text-white text-[12px] font-medium line-clamp-1" >{reel.product}</p>
+                        <p className="text-white text-[13px] font-bold" >{reel.price}</p>
                       </div>
                     </div>
                   </div>
@@ -273,7 +273,7 @@ export default function InstagramReels() {
                   <Link
                     href={reel.link}
                     className="mt-3 w-full bg-black text-white text-[12px] font-medium py-2.5 rounded-xl text-center hover:bg-[#2f3e7a] transition-all duration-300 block"
-                    style={promptFont}
+                    
                   >
                     Shop This
                   </Link>
@@ -337,7 +337,7 @@ export default function InstagramReels() {
                     style={{ background: "radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%)" }}>
                     <InstagramIcon size={15} className="text-white" />
                   </div>
-                  <span className="text-white text-[13px] font-semibold" style={promptFont}>hashtagifting</span>
+                  <span className="text-white text-[13px] font-semibold" >hashtagifting</span>
                 </div>
 
                 {/* Close */}
@@ -373,7 +373,7 @@ export default function InstagramReels() {
                       className={liked ? "fill-red-500 text-red-500" : "text-white"}
                     />
                   </div>
-                  <span className="text-white text-[10px]" style={promptFont}>{currentReel.likes}</span>
+                  <span className="text-white text-[10px]" >{currentReel.likes}</span>
                 </button>
 
                 <button onClick={toggleMute} className="flex flex-col items-center gap-1">
@@ -385,7 +385,7 @@ export default function InstagramReels() {
 
               {/* BOTTOM PRODUCT BAR — like Lemonade */}
               <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl p-4">
-                <p className="text-[11px] text-[#888] mb-2 font-medium uppercase tracking-wider" style={promptFont}>
+                <p className="text-[11px] text-[#888] mb-2 font-medium uppercase tracking-wider" >
                   Featured Product
                 </p>
                 <div className="flex items-center gap-3">
@@ -393,12 +393,12 @@ export default function InstagramReels() {
                     <img src={currentReel.productImage} alt={currentReel.product} className="w-full h-full object-cover" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[13px] font-semibold text-[#1a1a1a] line-clamp-1" style={promptFont}>
+                    <p className="text-[13px] font-semibold text-[#1a1a1a] line-clamp-1" >
                       {currentReel.product}
                     </p>
                     <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-[14px] font-bold text-[#1a1a1a]" style={promptFont}>{currentReel.price}</span>
-                      <span className="text-[12px] text-gray-400 line-through" style={promptFont}>{currentReel.oldPrice}</span>
+                      <span className="text-[14px] font-bold text-[#1a1a1a]" >{currentReel.price}</span>
+                      <span className="text-[12px] text-gray-400 line-through" >{currentReel.oldPrice}</span>
                     </div>
                   </div>
                 </div>
@@ -407,7 +407,7 @@ export default function InstagramReels() {
                   href={currentReel.link}
                   onClick={closeModal}
                   className="mt-3 w-full bg-black text-white text-[13px] font-semibold py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-[#2f3e7a] transition-all duration-300"
-                  style={promptFont}
+                  
                 >
                   <ShoppingCart size={15} />
                   Add to Cart

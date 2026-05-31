@@ -29,7 +29,7 @@ const YouTubeIcon = ({ size = 18 }: { size?: number }) => (
   </svg>
 );
 
-const promptFont = { fontFamily: "var(--font-prompt)" };
+
 const caveatFont = { fontFamily: "var(--font-caveat)" };
 const greatVibesFont = { fontFamily: "var(--font-great-vibes)" };
 
@@ -96,7 +96,7 @@ export default function Footer() {
             <span
               key={i}
               className="text-[13px] text-white/90 font-medium"
-              style={promptFont}
+              
             >
               {item}
             </span>
@@ -122,7 +122,7 @@ export default function Footer() {
 
             <p
               className="text-[14px] text-white/60 leading-relaxed mb-6 max-w-xs"
-              style={promptFont}
+              
             >
               Jaipur's most loved personalized gifting brand. Crafting memories,
               one gift at a time — with love, care & creativity.
@@ -135,26 +135,26 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-start gap-2.5 text-[13px] text-white/60 hover:text-white transition-colors"
-                style={promptFont}
+                
               >
                 <MapPin size={15} className="mt-0.5 flex-shrink-0 text-[#c4922a]" />
                 Shankar Nagar Main Road, Raipur, Jaipur
               </a>
               <a
-                href="tel:+918640030112"
+                href="tel:+917665909909"
                 className="flex items-center gap-2.5 text-[13px] text-white/60 hover:text-white transition-colors"
-                style={promptFont}
+                
               >
                 <Phone size={15} className="flex-shrink-0 text-[#c4922a]" />
                 +91 86400 30112
               </a>
                 <a
-                href="mailto:hashtaggifts@gmail.com"
+                href="mailto:hashtaggiftsupport@gmail.com"
                 className="flex items-center gap-2.5 text-[13px] text-white/60 hover:text-white transition-colors"
-                style={promptFont}
+                
               >
                 <Mail size={15} className="flex-shrink-0 text-[#c4922a]" />
-                hashtaggifts@gmail.com
+                hashtaggiftsupport@gmail.com
               </a>
             </div>
 
@@ -162,7 +162,7 @@ export default function Footer() {
             <div className="flex items-center gap-3">
               {[
                 { icon: <InstagramIcon size={17} />, href: "https://www.instagram.com/hashtagifting/", label: "Instagram" },
-                { icon: <WhatsAppIcon size={17} />, href: "https://wa.me/918640030112", label: "WhatsApp" },
+                { icon: <WhatsAppIcon size={17} />, href: "https://wa.me/917665909909", label: "WhatsApp" },
                 { icon: <FacebookIcon size={17} />, href: "https://facebook.com/hashtagifting", label: "Facebook" },
                 { icon: <YouTubeIcon size={17} />, href: "https://youtube.com/@hashtagifting", label: "YouTube" },
               ].map((social, i) => (
@@ -185,7 +185,7 @@ export default function Footer() {
             <div key={i} className="lg:col-span-1">
               <h4
                 className="text-[12px] font-semibold uppercase tracking-[2px] text-white/40 mb-5"
-                style={promptFont}
+                
               >
                 {col.title}
               </h4>
@@ -195,7 +195,7 @@ export default function Footer() {
                     <Link
                       href={link.href}
                       className="text-[13.5px] text-white/60 hover:text-white transition-colors duration-200 flex items-center gap-1 group"
-                      style={promptFont}
+                      
                     >
                       <ChevronRight
                         size={12}
@@ -220,7 +220,7 @@ export default function Footer() {
               >
                 Get Gifting Ideas in Your Inbox
               </h4>
-              <p className="text-[13px] text-white/50" style={promptFont}>
+              <p className="text-[13px] text-white/50" >
                 Subscribe for exclusive deals, new arrivals & gifting inspiration.
               </p>
             </div>
@@ -229,11 +229,11 @@ export default function Footer() {
                 type="email"
                 placeholder="Enter your email..."
                 className="flex-1 md:w-[280px] bg-white/10 border border-white/20 text-white placeholder:text-white/30 text-[13px] px-4 py-3 rounded-xl outline-none focus:border-[#c4922a] transition-colors"
-                style={promptFont}
+                
               />
               <button
                 className="bg-[#c4922a] text-white text-[13px] font-semibold px-5 py-3 rounded-xl hover:bg-[#b07d22] transition-colors whitespace-nowrap"
-                style={promptFont}
+                
               >
                 Subscribe
               </button>
@@ -243,7 +243,7 @@ export default function Footer() {
 
         {/* BOTTOM BAR */}
         <div className="mt-10 pt-6 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-3">
-          <p className="text-[12px] text-white/30 text-center" style={promptFont}>
+          <p className="text-[12px] text-white/30 text-center" >
             © {new Date().getFullYear()} Hashtag Gifting, Jaipur. All rights reserved.
           </p>
           <div className="flex items-center gap-2">
@@ -251,7 +251,7 @@ export default function Footer() {
               <span
                 key={i}
                 className="text-[10px] font-semibold px-2.5 py-1 rounded-md bg-white/10 text-white/50"
-                style={promptFont}
+                
               >
                 {method}
               </span>

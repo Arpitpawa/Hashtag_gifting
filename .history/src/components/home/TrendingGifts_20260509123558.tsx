@@ -12,8 +12,10 @@ const products = [
     old: "Rs. 999",
     save: "Save 20%",
     badge: "Best Seller",
-    image1: "https://confettigifts.in/cdn/shop/files/2-2_50e1fc1a-0290-4155-bec5-e9ae33018478.webp?v=1761636856&width=800",
-    image2: "https://confettigifts.in/cdn/shop/files/CopyofIMG_2509.jpg?v=1761636856&width=800",
+    image1:
+      "https://confettigifts.in/cdn/shop/files/2-2_50e1fc1a-0290-4155-bec5-e9ae33018478.webp?v=1761636856&width=800",
+    image2:
+      "https://confettigifts.in/cdn/shop/files/CopyofIMG_2509.jpg?v=1761636856&width=800",
     link: "/product/custom-spotify-frame",
   },
   {
@@ -22,8 +24,10 @@ const products = [
     old: "Rs. 1490",
     save: "Save 13%",
     badge: "",
-    image1: "https://confettigifts.in/cdn/shop/files/3-9_0615fbf0-3577-466d-8622-5449bdd5d20d.webp?v=1767951776&width=800",
-    image2: "https://confettigifts.in/cdn/shop/files/Souvinerbox1.webp?v=1767951776&width=800",
+    image1:
+      "https://confettigifts.in/cdn/shop/files/3-9_0615fbf0-3577-466d-8622-5449bdd5d20d.webp?v=1767951776&width=800",
+    image2:
+      "https://confettigifts.in/cdn/shop/files/Souvinerbox1.webp?v=1767951776&width=800",
     link: "/product/photo-memory-box",
   },
   {
@@ -32,8 +36,10 @@ const products = [
     old: "Rs. 499",
     save: "Save 20%",
     badge: "",
-    image1: "https://confettigifts.in/cdn/shop/files/PetFaceSocks.webp?v=1771482164&width=800",
-    image2: "https://confettigifts.in/cdn/shop/files/PetFaceSocks.webp?v=1771482164&width=800",
+    image1:
+      "https://confettigifts.in/cdn/shop/files/PetFaceSocks.webp?v=1771482164&width=800",
+    image2:
+      "https://confettigifts.in/cdn/shop/files/PetFaceSocks.webp?v=1771482164&width=800",
     link: "/product/personalized-keychain",
   },
   {
@@ -42,8 +48,10 @@ const products = [
     old: "Rs. 1299",
     save: "Save 23%",
     badge: "Best Seller",
-    image1: "https://confettigifts.in/cdn/shop/files/2_b636a062-abbe-48be-80e9-2e47c2b628b5.webp?v=1764568216&width=800",
-    image2: "https://confettigifts.in/cdn/shop/files/1_3e7d7759-e2b8-48e4-8732-d94227e61690.webp?v=1764568216&width=800",
+    image1:
+      "https://confettigifts.in/cdn/shop/files/2_b636a062-abbe-48be-80e9-2e47c2b628b5.webp?v=1764568216&width=800",
+    image2:
+      "https://confettigifts.in/cdn/shop/files/1_3e7d7759-e2b8-48e4-8732-d94227e61690.webp?v=1764568216&width=800",
     link: "/product/led-name-frame",
   },
   {
@@ -52,8 +60,10 @@ const products = [
     old: "Rs. 799",
     save: "Save 13%",
     badge: "Best Seller",
-    image1: "https://confettigifts.in/cdn/shop/files/1-16_ad3cd0de-7dad-4136-8f95-cb92ae451fcc.webp?v=1772883529&width=800",
-    image2: "https://confettigifts.in/cdn/shop/files/4-7_6d3afacb-f70e-495e-896b-b260f34b2dc1.webp?v=1772883529&width=800",
+    image1:
+      "https://confettigifts.in/cdn/shop/files/1-16_ad3cd0de-7dad-4136-8f95-cb92ae451fcc.webp?v=1772883529&width=800",
+    image2:
+      "https://confettigifts.in/cdn/shop/files/4-7_6d3afacb-f70e-495e-896b-b260f34b2dc1.webp?v=1772883529&width=800",
     link: "/product/couple-photo-frame",
   },
   {
@@ -62,8 +72,10 @@ const products = [
     old: "Rs. 590",
     save: "Save 17%",
     badge: "",
-    image1: "https://confettigifts.in/cdn/shop/files/1-16_ad3cd0de-7dad-4136-8f95-cb92ae451fcc.webp?v=1772883529&width=800",
-    image2: "https://confettigifts.in/cdn/shop/files/4-7_6d3afacb-f70e-495e-896b-b260f34b2dc1.webp?v=1772883529&width=800",
+    image1:
+      "https://confettigifts.in/cdn/shop/files/1-16_ad3cd0de-7dad-4136-8f95-cb92ae451fcc.webp?v=1772883529&width=800",
+    image2:
+      "https://confettigifts.in/cdn/shop/files/4-7_6d3afacb-f70e-495e-896b-b260f34b2dc1.webp?v=1772883529&width=800",
     link: "/product/wedding-caricature",
   },
   {
@@ -72,13 +84,14 @@ const products = [
     old: "Rs. 1090",
     save: "Save 10%",
     badge: "Best Seller",
-    image1: "https://confettigifts.in/cdn/shop/files/2-2_50e1fc1a-0290-4155-bec5-e9ae33018478.webp?v=1761636856&width=800",
-    image2: "https://confettigifts.in/cdn/shop/files/CopyofIMG_2509.jpg?v=1761636856&width=800",
+    image1:
+      "https://confettigifts.in/cdn/shop/files/2-2_50e1fc1a-0290-4155-bec5-e9ae33018478.webp?v=1761636856&width=800",
+    image2:
+      "https://confettigifts.in/cdn/shop/files/CopyofIMG_2509.jpg?v=1761636856&width=800",
     link: "/product/metal-wallet-card",
   },
 ];
 
-const promptFont = { fontFamily: "var(--font-prompt)" };
 const caveatFont = { fontFamily: "var(--font-caveat)" };
 
 export default function TrendingGifts() {
@@ -95,21 +108,23 @@ export default function TrendingGifts() {
 
   const toggleWishlist = (index: number) => {
     setWishlist((prev) =>
-      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
+      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index],
     );
   };
 
   return (
     <section className="pt-0 pb-16 md:pb-24 bg-[#f3efe8] relative overflow-hidden">
-
       {/* Decorative blob */}
       <div
         className="absolute top-0 left-1/2 w-[600px] h-[300px] rounded-full opacity-[0.03] pointer-events-none"
-        style={{ background: "#2f3e7a", filter: "blur(80px)", transform: "translate(-50%, -50%)" }}
+        style={{
+          background: "#2f3e7a",
+          filter: "blur(80px)",
+          transform: "translate(-50%, -50%)",
+        }}
       />
 
       <div className="max-w-[1450px] mx-auto px-4 md:px-6 lg:px-10">
-
         {/* ── HEADING ── */}
         <div className="text-center mb-12 md:mb-14">
           <span
@@ -124,17 +139,13 @@ export default function TrendingGifts() {
           >
             Trending Personalized Gifts
           </h2>
-          <p
-            className="text-[#6b6b6b] text-base md:text-lg mt-4 max-w-md mx-auto"
-            style={promptFont}
-          >
+          <p className="text-[#6b6b6b] text-base md:text-lg mt-4 max-w-md mx-auto">
             Gifts people are loving right now
           </p>
         </div>
 
         {/* ── SLIDER WRAPPER ── */}
         <div className="relative">
-
           {/* LEFT ARROW */}
           <button
             onClick={scrollLeft}
@@ -155,7 +166,6 @@ export default function TrendingGifts() {
               >
                 {/* IMAGE AREA */}
                 <div className="relative rounded-2xl overflow-hidden bg-white">
-
                   {/* IMAGES */}
                   <div className="relative h-[280px] md:h-[320px]">
                     <Image
@@ -177,10 +187,7 @@ export default function TrendingGifts() {
                   {/* BADGE */}
                   {product.badge && (
                     <div className="absolute top-3 left-3">
-                      <span
-                        className="bg-black text-white text-[11px] font-semibold px-3 py-1.5 rounded-full"
-                        style={promptFont}
-                      >
+                      <span className="bg-black text-white text-[11px] font-semibold px-3 py-1.5 rounded-full">
                         {product.badge}
                       </span>
                     </div>
@@ -205,29 +212,17 @@ export default function TrendingGifts() {
 
                 {/* PRODUCT INFO */}
                 <Link href={product.link} className="block mt-4 px-1">
-                  <h3
-                    className="text-[15px] font-medium text-[#1a1a1a] mb-2 hover:text-[#2f3e7a] transition-colors"
-                    style={promptFont}
-                  >
+                  <h3 className="text-[15px] font-medium text-[#1a1a1a] mb-2 hover:text-[#2f3e7a] transition-colors">
                     {product.name}
                   </h3>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span
-                      className="text-[15px] font-bold text-[#1a1a1a]"
-                      style={promptFont}
-                    >
+                    <span className="text-[15px] font-bold text-[#1a1a1a]">
                       {product.price}
                     </span>
-                    <span
-                      className="text-[13px] text-gray-400 line-through"
-                      style={promptFont}
-                    >
+                    <span className="text-[13px] text-gray-400 line-through">
                       {product.old}
                     </span>
-                    <span
-                      className="text-[12px] font-semibold text-red-500"
-                      style={promptFont}
-                    >
+                    <span className="text-[12px] font-semibold text-red-500">
                       {product.save}
                     </span>
                   </div>
@@ -249,16 +244,21 @@ export default function TrendingGifts() {
         <div className="text-center mt-12">
           <Link
             href="/collections/trending"
-            style={promptFont}
             className="inline-flex items-center gap-3 px-8 py-4 border-2 border-black text-black font-semibold text-sm tracking-wider hover:bg-black hover:text-white transition-all duration-300 rounded-full"
           >
             View All Trending Gifts
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+            >
               <path d="M5 12h14M12 5l7 7-7 7" />
             </svg>
           </Link>
         </div>
-
       </div>
     </section>
   );

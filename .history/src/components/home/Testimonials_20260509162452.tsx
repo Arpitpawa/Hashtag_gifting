@@ -138,7 +138,7 @@ const testimonials = [
   },
 ];
 
-const promptFont = { fontFamily: "var(--font-prompt)" };
+
 const caveatFont = { fontFamily: "var(--font-caveat)" };
 
 const GoogleIcon = () => (
@@ -172,7 +172,7 @@ export default function Testimonials() {
         <div className="mb-12 md:mb-16">
           <p
             className="text-[#c4922a] text-base uppercase tracking-[3px] font-medium mb-3"
-            style={promptFont}
+            
           >
             Big Love From Our Community
           </p>
@@ -192,13 +192,13 @@ export default function Testimonials() {
                     <Star key={i} size={16} className="fill-[#f4b56a] text-[#f4b56a]" />
                   ))}
                 </div>
-                <p className="text-[13px] text-[#888]" style={promptFont}>
+                <p className="text-[13px] text-[#888]" >
                   Google Rating
                 </p>
               </div>
               <div className="border-l border-[#e8e0d5] pl-4">
                 <p className="text-4xl font-bold text-[#1a1a1a]" style={caveatFont}>4.9</p>
-                <p className="text-[12px] text-[#888]" style={promptFont}>2,000+ reviews</p>
+                <p className="text-[12px] text-[#888]" >2,000+ reviews</p>
               </div>
             </div>
           </div>
@@ -244,7 +244,7 @@ export default function Testimonials() {
                   {/* REVIEW */}
                   <p
                     className="text-[14px] text-[#3d3d3d] leading-relaxed flex-1"
-                    style={promptFont}
+                    
                   >
                     "{t.review}"
                   </p>
@@ -273,10 +273,10 @@ export default function Testimonials() {
                       {t.avatar}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[14px] font-semibold text-[#1a1a1a] truncate" style={promptFont}>
+                      <p className="text-[14px] font-semibold text-[#1a1a1a] truncate" >
                         {t.name}
                       </p>
-                      <p className="text-[12px] text-[#aaa]" style={promptFont}>
+                      <p className="text-[12px] text-[#aaa]" >
                         {t.reviews} · {t.time}
                       </p>
                     </div>
@@ -284,7 +284,7 @@ export default function Testimonials() {
                     {/* GOOGLE BADGE */}
                     <div className="flex items-center gap-1.5 bg-[#f7f4ef] px-2.5 py-1.5 rounded-full flex-shrink-0">
                       <GoogleIcon />
-                      <span className="text-[10px] font-semibold text-[#555]" style={promptFont}>
+                      <span className="text-[10px] font-semibold text-[#555]" >
                         Google
                       </span>
                     </div>
@@ -310,7 +310,7 @@ export default function Testimonials() {
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-6 py-3 border border-[#e8e0d5] rounded-full text-[13px] text-[#555] hover:border-black hover:text-black transition-all duration-300 bg-white"
-            style={promptFont}
+            
           >
             <GoogleIcon />
             View all Google Reviews

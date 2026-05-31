@@ -1,0 +1,128 @@
+import type { Metadata } from "next";
+import { Caveat, Great_Vibes, Poppins } from "next/font/google";
+import "./globals.css";
+import Script from "next/script";
+import AnnouncementBar from "@/components/layout/AnnouncementBar";
+import Navbar         from "@/components/layout/Navbar";
+import Footer         from "@/components/layout/Footer";
+import Providers      from "@/components/layout/Providers";
+
+const caveat = Caveat({
+  subsets:  ["latin"],
+  variable: "--font-heading",
+});
+const greatVibes = Great_Vibes({
+  subsets: ["latin"],
+  weight:  "400",
+  variable: "--font-logo",
+});
+const poppins = Poppins({
+  subsets:  ["latin"],
+  weight:   ["300", "400", "500", "600", "700"],
+  variable: "--font-body",
+});
+
+const BASE_URL = "https://www.hashtaggifting.com";
+
+export const metadata: Metadata = {
+  metadataBase: new URL(BASE_URL),
+
+  title: {
+    default:  "Hashtag Gifting — Personalised Gifts Delivered Across India",
+    template: "%s — Hashtag Gifting",
+  },
+  description:
+    "Shop 500+ handcrafted personalised gifts — custom mugs, LED name lamps, photo frames, explosion boxes & more. Same-day dispatch in Jaipur. Free delivery above Rs. 999.",
+
+  keywords: [
+    "personalised gifts india", "custom gifts jaipur", "photo mugs", "LED name lamp",
+    "explosion box", "birthday gifts", "anniversary gifts", "customized gifts online",
+    "personalised gifts for him", "personalised gifts for her", "hashtag gifting",
+  ],
+
+  authors: [{ name: "Hashtag Gifting", url: BASE_URL }],
+  creator: "Hashtag Gifting",
+  publisher: "Hashtag Gifting",
+
+  openGraph: {
+    type:        "website",
+    locale:      "en_IN",
+    url:         BASE_URL,
+    siteName:    "Hashtag Gifting",
+    title:       "Hashtag Gifting — Personalised Gifts Delivered Across India",
+    description: "Shop 500+ handcrafted personalised gifts. Same-day dispatch in Jaipur. Free delivery above Rs. 999.",
+    images: [
+      {
+        url:    "/og-image.jpg",
+        width:  1200,
+        height: 630,
+        alt:    "Hashtag Gifting — Personalised Gifts",
+      },
+    ],
+  },
+
+  twitter: {
+    card:        "summary_large_image",
+    title:       "Hashtag Gifting — Personalised Gifts Delivered Across India",
+    description: "Shop 500+ handcrafted personalised gifts. Same-day dispatch in Jaipur.",
+    images:      ["/og-image.jpg"],
+  },
+
+  robots: {
+    index:  true,
+    follow: true,
+    googleBot: {
+      index:               true,
+      follow:              true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet":       -1,
+    },
+  },
+
+  icons: {
+    icon:    "/favicon.ico",
+    apple:   "/apple-touch-icon.png",
+  },
+
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || "",
+  },
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html
+      lang="en"
+      className={`${caveat.variable} ${greatVibes.variable} ${poppins.variable}`}
+    >
+      <body>
+        {/* Google Analytics */}
+        {process.env.NEXT_PUBLIC_GA_ID && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}', {
+                  page_path: window.location.pathname,
+                });
+              `}
+            </Script>
+          </>
+        )}
+        <Providers>
+          <AnnouncementBar />
+          <Navbar />
+          {children}
+          <Footer />
+        </Providers>
+      </body>
+    </html>
+  );
+}

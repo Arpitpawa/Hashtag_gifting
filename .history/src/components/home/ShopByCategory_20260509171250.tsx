@@ -93,25 +93,30 @@ const trustSignals = [
   },
 ];
 
-const promptFont = { fontFamily: "var(--font-prompt)" };
 const caveatFont = { fontFamily: "var(--font-caveat)" };
 
 export default function ShopByCategory() {
   return (
     <section className="pt-0 pb-20 md:pb-28 bg-[#f3efe8] relative overflow-hidden">
-
       {/* Decorative background blobs */}
       <div
         className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full opacity-[0.04] pointer-events-none"
-        style={{ background: "#2f3e7a", filter: "blur(80px)", transform: "translate(30%, -30%)" }}
+        style={{
+          background: "#2f3e7a",
+          filter: "blur(80px)",
+          transform: "translate(30%, -30%)",
+        }}
       />
       <div
         className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full opacity-[0.04] pointer-events-none"
-        style={{ background: "#c4922a", filter: "blur(80px)", transform: "translate(-30%, 30%)" }}
+        style={{
+          background: "#c4922a",
+          filter: "blur(80px)",
+          transform: "translate(-30%, 30%)",
+        }}
       />
 
       <div className="max-w-[1450px] mx-auto px-4 md:px-6 lg:px-10">
-
         {/* ── HEADING ── */}
         <div className="text-center mb-14 md:mb-16">
           <span
@@ -126,19 +131,23 @@ export default function ShopByCategory() {
           >
             Shop by Category
           </h2>
-          <p
-            className="text-[#6b6b6b] text-base md:text-lg mt-4 max-w-md mx-auto"
-            style={promptFont}
-          >
-            Handpicked categories for every occasion, every person, every emotion.
+          <p className="text-[#6b6b6b] text-base md:text-lg mt-4 max-w-md mx-auto">
+            Handpicked categories for every occasion, every person, every
+            emotion.
           </p>
           <Link
             href="/categories"
-            style={promptFont}
             className="inline-flex items-center gap-2 mt-5 text-[13px] font-semibold text-[#2f3e7a] uppercase tracking-[2px] border-b border-[#2f3e7a] pb-0.5 hover:opacity-70 transition-opacity"
           >
             View All Categories
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+            >
               <path d="M5 12h14M12 5l7 7-7 7" />
             </svg>
           </Link>
@@ -146,13 +155,41 @@ export default function ShopByCategory() {
 
         {/* ── BENTO GRID ── */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 auto-rows-[200px] md:auto-rows-[220px]">
-          <CategoryCard cat={categories[0]} className="col-span-2 row-span-2" textSize="large" />
-          <CategoryCard cat={categories[1]} className="col-span-1 row-span-2" textSize="medium" />
-          <CategoryCard cat={categories[2]} className="col-span-1 row-span-1" textSize="small" />
-          <CategoryCard cat={categories[3]} className="col-span-1 row-span-1" textSize="small" />
-          <CategoryCard cat={categories[4]} className="col-span-2 row-span-1" textSize="medium" />
-          <CategoryCard cat={categories[5]} className="col-span-1 row-span-1" textSize="small" />
-          <CategoryCard cat={categories[6]} className="col-span-1 row-span-1" textSize="small" />
+          <CategoryCard
+            cat={categories[0]}
+            className="col-span-2 row-span-2"
+            textSize="large"
+          />
+          <CategoryCard
+            cat={categories[1]}
+            className="col-span-1 row-span-2"
+            textSize="medium"
+          />
+          <CategoryCard
+            cat={categories[2]}
+            className="col-span-1 row-span-1"
+            textSize="small"
+          />
+          <CategoryCard
+            cat={categories[3]}
+            className="col-span-1 row-span-1"
+            textSize="small"
+          />
+          <CategoryCard
+            cat={categories[4]}
+            className="col-span-2 row-span-1"
+            textSize="medium"
+          />
+          <CategoryCard
+            cat={categories[5]}
+            className="col-span-1 row-span-1"
+            textSize="small"
+          />
+          <CategoryCard
+            cat={categories[6]}
+            className="col-span-1 row-span-1"
+            textSize="small"
+          />
         </div>
 
         {/* ── TRUST SIGNALS ── */}
@@ -165,21 +202,22 @@ export default function ShopByCategory() {
                 className="flex items-center gap-3 bg-white/60 backdrop-blur-sm rounded-2xl px-4 py-4 border border-[#e8e0d5]"
               >
                 <div className="w-9 h-9 rounded-xl bg-[#2f3e7a]/10 flex items-center justify-center flex-shrink-0">
-                  <Icon size={18} strokeWidth={1.8} className="text-[#2f3e7a]" />
+                  <Icon
+                    size={18}
+                    strokeWidth={1.8}
+                    className="text-[#2f3e7a]"
+                  />
                 </div>
                 <div>
-                  <p className="text-[13px] font-semibold text-[#1a1a1a]" style={promptFont}>
+                  <p className="text-[13px] font-semibold text-[#1a1a1a]">
                     {item.label}
                   </p>
-                  <p className="text-[11px] text-[#888]" style={promptFont}>
-                    {item.sub}
-                  </p>
+                  <p className="text-[11px] text-[#888]">{item.sub}</p>
                 </div>
               </div>
             );
           })}
         </div>
-
       </div>
     </section>
   );
@@ -240,22 +278,24 @@ function CategoryCard({
             textSize === "large"
               ? "text-3xl md:text-4xl lg:text-5xl"
               : textSize === "medium"
-              ? "text-2xl md:text-3xl"
-              : "text-lg md:text-xl"
+                ? "text-2xl md:text-3xl"
+                : "text-lg md:text-xl"
           }`}
           style={caveatFont}
         >
           {cat.name}
         </h3>
-        <p className="text-white/70 text-xs md:text-sm" style={promptFont}>
-          {cat.count}
-        </p>
-        <div
-          className="flex items-center gap-1.5 mt-2 text-white text-xs font-semibold uppercase tracking-widest opacity-0 -translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300"
-          style={promptFont}
-        >
+        <p className="text-white/70 text-xs md:text-sm">{cat.count}</p>
+        <div className="flex items-center gap-1.5 mt-2 text-white text-xs font-semibold uppercase tracking-widest opacity-0 -translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
           Explore
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="3"
+          >
             <path d="M5 12h14M12 5l7 7-7 7" />
           </svg>
         </div>

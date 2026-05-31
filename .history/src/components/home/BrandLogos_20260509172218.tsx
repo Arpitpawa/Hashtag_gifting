@@ -1,21 +1,117 @@
 "use client";
 
 const brands = [
-  { name: "TATA", style: { fontSize: "22px", fontWeight: "800", letterSpacing: "4px", color: "#1a1a2e" } },
-  { name: "Mahindra", style: { fontSize: "18px", fontWeight: "700", letterSpacing: "2px", color: "#d32f2f" } },
-  { name: "HDFC Bank", style: { fontSize: "16px", fontWeight: "800", letterSpacing: "1px", color: "#004c8f" } },
-  { name: "Infosys", style: { fontSize: "20px", fontWeight: "700", letterSpacing: "1px", color: "#007cc3" } },
-  { name: "Wipro", style: { fontSize: "22px", fontWeight: "700", letterSpacing: "2px", color: "#341f6a" } },
-  { name: "ICICI Bank", style: { fontSize: "15px", fontWeight: "800", letterSpacing: "1px", color: "#f47721" } },
-  { name: "Reliance", style: { fontSize: "18px", fontWeight: "700", letterSpacing: "2px", color: "#003087" } },
-  { name: "Apollo", style: { fontSize: "20px", fontWeight: "700", letterSpacing: "2px", color: "#0066b3" } },
-  { name: "Bajaj", style: { fontSize: "22px", fontWeight: "800", letterSpacing: "3px", color: "#003087" } },
-  { name: "HCL", style: { fontSize: "26px", fontWeight: "900", letterSpacing: "3px", color: "#0076ce" } },
-  { name: "Fortis", style: { fontSize: "22px", fontWeight: "700", letterSpacing: "2px", color: "#e31837" } },
-  { name: "Tech Mahindra", style: { fontSize: "14px", fontWeight: "800", letterSpacing: "1px", color: "#d32f2f", textAlign: "center" as const } },
+  {
+    name: "TATA",
+    style: {
+      fontSize: "22px",
+      fontWeight: "800",
+      letterSpacing: "4px",
+      color: "#1a1a2e",
+    },
+  },
+  {
+    name: "Mahindra",
+    style: {
+      fontSize: "18px",
+      fontWeight: "700",
+      letterSpacing: "2px",
+      color: "#d32f2f",
+    },
+  },
+  {
+    name: "HDFC Bank",
+    style: {
+      fontSize: "16px",
+      fontWeight: "800",
+      letterSpacing: "1px",
+      color: "#004c8f",
+    },
+  },
+  {
+    name: "Infosys",
+    style: {
+      fontSize: "20px",
+      fontWeight: "700",
+      letterSpacing: "1px",
+      color: "#007cc3",
+    },
+  },
+  {
+    name: "Wipro",
+    style: {
+      fontSize: "22px",
+      fontWeight: "700",
+      letterSpacing: "2px",
+      color: "#341f6a",
+    },
+  },
+  {
+    name: "ICICI Bank",
+    style: {
+      fontSize: "15px",
+      fontWeight: "800",
+      letterSpacing: "1px",
+      color: "#f47721",
+    },
+  },
+  {
+    name: "Reliance",
+    style: {
+      fontSize: "18px",
+      fontWeight: "700",
+      letterSpacing: "2px",
+      color: "#003087",
+    },
+  },
+  {
+    name: "Apollo",
+    style: {
+      fontSize: "20px",
+      fontWeight: "700",
+      letterSpacing: "2px",
+      color: "#0066b3",
+    },
+  },
+  {
+    name: "Bajaj",
+    style: {
+      fontSize: "22px",
+      fontWeight: "800",
+      letterSpacing: "3px",
+      color: "#003087",
+    },
+  },
+  {
+    name: "HCL",
+    style: {
+      fontSize: "26px",
+      fontWeight: "900",
+      letterSpacing: "3px",
+      color: "#0076ce",
+    },
+  },
+  {
+    name: "Fortis",
+    style: {
+      fontSize: "22px",
+      fontWeight: "700",
+      letterSpacing: "2px",
+      color: "#e31837",
+    },
+  },
+  {
+    name: "Tech Mahindra",
+    style: {
+      fontSize: "14px",
+      fontWeight: "800",
+      letterSpacing: "1px",
+      color: "#d32f2f",
+      textAlign: "center" as const,
+    },
+  },
 ];
 
-const promptFont = { fontFamily: "var(--font-prompt)" };
 const caveatFont = { fontFamily: "var(--font-caveat)" };
 
 const allBrands = [...brands, ...brands, ...brands];
@@ -24,13 +120,9 @@ export default function BrandLogos() {
   return (
     <section className="py-16 md:py-20 bg-[#f3efe8] relative overflow-hidden">
       <div className="max-w-[1450px] mx-auto px-4 md:px-6 lg:px-10">
-
         {/* HEADING */}
         <div className="text-center mb-12 md:mb-16">
-          <p
-            className="text-[#c4922a] text-sm uppercase tracking-[3px] font-medium mb-3"
-            style={promptFont}
-          >
+          <p className="text-[#c4922a] text-sm uppercase tracking-[3px] font-medium mb-3">
             our happy clients
           </p>
           <h2
@@ -39,26 +131,26 @@ export default function BrandLogos() {
           >
             Trusted by Leading Brands
           </h2>
-          <p
-            className="text-[#6b6b6b] text-base md:text-lg mt-4 max-w-md mx-auto"
-            style={promptFont}
-          >
+          <p className="text-[#6b6b6b] text-base md:text-lg mt-4 max-w-md mx-auto">
             We've proudly gifted for companies and organizations across India
           </p>
         </div>
 
         {/* MARQUEE */}
         <div className="relative">
-
           {/* Left fade */}
           <div
             className="absolute left-0 top-0 bottom-0 w-24 md:w-40 z-10 pointer-events-none"
-            style={{ background: "linear-gradient(to right, #f3efe8, transparent)" }}
+            style={{
+              background: "linear-gradient(to right, #f3efe8, transparent)",
+            }}
           />
           {/* Right fade */}
           <div
             className="absolute right-0 top-0 bottom-0 w-24 md:w-40 z-10 pointer-events-none"
-            style={{ background: "linear-gradient(to left, #f3efe8, transparent)" }}
+            style={{
+              background: "linear-gradient(to left, #f3efe8, transparent)",
+            }}
           />
 
           <div className="flex overflow-hidden py-3">
@@ -101,16 +193,12 @@ export default function BrandLogos() {
               >
                 {stat.number}
               </span>
-              <span
-                className="text-[13px] md:text-[14px] text-[#6b6b6b] font-medium"
-                style={promptFont}
-              >
+              <span className="text-[13px] md:text-[14px] text-[#6b6b6b] font-medium">
                 {stat.label}
               </span>
             </div>
           ))}
         </div>
-
       </div>
 
       <style>{`

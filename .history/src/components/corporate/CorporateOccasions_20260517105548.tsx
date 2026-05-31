@@ -1,0 +1,103 @@
+"use client";
+
+import Link from "next/link";
+import {
+  Gift,
+  Award,
+  HeartHandshake,
+  BadgeCheck,
+  UserPlus,
+  Handshake,
+} from "lucide-react";
+
+const occasions = [
+  {
+    icon: Gift,
+    title: "Birthday gifts",
+    link: "/corporate/birthday",
+  },
+  {
+    icon: Award,
+    title: "Working anniversary gifts",
+    link: "/corporate/anniversary",
+  },
+  {
+    icon: BadgeCheck,
+    title: "Rewards and recognition",
+    link: "/corporate/rewards",
+  },
+  {
+    icon: HeartHandshake,
+    title: "Client appreciation gifts",
+    link: "/corporate/client-appreciation",
+  },
+  {
+    icon: UserPlus,
+    title: "Employee onboarding",
+    link: "/corporate/onboarding",
+  },
+  {
+    icon: Handshake,
+    title: "Thank you gifts",
+    link: "/corporate/thank-you",
+  },
+];
+
+export default function CorporateOccasions() {
+  return (
+    <section className="relative w-full overflow-hidden min-h-[580px] md:min-h-[640px] flex items-center">
+
+      {/* ── FULL WIDTH BACKGROUND IMAGE ── */}
+      <img
+        src="https://images.unsplash.com/photo-1512909006721-3d6018887383?q=80&w=1974&auto=format&fit=crop"
+        alt="Corporate gifting occasions"
+        className="absolute inset-0 w-full h-full object-cover"
+        draggable={false}
+      />
+
+      {/* LEFT DARK OVERLAY — only on left half for text readability */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: "linear-gradient(to right, rgba(20,45,20,0.92) 0%, rgba(20,45,20,0.85) 40%, rgba(20,45,20,0.4) 65%, transparent 100%)",
+        }}
+      />
+
+      {/* ── CONTENT ── */}
+      <div className="relative z-10 w-full px-8 md:px-14 lg:px-20 py-14 md:py-20">
+
+        {/* Decorative star */}
+        <div className="text-white/30 text-xl mb-4 pointer-events-none">✦</div>
+
+        {/* HEADING */}
+        <h2
+          className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight mb-10 max-w-xl"
+          style={{ fontFamily: "var(--font-heading)" }}
+        >
+          Corporate gifting for every occasion
+        </h2>
+
+        {/* CARDS — max width so they stay on left over the dark overlay */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-[700px]">
+          {occasions.map((item, i) => {
+            const Icon = item.icon;
+            return (
+              <Link
+                key={i}
+                href={item.link}
+                className="group bg-[#f5f0e8]/95 backdrop-blur-sm rounded-2xl px-6 py-5 min-h-[110px] flex flex-col justify-between hover:bg-white hover:scale-[1.02] transition-all duration-300"
+              >
+                <div className="w-10 h-10 rounded-xl bg-[#c0555a]/10 flex items-center justify-center mb-3">
+                  <Icon size={20} className="text-[#c0555a]" strokeWidth={1.8} />
+                </div>
+                <h3 className="text-[15px] text-[#1a1a1a] font-medium leading-snug">
+                  {item.title}
+                </h3>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}

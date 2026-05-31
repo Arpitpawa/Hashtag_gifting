@@ -15,9 +15,9 @@ const brands = [
   { name: "Tech Mahindra", logo: "YOUR_TECH_MAHINDRA_LOGO_URL" },
 ];
 
-const PLACEHOLDER_LOGO = "https://i.pinimg.com/736x/da/3f/12/da3f128e7875dda438b67d4c35bee549.jpg";
+const PLACEHOLDER_LOGO =
+  "https://i.pinimg.com/736x/da/3f/12/da3f128e7875dda438b67d4c35bee549.jpg";
 
-const promptFont = { fontFamily: "var(--font-prompt)" };
 const caveatFont = { fontFamily: "var(--font-caveat)" };
 
 const allBrands = [...brands, ...brands, ...brands];
@@ -26,13 +26,9 @@ export default function BrandLogos() {
   return (
     <section className="py-16 md:py-20 bg-[#f3efe8] relative overflow-hidden">
       <div className="max-w-[1450px] mx-auto px-4 md:px-6 lg:px-10">
-
         {/* HEADING */}
         <div className="text-center mb-12 md:mb-16">
-          <p
-            className="text-[#c4922a] text-sm uppercase tracking-[3px] font-medium mb-3"
-            style={promptFont}
-          >
+          <p className="text-[#c4922a] text-sm uppercase tracking-[3px] font-medium mb-3">
             our happy clients
           </p>
           <h2
@@ -41,26 +37,26 @@ export default function BrandLogos() {
           >
             Trusted by Leading Brands
           </h2>
-          <p
-            className="text-[#6b6b6b] text-base md:text-lg mt-4 max-w-md mx-auto"
-            style={promptFont}
-          >
+          <p className="text-[#6b6b6b] text-base md:text-lg mt-4 max-w-md mx-auto">
             We've proudly gifted for companies and organizations across India
           </p>
         </div>
 
         {/* MARQUEE */}
         <div className="relative">
-
           {/* Left fade */}
           <div
             className="absolute left-0 top-0 bottom-0 w-24 md:w-40 z-10 pointer-events-none"
-            style={{ background: "linear-gradient(to right, #f3efe8, transparent)" }}
+            style={{
+              background: "linear-gradient(to right, #f3efe8, transparent)",
+            }}
           />
           {/* Right fade */}
           <div
             className="absolute right-0 top-0 bottom-0 w-24 md:w-40 z-10 pointer-events-none"
-            style={{ background: "linear-gradient(to left, #f3efe8, transparent)" }}
+            style={{
+              background: "linear-gradient(to left, #f3efe8, transparent)",
+            }}
           />
 
           <div className="flex overflow-hidden py-3">
@@ -71,11 +67,11 @@ export default function BrandLogos() {
                   className="flex-shrink-0 w-[200px] h-[110px] bg-white rounded-2xl border border-[#e8e0d5] flex items-center justify-center px-6 shadow-sm hover:shadow-lg hover:scale-105 hover:border-[#ccc] transition-all duration-300 cursor-default"
                 >
                   <img
-  src={brand.logo}
-  alt={brand.name}
-  className="h-10 w-auto max-w-[120px] object-contain"
-  draggable={false}
-/>
+                    src={brand.logo}
+                    alt={brand.name}
+                    className="h-10 w-auto max-w-[120px] object-contain"
+                    draggable={false}
+                  />
                 </div>
               ))}
             </div>
@@ -97,16 +93,12 @@ export default function BrandLogos() {
               >
                 {stat.number}
               </span>
-              <span
-                className="text-[13px] md:text-[14px] text-[#6b6b6b] font-medium"
-                style={promptFont}
-              >
+              <span className="text-[13px] md:text-[14px] text-[#6b6b6b] font-medium">
                 {stat.label}
               </span>
             </div>
           ))}
         </div>
-
       </div>
 
       <style>{`

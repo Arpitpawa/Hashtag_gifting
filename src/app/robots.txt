@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+
+# Block admin and API routes
+Disallow: /api/
+Disallow: /admin/
+
+# Block auth pages from indexing
+Disallow: /login
+Disallow: /register
+Disallow: /account
+Disallow: /checkout
+Disallow: /cart
+Disallow: /order/
+
+Sitemap: https://www.hashtaggifting.com/sitemap.xml

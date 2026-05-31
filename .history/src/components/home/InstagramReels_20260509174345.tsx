@@ -56,7 +56,7 @@ const reels = [
   },
 ];
 
-const promptFont = { fontFamily: "var(--font-prompt)" };
+
 const caveatFont = { fontFamily: "var(--font-caveat)" };
 
 export default function InstagramReels() {
@@ -124,7 +124,7 @@ export default function InstagramReels() {
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-6 py-3 bg-black text-white text-[13px] font-medium rounded-full hover:bg-[#2f3e7a] transition-all duration-300 w-fit"
-            style={promptFont}
+            
           >
             <InstagramIcon size={16} />
             Follow on Instagram
@@ -224,7 +224,7 @@ export default function InstagramReels() {
                     {/* VIEWS — top right */}
                     <div
                       className="absolute top-3 right-3 z-10 flex items-center gap-1 bg-black/50 backdrop-blur-sm text-white text-[11px] px-2.5 py-1 rounded-full"
-                      style={promptFont}
+                      
                     >
                       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
@@ -259,10 +259,10 @@ export default function InstagramReels() {
                     />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[13px] font-medium text-[#1a1a1a] leading-snug line-clamp-2" style={promptFont}>
+                    <p className="text-[13px] font-medium text-[#1a1a1a] leading-snug line-clamp-2" >
                       {reel.product}
                     </p>
-                    <p className="text-[13px] font-bold text-[#1a1a1a] mt-0.5" style={promptFont}>
+                    <p className="text-[13px] font-bold text-[#1a1a1a] mt-0.5" >
                       {reel.price}
                     </p>
                   </div>
@@ -272,7 +272,7 @@ export default function InstagramReels() {
                 <Link
                   href={reel.link}
                   className="mt-3 w-full bg-black text-white text-[13px] font-medium py-3 rounded-xl text-center hover:bg-[#2f3e7a] transition-all duration-300 block"
-                  style={promptFont}
+                  
                 >
                   Shop This
                 </Link>

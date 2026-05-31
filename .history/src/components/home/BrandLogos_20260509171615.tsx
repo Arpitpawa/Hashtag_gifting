@@ -53,7 +53,6 @@ const brands = [
   },
 ];
 
-const promptFont = { fontFamily: "var(--font-prompt)" };
 const caveatFont = { fontFamily: "var(--font-caveat)" };
 
 // Duplicate for seamless loop
@@ -63,13 +62,9 @@ export default function BrandLogos() {
   return (
     <section className="py-16 md:py-20 bg-[#f7f4ef] relative overflow-hidden">
       <div className="max-w-[1450px] mx-auto px-4 md:px-6 lg:px-10">
-
         {/* HEADING */}
         <div className="text-center mb-12 md:mb-16">
-          <p
-            className="text-[#c4922a] text-sm uppercase tracking-[3px] font-medium mb-3"
-            style={promptFont}
-          >
+          <p className="text-[#c4922a] text-sm uppercase tracking-[3px] font-medium mb-3">
             our happy clients
           </p>
           <h2
@@ -78,26 +73,27 @@ export default function BrandLogos() {
           >
             Trusted by Leading Brands
           </h2>
-          <p
-            className="text-[#6b6b6b] text-base md:text-lg mt-4 max-w-md mx-auto"
-            style={promptFont}
-          >bg-[#f3efe8]
-            We've proudly gifted for companies and organizations across India
+          <p className="text-[#6b6b6b] text-base md:text-lg mt-4 max-w-md mx-auto">
+            bg-[#f3efe8] We've proudly gifted for companies and organizations
+            across India
           </p>
         </div>
 
         {/* MARQUEE */}
         <div className="relative">
-
           {/* Left fade */}
           <div
             className="absolute left-0 top-0 bottom-0 w-24 md:w-40 z-10 pointer-events-none"
-            style={{ background: "linear-gradient(to right, #f7f4ef, transparent)" }}
+            style={{
+              background: "linear-gradient(to right, #f7f4ef, transparent)",
+            }}
           />
           {/* Right fade */}
           <div
             className="absolute right-0 top-0 bottom-0 w-24 md:w-40 z-10 pointer-events-none"
-            style={{ background: "linear-gradient(to left, #f7f4ef, transparent)" }}
+            style={{
+              background: "linear-gradient(to left, #f7f4ef, transparent)",
+            }}
           />
 
           <div className="flex overflow-hidden py-4">
@@ -142,16 +138,12 @@ export default function BrandLogos() {
               >
                 {stat.number}
               </span>
-              <span
-                className="text-[13px] md:text-[14px] text-[#6b6b6b] font-medium"
-                style={promptFont}
-              >
+              <span className="text-[13px] md:text-[14px] text-[#6b6b6b] font-medium">
                 {stat.label}
               </span>
             </div>
           ))}
         </div>
-
       </div>
 
       <style>{`

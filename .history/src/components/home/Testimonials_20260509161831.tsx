@@ -62,10 +62,7 @@ export default function Testimonials() {
 
       scrollAmount += 0.15;
 
-      if (
-        scrollAmount >=
-        slider.scrollWidth - slider.clientWidth
-      ) {
+      if (scrollAmount >= slider.scrollWidth - slider.clientWidth) {
         scrollAmount = 0;
       }
 
@@ -83,16 +80,10 @@ export default function Testimonials() {
 
   return (
     <section className="py-0 bg-[#f7f4ef] overflow-hidden">
-
       <div className="max-w-[1600px] mx-auto px-4 md:px-8">
-
         {/* HEADING */}
         <div className="text-center mb-16">
-
-          <span
-            className="text-[#c69a63] text-2xl italic"
-            style={caveatFont}
-          >
+          <span className="text-[#c69a63] text-2xl italic" style={caveatFont}>
             stories from our community
           </span>
 
@@ -103,10 +94,7 @@ export default function Testimonials() {
             Loved By Real People
           </h2>
 
-          <p
-            className="text-[#5d6677] text-lg mt-5"
-            style={promptFont}
-          >
+          <p className="text-[#5d6677] text-lg mt-5">
             Real Google reviews from customers who gifted with love
           </p>
 
@@ -121,107 +109,76 @@ export default function Testimonials() {
               ))}
             </div>
 
-            <span
-              className="font-semibold text-[#1f2b46]"
-              style={promptFont}
-            >
-              4.9/5
-            </span>
+            <span className="font-semibold text-[#1f2b46]">4.9/5</span>
 
-            <span
-              className="text-[#5d6677]"
-              style={promptFont}
-            >
-              from 2,000+ customers
-            </span>
+            <span className="text-[#5d6677]">from 2,000+ customers</span>
           </div>
-
         </div>
 
         {/* SLIDER */}
         {/* SLIDER */}
-<div
-  ref={sliderRef}
-  className="flex gap-8 overflow-x-auto no-scrollbar scroll-smooth px-2"
->
-
-  {[...testimonials, ...testimonials].map((item, index) => (
-    <div
-      key={index}
-      className="min-w-[420px] md:min-w-[480px] rounded-[28px] overflow-hidden flex-shrink-0"
-    >
-
-      {/* CARD */}
-      <div
-        className="rounded-[28px] overflow-hidden h-full"
-        style={{
-          backgroundColor: item.bg,
-        }}
-      >
-
-        {/* IMAGE */}
-        <div className="aspect-[4/4.5] overflow-hidden">
-
-          <img
-            src={item.image}
-            alt={item.name}
-            className="w-50px h-100px object-cover"
-          />
-
-        </div>
-
-        {/* CONTENT */}
-        <div className="p-7 md:p-8">
-
-          {/* STARS */}
-          <div className="flex items-center gap-1 mb-5">
-            {[...Array(5)].map((_, i) => (
-              <Star
-                key={i}
-                size={15}
-                className="fill-[#e7a856] text-[#e7a856]"
-              />
-            ))}
-          </div>
-
-          {/* REVIEW */}
-          <p
-            className="text-[18px] leading-[1.8] text-[#24324a]"
-            style={promptFont}
-          >
-            “{item.review}”
-          </p>
-
-          {/* AUTHOR */}
-          <div className="mt-8">
-
-            <h3
-              className="text-[42px] leading-none text-[#1f2b46]"
-              style={caveatFont}
+        <div
+          ref={sliderRef}
+          className="flex gap-8 overflow-x-auto no-scrollbar scroll-smooth px-2"
+        >
+          {[...testimonials, ...testimonials].map((item, index) => (
+            <div
+              key={index}
+              className="min-w-[420px] md:min-w-[480px] rounded-[28px] overflow-hidden flex-shrink-0"
             >
-              {item.name}
-            </h3>
+              {/* CARD */}
+              <div
+                className="rounded-[28px] overflow-hidden h-full"
+                style={{
+                  backgroundColor: item.bg,
+                }}
+              >
+                {/* IMAGE */}
+                <div className="aspect-[4/4.5] overflow-hidden">
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-50px h-100px object-cover"
+                  />
+                </div>
 
-            <p
-              className="text-[#5d6677] mt-3 text-sm tracking-wide uppercase"
-              style={promptFont}
-            >
-              Google Verified Review
-            </p>
+                {/* CONTENT */}
+                <div className="p-7 md:p-8">
+                  {/* STARS */}
+                  <div className="flex items-center gap-1 mb-5">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        size={15}
+                        className="fill-[#e7a856] text-[#e7a856]"
+                      />
+                    ))}
+                  </div>
 
-          </div>
+                  {/* REVIEW */}
+                  <p className="text-[18px] leading-[1.8] text-[#24324a]">
+                    “{item.review}”
+                  </p>
 
+                  {/* AUTHOR */}
+                  <div className="mt-8">
+                    <h3
+                      className="text-[42px] leading-none text-[#1f2b46]"
+                      style={caveatFont}
+                    >
+                      {item.name}
+                    </h3>
+
+                    <p className="text-[#5d6677] mt-3 text-sm tracking-wide uppercase">
+                      Google Verified Review
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
-
       </div>
-
-    </div>
-  ))}
-
-</div>
-
-      </div>
-
     </section>
   );
 }

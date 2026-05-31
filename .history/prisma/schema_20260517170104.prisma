@@ -1,0 +1,258 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── ENUMS ──
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+enum DeliveryStatus {
+  PROCESSING
+  SHIPPED
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+}
+
+enum ProductStatus {
+  ACTIVE
+  DRAFT
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// ── USER ──
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String?
+  email     String   @unique
+  password  String?
+  phone     String?
+  image     String?  // Cloudinary URL
+  role      Role     @default(CUSTOMER)
+  createdAt DateTime @default(now())
+
+  orders    Order[]
+  cart      Cart[]
+  wishlist  Wishlist[]
+  addresses Address[]
+  reviews   Review[]
+}
+
+// ── ADDRESS ──
+model Address {
+  id        Int     @id @default(autoincrement())
+  userId    Int
+  user      User    @relation(fields: [userId], references: [id])
+  name      String
+  phone     String
+  street    String
+  city      String
+  state     String
+  pincode   String
+  isDefault Boolean @default(false)
+
+  orders    Order[]
+
+  createdAt DateTime @default(now())
+}
+
+// ── CATEGORY ──
+model Category {
+  id          Int        @id @default(autoincrement())
+  name        String
+  slug        String     @unique
+  image       String?    // Cloudinary URL
+  description String?
+  parentId    Int?
+  parent      Category?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryTree")
+  products    Product[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+// ── PRODUCT ──
+model Product {
+  id                  Int           @id @default(autoincrement())
+  name                String
+  slug                String        @unique
+  description         String?
+  price               Int           // in paise (Rs. 299 = 29900)
+  comparePrice        Int?          // original MRP in paise
+  images              String[]      // Cloudinary URLs array
+  categoryId          Int?
+  category            Category?     @relation(fields: [categoryId], references: [id])
+  stock               Int           @default(0)
+  badge               String?       // "Best seller", "New", "Sale"
+  customizable        Boolean       @default(false)
+  customizationFields Json?         // [{ type, label, maxLength, required }]
+  status              ProductStatus @default(ACTIVE)
+  tags                String[]
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  orderItems  OrderItem[]
+  cartItems   CartItem[]
+  wishlist    Wishlist[]
+  reviews     Review[]
+}
+
+// ── CART ──
+model Cart {
+  id        Int        @id @default(autoincrement())
+  userId    Int?
+  user      User?      @relation(fields: [userId], references: [id])
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model CartItem {
+  id             Int     @id @default(autoincrement())
+  cartId         Int
+  cart           Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId      Int
+  product        Product @relation(fields: [productId], references: [id])
+  quantity       Int     @default(1)
+  customization  Json?   // { name, message, photoUrl }
+  createdAt      DateTime @default(now())
+}
+
+// ── ORDER ──
+model Order {
+  id                Int            @id @default(autoincrement())
+  userId            Int?
+  user              User?          @relation(fields: [userId], references: [id])
+  items             OrderItem[]
+
+  totalAmount       Int            // in paise
+  paymentStatus     PaymentStatus  @default(PENDING)
+  deliveryStatus    DeliveryStatus @default(PROCESSING)
+  paymentMethod     String?        // "online" | "cod"
+
+  // Address snapshot
+  addressId         Int?
+  address           Address?       @relation(fields: [addressId], references: [id])
+  addressSnapshot   Json?          // snapshot at time of order
+
+  // Razorpay
+  razorpayOrderId   String?
+  razorpayPaymentId String?
+  razorpaySignature String?
+
+  // Coupon
+  couponCode        String?
+  couponDiscount    Int?
+  couponId          Int?
+  coupon            Coupon?        @relation(fields: [couponId], references: [id])
+
+  // Tracking
+  trackingId        String?
+  shippedAt         DateTime?
+  deliveredAt       DateTime?
+  notes             String?        // internal notes
+
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+}
+
+model OrderItem {
+  id            Int     @id @default(autoincrement())
+  orderId       Int
+  order         Order   @relation(fields: [orderId], references: [id])
+  productId     Int
+  product       Product @relation(fields: [productId], references: [id])
+  quantity      Int
+  price         Int     // price at time of order in paise
+  customization Json?   // { name, message, photoUrl }
+}
+
+// ── WISHLIST ──
+model Wishlist {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
+}
+
+// ── COUPON ──
+model Coupon {
+  id         Int       @id @default(autoincrement())
+  code       String    @unique
+  type       String    // "PERCENT" | "FLAT"
+  value      Int       // percent or flat Rs amount
+  minAmount  Int       @default(0)
+  isActive   Boolean   @default(true)
+  validFrom  DateTime?
+  validTo    DateTime?
+  usageLimit Int?
+  usedCount  Int       @default(0)
+  orders     Order[]
+  createdAt  DateTime  @default(now())
+}
+
+// ── REVIEW ──
+model Review {
+  id        Int          @id @default(autoincrement())
+  userId    Int?
+  user      User?        @relation(fields: [userId], references: [id])
+  productId Int
+  product   Product      @relation(fields: [productId], references: [id])
+  name      String
+  rating    Int
+  comment   String
+  images    String[]     // Cloudinary URLs
+  status    ReviewStatus @default(PENDING)
+  createdAt DateTime     @default(now())
+}
+
+// ── BANNER ──
+model Banner {
+  id        Int      @id @default(autoincrement())
+  title     String?
+  image     String   // Cloudinary URL
+  linkUrl   String?
+  position  String?  // "hero" | "category" | "popup"
+  isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ── SETTINGS ──
+model Setting {
+  key   String @id
+  value String
+}
+
+// ── ADMIN LOG ──
+model AdminLog {
+  id        Int      @id @default(autoincrement())
+  action    String
+  entity    String?
+  entityId  Int?
+  meta      Json?
+  createdAt DateTime @default(now())
+}

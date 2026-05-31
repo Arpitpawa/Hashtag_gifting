@@ -20,11 +20,7 @@ import {
   Package,
 } from "lucide-react";
 
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 const navItems = [
   {
@@ -146,14 +142,11 @@ export default function Navbar() {
 
   return (
     <header className="bg-white relative z-50 shadow-sm">
-
       {/* MAIN NAVBAR */}
       <div className="border-b border-[#ececec]">
         <div className="container-custom h-[75px] flex items-center justify-between">
-
           {/* LEFT */}
           <div className="flex items-center gap-5">
-
             {/* Mobile Menu */}
             <Sheet>
               <SheetTrigger asChild>
@@ -163,19 +156,18 @@ export default function Navbar() {
               </SheetTrigger>
               <SheetContent side="left" className="w-[300px] bg-[#f7f4ef] p-0">
                 <div className="p-6 border-b border-[#e5e5e5]">
-                  <span
-                    className="text-3xl text-[#111]"
-                    style={{ fontFamily: "var(--font-great-vibes)" }}
-                  >
-                    hashtag
-                  </span>
+                  <span className="text-3xl text-[#111]">hashtag</span>
                 </div>
                 <div className="flex flex-col overflow-y-auto">
                   {navItems.map((item) => (
                     <div key={item.title} className="border-b border-[#ececec]">
                       <button className="w-full text-left px-6 py-4 text-[14px] text-[#333] flex items-center justify-between hover:bg-white transition-colors">
                         {item.title}
-                        <ChevronDown size={14} strokeWidth={1.5} className="text-gray-400" />
+                        <ChevronDown
+                          size={14}
+                          strokeWidth={1.5}
+                          className="text-gray-400"
+                        />
                       </button>
                     </div>
                   ))}
@@ -201,7 +193,6 @@ export default function Navbar() {
           <Link
             href="/"
             className="text-[58px] text-[#111] leading-none tracking-wide"
-            style={{ fontFamily: "var(--font-great-vibes)" }}
           >
             hashtag
           </Link>
@@ -270,8 +261,11 @@ export default function Navbar() {
               {/* ENHANCED DROPDOWN */}
               {activeMenu === item.title && (
                 <div className="absolute top-full left-1/2 -translate-x-1/2 z-50 pt-0">
-                  <div className="mt-0 bg-white border border-[#ececec] rounded-b-xl shadow-[0_12px_40px_rgba(0,0,0,0.10)] overflow-hidden"
-                    style={{ minWidth: item.items.length > 8 ? "520px" : "320px" }}
+                  <div
+                    className="mt-0 bg-white border border-[#ececec] rounded-b-xl shadow-[0_12px_40px_rgba(0,0,0,0.10)] overflow-hidden"
+                    style={{
+                      minWidth: item.items.length > 8 ? "520px" : "320px",
+                    }}
                   >
                     {/* FEATURED HEADER */}
                     <div className="bg-[#f7f4ef] px-6 py-3 border-b border-[#ececec] flex items-center justify-between">
