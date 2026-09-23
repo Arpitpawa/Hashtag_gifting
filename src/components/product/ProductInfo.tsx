@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Star, Award, BadgeCheck, Sparkles, Share2 } from "lucide-react";
+import { Star, Award, BadgeCheck, Sparkles, Share2, Flame } from "lucide-react";
 import { formatPrice } from "@/lib/store/cartStore";
 import type { Product } from "@/types/product";
 
@@ -16,9 +16,15 @@ export default function ProductInfo({ product, onTabChange, onShare }: Props) {
     ? Math.round(((product.comparePrice - product.price) / product.comparePrice) * 100)
     : 0;
 
-  // Derive a short tagline from the product description
-  const tagline = product.description
-    ? product.description.split(/[.!?]/)[0].trim().slice(0, 72)
+  // product.description IS the short description (set from Admin's "Short
+  // description" field) — it's already meant to be short, so just show it
+  // as-is. This used to run it through split(/[.!?]/)[0].slice(0, 72),
+  // which assumed description was a long paragraph to extract a snippet
+  // from — for anything phrased as one flowing sentence (no period until
+  // the very end, e.g. our SEO taglines), that hard-cut mid-word instead
+  // of showing the whole thing.
+  const tagline = product.description?.trim()
+    ? product.description.trim()
     : product.customizable
     ? "Make it uniquely theirs — personalised with love"
     : "A beautiful gift they will always remember";
@@ -124,8 +130,8 @@ export default function ProductInfo({ product, onTabChange, onShare }: Props) {
           </span>
         )}
         {product.stock > 0 && product.stock <= 10 && (
-          <span className="text-[11px] text-orange-600 bg-orange-50 border border-orange-200 px-3 py-1.5 rounded-full font-semibold">
-            🔥 Only {product.stock} left
+          <span className="flex items-center gap-1 text-[11px] text-orange-600 bg-orange-50 border border-orange-200 px-3 py-1.5 rounded-full font-semibold">
+            <Flame size={11} /> Only {product.stock} left
           </span>
         )}
       </div>

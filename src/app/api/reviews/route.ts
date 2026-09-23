@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
     }
 
     const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: "Login required to submit a review" }, { status: 401 });
     }
 
@@ -79,7 +79,13 @@ export async function POST(req: NextRequest) {
     const rating    = Number(body.rating);
     const comment   = sanitizeString(body.comment || "");
     const name      = sanitizeString(body.name    || "");
-    const images    = Array.isArray(body.images) ? body.images.slice(0, 5) : [];
+    // Review photos must be our own Cloudinary uploads — anything else would
+    // hotlink arbitrary sites and break next/image.
+    const images    = Array.isArray(body.images)
+      ? body.images
+          .filter((u: unknown) => typeof u === "string" && u.startsWith("https://res.cloudinary.com/"))
+          .slice(0, 5)
+      : [];
 
     // ── VALIDATE ──
     if (!productId || !rating || !comment || !name) {
@@ -112,7 +118,7 @@ export async function POST(req: NextRequest) {
 
     // ── GET USER ──
     const user = await prisma.user.findUnique({
-      where:  { email: session.user.email },
+      where:  { id: Number(session.user.id) },
       select: { id: true },
     });
 

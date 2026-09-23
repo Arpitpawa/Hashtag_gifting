@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
   Bell, ShoppingBag, AlertTriangle,
   Star, XCircle, X, CheckCheck,
   Volume2, VolumeX, Settings,
 } from "lucide-react";
+
+type Tab = "all" | "orders" | "stock";
 
 interface Notification {
   id:      string;
@@ -64,7 +66,29 @@ export default function AdminNotifications() {
   const [soundEnabled,  setSoundEnabled]  = useState(true);
   const [browserNotifs, setBrowserNotifs] = useState(false);
   const [lastFetch,     setLastFetch]     = useState<string | null>(null);
+  const [tab,           setTab]           = useState<Tab>("all");
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Stock alerts don't have a meaningful "when" — they reflect current stock
+  // level, not a discrete event. Keeping them in their own tab (rather than
+  // interleaved by time with real events) means a stock warning can never
+  // visually bury a genuinely new order.
+  const isStock = (n: Notification) => n.type === "low_stock";
+
+  const filteredNotifications = useMemo(() => {
+    if (tab === "stock")  return notifications.filter(isStock);
+    if (tab === "orders") return notifications.filter(n => !isStock(n));
+    return notifications;
+  }, [notifications, tab]);
+
+  const unreadOrders = useMemo(
+    () => notifications.filter(n => !isStock(n) && !readIds.has(n.id)).length,
+    [notifications, readIds]
+  );
+  const unreadStock = useMemo(
+    () => notifications.filter(n => isStock(n) && !readIds.has(n.id)).length,
+    [notifications, readIds]
+  );
 
   // Request browser notification permission
   const requestBrowserNotifs = async () => {
@@ -103,7 +127,13 @@ export default function AdminNotifications() {
   const fetchNotifications = useCallback(async (isInitial = false) => {
     try {
       const params = lastFetch && !isInitial ? `?since=${lastFetch}` : "";
-      const res    = await fetch(`/api/admin/notifications${params}`);
+      let res: Response;
+      try {
+        res = await fetch(`/api/admin/notifications${params}`);
+      } catch {
+        // Network error or server not ready — silently skip
+        return;
+      }
       if (!res.ok) return;
       const data   = await res.json();
       const newNotifs: Notification[] = data.notifications || [];
@@ -209,7 +239,9 @@ export default function AdminNotifications() {
               <Bell size={15} className="text-[#c0555a]" />
               <span className="text-[14px] font-bold text-[#1a1a1a]">Notifications</span>
               {unread > 0 && (
-                <span className="text-[10px] font-bold text-white bg-[#c0555a] px-1.5 py-0.5 rounded-full">{unread} new</span>
+                <span className="text-[10px] font-bold text-white bg-[#c0555a] px-2 py-0.5 rounded-full whitespace-nowrap flex-shrink-0">
+                  {unread > 99 ? "99+" : unread} new
+                </span>
               )}
             </div>
             <div className="flex items-center gap-1.5">
@@ -234,6 +266,34 @@ export default function AdminNotifications() {
             </div>
           </div>
 
+          {/* Tabs — keeps orders and stock alerts from burying each other */}
+          <div className="flex gap-1 p-1.5 bg-[#f3efe8] border-b border-[#f0f0f0]">
+            {([
+              { key: "all",    label: "All",    count: unread },
+              { key: "orders", label: "Orders", count: unreadOrders },
+              { key: "stock",  label: "Stock",  count: unreadStock },
+            ] as const).map(t => (
+              <button
+                key={t.key}
+                onClick={() => setTab(t.key)}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-[12px] font-semibold transition-all ${
+                  tab === t.key
+                    ? "bg-white text-[#c0555a] shadow-sm"
+                    : "text-[#6b6b6b] hover:text-[#1a1a1a]"
+                }`}
+              >
+                {t.label}
+                {t.count > 0 && (
+                  <span className={`text-[10px] font-bold px-1.5 py-px rounded-full ${
+                    tab === t.key ? "bg-[#c0555a] text-white" : "bg-[#e0d8cc] text-[#6b6b6b]"
+                  }`}>
+                    {t.count > 99 ? "99+" : t.count}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+
           {/* Browser notif prompt */}
           {!browserNotifs && "Notification" in window && Notification.permission !== "denied" && (
             <button onClick={requestBrowserNotifs}
@@ -245,13 +305,15 @@ export default function AdminNotifications() {
 
           {/* List */}
           <div className="overflow-y-auto max-h-[400px]" style={{ scrollbarWidth: "none" }}>
-            {notifications.length === 0 ? (
+            {filteredNotifications.length === 0 ? (
               <div className="py-10 text-center">
                 <Bell size={28} className="text-[#e8e8e8] mx-auto mb-2" />
-                <p className="text-[13px] text-[#aaa]">All caught up!</p>
+                <p className="text-[13px] text-[#aaa]">
+                  {tab === "stock" ? "No stock alerts" : tab === "orders" ? "No order activity" : "All caught up!"}
+                </p>
               </div>
             ) : (
-              notifications.map(n => {
+              filteredNotifications.map(n => {
                 const cfg    = TYPE_CONFIG[n.type] || TYPE_CONFIG.new_order;
                 const isRead = readIds.has(n.id);
                 return (

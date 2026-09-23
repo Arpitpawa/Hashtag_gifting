@@ -48,7 +48,7 @@ export async function GET(req: NextRequest) {
 
     const notifications: any[] = [];
 
-    newOrders.forEach(o => {
+    newOrders.forEach((o: any) => {
       const snap = o.addressSnapshot as any;
       notifications.push({
         id: `order-${o.id}`, type: "new_order",
@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
       });
     });
 
-    lowStock.forEach(p => {
+    lowStock.forEach((p: any) => {
       notifications.push({
         id: `stock-${p.id}`, type: "low_stock",
         title: p.stock === 0 ? "Out of stock!" : "Low stock warning",
@@ -68,7 +68,7 @@ export async function GET(req: NextRequest) {
       });
     });
 
-    pendingReviews.forEach(r => {
+    pendingReviews.forEach((r: any) => {
       notifications.push({
         id: `review-${r.id}`, type: "review",
         title: "New review pending",
@@ -77,7 +77,7 @@ export async function GET(req: NextRequest) {
       });
     });
 
-    failedOrders.forEach(o => {
+    failedOrders.forEach((o: any) => {
       const snap = o.addressSnapshot as any;
       notifications.push({
         id: `failed-${o.id}`, type: "failed_payment",

@@ -8,7 +8,7 @@ import {
   LayoutDashboard, ShoppingBag, Package,
   Users, Tag, Star, LogOut, Menu, X,
   ChevronRight, Megaphone, TrendingUp,
-  LayoutGrid, Boxes,
+  LayoutGrid, Boxes, Gem, FolderTree,
 } from "lucide-react";
 
 const NAV = [
@@ -17,6 +17,8 @@ const NAV = [
   { href: "/admin/orders",      icon: <ShoppingBag     size={18} />, label: "Orders"     },
   { href: "/admin/kanban",      icon: <LayoutGrid      size={18} />, label: "Kanban"     },
   { href: "/admin/products",    icon: <Package         size={18} />, label: "Products"   },
+  { href: "/admin/categories",  icon: <FolderTree      size={18} />, label: "Categories" },
+  { href: "/admin/charms",      icon: <Gem             size={18} />, label: "Charms"     },
   { href: "/admin/inventory",   icon: <Boxes           size={18} />, label: "Inventory"  },
   { href: "/admin/customers",   icon: <Users           size={18} />, label: "Customers"  },
   { href: "/admin/coupons",     icon: <Tag             size={18} />, label: "Coupons"    },

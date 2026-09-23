@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TypeScript Build Fixes — How to Apply
 
-## Getting Started
+## 1. Extract this zip into your project root, allowing overwrite
+All 29 files inside keep their exact `src/...` / `prisma/...` paths, so extracting
+straight into your project root will overwrite the right files in place.
 
-First, run the development server:
+## 2. Delete these 2 files manually (not included in the zip, since deleting = no file to ship)
+- `src/app/api/customization/route.ts`
+  → Dead, unused, less-secure duplicate of `src/app/api/customization/upload/route.ts`.
+    Nothing in the frontend called it, and it was passing a raw `File` where a `Buffer`
+    was required (a real bug that would never have surfaced since it was never called).
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- `src/components/category/[slug]/page.tsx`
+  → Dead duplicate of the real page at `src/app/category/[slug]/page.tsx`. Nothing
+    imports it, and `src/components/` isn't a routable directory anyway — it was just
+    stale clutter left over from before the Next.js 16 `params`-as-Promise fix (it still
+    had the old, broken `params: { slug: string }` pattern instead of `Promise<...>`).
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 3. Run `npm run build` (or `npx tsc --noEmit` for a quick check without a full build)
+Should compile clean — verified locally with a full `npx tsc --noEmit` pass (0 errors,
+down from 93) and a full `next build` (only remaining failure was Google Fonts being
+unreachable from my sandbox's network — not a real issue, your server will fetch those fine).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## What changed, grouped by why
 
-## Learn More
+**Real bugs (would have broken things at runtime, not just failed the type-check):**
+- `src/app/corporate/page.tsx` — removed import of a component file that doesn't exist
+  anywhere in the project (never rendered, so this was 100% dead weight breaking the build
+  for no functional reason)
+- `src/components/account/AccountClient.tsx` — `<Truck />` icon was used but never imported
+- `src/components/product/LivePreviewModal.tsx` — removed a leftover type import
+  (`PersonalizationEngineRef`) from before the engine was refactored to the `onReady`
+  callback pattern; unused anywhere else in the file
+- `src/components/layout/Navbar.tsx` + `src/app/fast-delivery/FastDeliveryClient.tsx` —
+  `useRef<NodeJS.Timeout>()` needs an initial value with current React types; changed to
+  `useRef<NodeJS.Timeout | undefined>(undefined)`
 
-To learn more about Next.js, take a look at the following resources:
+**Type definitions that had drifted from reality (data was always fine at runtime, the
+TypeScript type just hadn't caught up — fixing these means future changes won't silently
+break without warning):**
+- `src/types/product.ts` — added `hasCharm: boolean` (real Prisma field, was missing from
+  the manually-maintained type)
+- `src/lib/store/cartStore.ts` — `CustomizationData` type widened to match how it's
+  actually used: dynamic zone-keyed personalization data (e.g. `photo_upload`) AND
+  structured variant-selection payloads both flow through this same field
+- `src/components/home/BestSellers.tsx` — gave the static homepage product array an
+  explicit type so the existing `product.id || index` fallback type-checks
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**Mechanical fixes (added explicit types to `.map()`/`.filter()`/`.reduce()`/`$transaction`
+callback params that TypeScript couldn't infer on its own — no logic changes):**
+Every other file in this package. All `: any` annotations on callback parameters,
+consistent with the pattern already used elsewhere in the codebase (e.g. `items.map((i: any) => ...)`
+in `orders/create`).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**One Map-typing fix with real downstream effect:**
+- `src/app/api/orders/create/route.ts` — `new Map(products.map(p => [p.id, p]))` wasn't
+  inferring its value type correctly, which cascaded into ~13 "property does not exist"
+  errors on `product.name`/`product.stock`/etc. Fixed by explicitly typing the Map's
+  generics: `new Map<number, (typeof products)[number]>(...)`.

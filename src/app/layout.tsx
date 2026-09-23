@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
-import { Caveat, Great_Vibes, Poppins, Playfair_Display } from "next/font/google";
+import { Caveat, Great_Vibes, Poppins, Playfair_Display, DM_Serif_Display } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
 import AnnouncementBar from "@/components/layout/AnnouncementBar";
 import Navbar         from "@/components/layout/Navbar";
 import Footer         from "@/components/layout/Footer";
 import Providers      from "@/components/layout/Providers";
+import { getNavCategories } from "@/lib/getNavCategories";
+import { getActiveProductCount, roundDownForMarketing } from "@/lib/productCount";
 
 const caveat = Caveat({
   subsets:  ["latin"],
@@ -15,6 +17,12 @@ const greatVibes = Great_Vibes({
   subsets: ["latin"],
   weight:  "400",
   variable: "--font-logo",
+});
+const dmSerif = DM_Serif_Display({
+  subsets:  ["latin"],
+  weight:   "400",
+  style:    ["normal", "italic"],
+  variable: "--font-dm-serif",
 });
 const poppins = Poppins({
   subsets:  ["latin"],
@@ -30,7 +38,10 @@ const playfair = Playfair_Display({
 
 const BASE_URL = "https://www.hashtaggifting.com";
 
-export const metadata: Metadata = {
+export async function generateMetadata(): Promise<Metadata> {
+  const productCount = roundDownForMarketing(await getActiveProductCount());
+
+  return {
   metadataBase: new URL(BASE_URL),
 
   title: {
@@ -38,10 +49,10 @@ export const metadata: Metadata = {
     template: "%s — Hashtag Gifting",
   },
   description:
-    "Shop 500+ handcrafted personalised gifts — custom mugs, LED name lamps, photo frames, explosion boxes & more. Same-day dispatch in Jaipur. Free delivery above Rs. 999.",
+    `Shop ${productCount}+ handcrafted personalised gifts — wallets, passport covers, diaries, pens, gift combos & more. Same-day dispatch in Jaipur. Free delivery above Rs. 999.`,
 
   keywords: [
-    "personalised gifts india", "custom gifts jaipur", "photo mugs", "LED name lamp",
+    "personalised gifts india", "custom gifts jaipur", "personalised wallet", "passport cover",
     "explosion box", "birthday gifts", "anniversary gifts", "customized gifts online",
     "personalised gifts for him", "personalised gifts for her", "hashtag gifting",
   ],
@@ -56,7 +67,7 @@ export const metadata: Metadata = {
     url:         BASE_URL,
     siteName:    "Hashtag Gifting",
     title:       "Hashtag Gifting — Personalised Gifts Delivered Across India",
-    description: "Shop 500+ handcrafted personalised gifts. Same-day dispatch in Jaipur. Free delivery above Rs. 999.",
+    description: `Shop ${productCount}+ handcrafted personalised gifts. Same-day dispatch in Jaipur. Free delivery above Rs. 999.`,
     images: [
       {
         url:    "/og-image.jpg",
@@ -70,7 +81,7 @@ export const metadata: Metadata = {
   twitter: {
     card:        "summary_large_image",
     title:       "Hashtag Gifting — Personalised Gifts Delivered Across India",
-    description: "Shop 500+ handcrafted personalised gifts. Same-day dispatch in Jaipur.",
+    description: `Shop ${productCount}+ handcrafted personalised gifts. Same-day dispatch in Jaipur.`,
     images:      ["/og-image.jpg"],
   },
 
@@ -94,13 +105,34 @@ export const metadata: Metadata = {
   verification: {
     google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || "",
   },
-};
+  };
+}
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Fetched here (server-side, on every request) and handed to Navbar as
+  // initial data — previously Navbar only loaded categories via its own
+  // client-side useEffect, so the category row rendered empty for a beat on
+  // first paint until that fetch resolved. Root layout doesn't remount on
+  // client-side navigation between pages, so this only runs once per real
+  // page load/refresh, not on every link click.
+  let initialCategories: any[] = [];
+  try {
+    initialCategories = await getNavCategories();
+  } catch (err) {
+    console.error("ROOT LAYOUT: failed to load nav categories:", err);
+  }
+
+  let announcementProductCount: number | undefined;
+  try {
+    announcementProductCount = roundDownForMarketing(await getActiveProductCount());
+  } catch (err) {
+    console.error("ROOT LAYOUT: failed to load product count:", err);
+  }
+
   return (
     <html
       lang="en"
-      className={`${caveat.variable} ${greatVibes.variable} ${poppins.variable} ${playfair.variable}`}
+      className={`${caveat.variable} ${greatVibes.variable} ${dmSerif.variable} ${poppins.variable} ${playfair.variable}`}
     >
       <body>
         {/* Google Analytics */}
@@ -123,8 +155,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </>
         )}
         <Providers>
-          <AnnouncementBar />
-          <Navbar />
+          <AnnouncementBar productCount={announcementProductCount} />
+          <Navbar initialCategories={initialCategories} />
           {children}
           <Footer />
         </Providers>

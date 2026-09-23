@@ -8,9 +8,10 @@ import {
   Minus, Plus, Trash2, ShoppingBag, Tag,
   ChevronRight, Loader2, Gift, PackageCheck,
   ArrowLeft, LogIn, ShieldCheck, RefreshCw,
-  Truck, Star, X, UserCircle,
+  Truck, Star, X, UserCircle, Check, Headphones,
 } from "lucide-react";
 import { useCartStore, formatPrice } from "@/lib/store/cartStore";
+import AvailableCoupons from "@/components/shared/AvailableCoupons";
 
 // ── Freebie bar ───────────────────────────────────────────────────────────────
 const TIERS = [
@@ -45,7 +46,7 @@ function FreebieBar({ subtotal }: { subtotal: number }) {
             <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] border-2 transition-all ${
               subtotal >= t.threshold ? "bg-[#c0555a] border-[#c0555a] text-white" : "bg-white border-[#e8e0d5] text-[#aaa]"
             }`}>
-              {subtotal >= t.threshold ? "✓" : i + 1}
+              {subtotal >= t.threshold ? <Check size={11} /> : i + 1}
             </div>
             <p className={`text-[10px] font-semibold text-center leading-tight ${subtotal >= t.threshold ? "text-[#c0555a]" : "text-[#aaa]"}`}>
               {t.label}
@@ -59,25 +60,27 @@ function FreebieBar({ subtotal }: { subtotal: number }) {
 }
 
 // ── Coupon ────────────────────────────────────────────────────────────────────
-function CouponInput({ applied, onApply, onRemove }: {
-  applied:  { code: string; discount: number } | null;
-  onApply:  (code: string, discount: number) => void;
+function CouponInput({ applied, onApply, onRemove, subtotal }: {
+  applied:  { code: string; discount: number; id: number } | null;
+  onApply:  (code: string, discount: number, id: number) => void;
   onRemove: () => void;
+  subtotal: number;
 }) {
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const apply = async () => {
-    if (!code.trim()) return;
+  const apply = async (codeOverride?: string) => {
+    const useCode = (codeOverride ?? code).trim();
+    if (!useCode) return;
     setLoading(true); setError("");
     try {
       const res  = await fetch("/api/coupons/validate", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: code.trim().toUpperCase() }),
+        body: JSON.stringify({ code: useCode.toUpperCase(), subtotal }),
       });
       const data = await res.json();
-      if (data.valid) { onApply(code.trim().toUpperCase(), data.discount); setCode(""); }
+      if (data.valid) { onApply(useCode.toUpperCase(), data.discount, data.couponId); setCode(""); }
       else setError(data.message || "Invalid coupon code");
     } catch { setError("Could not apply coupon."); }
     finally { setLoading(false); }
@@ -90,7 +93,7 @@ function CouponInput({ applied, onApply, onRemove }: {
         <span className="text-[14px] font-bold text-green-700">{applied.code}</span>
         <span className="text-[13px] text-green-600">— {formatPrice(applied.discount)} off</span>
       </div>
-      <button onClick={onRemove} className="text-green-600 hover:text-red-500 transition-colors"><X size={15} /></button>
+      <button onClick={onRemove} className="text-green-600 hover:text-red-500 transition-colors" aria-label="Close"><X size={15} /></button>
     </div>
   );
 
@@ -106,12 +109,17 @@ function CouponInput({ applied, onApply, onRemove }: {
           placeholder="Enter code (e.g. WELCOME10)"
           className="flex-1 border border-[#e8e0d5] rounded-xl px-4 py-3 text-[13px] outline-none focus:border-[#c0555a] bg-white transition-colors"
         />
-        <button onClick={apply} disabled={loading || !code.trim()}
+        <button onClick={() => apply()} disabled={loading || !code.trim()}
           className="px-5 py-3 bg-[#c0555a] text-white text-[13px] font-bold rounded-xl hover:bg-[#a84449] disabled:opacity-50 transition-colors">
           {loading ? <Loader2 size={14} className="animate-spin" /> : "Apply"}
         </button>
       </div>
       {error && <p className="text-[12px] text-red-500">{error}</p>}
+      <AvailableCoupons
+        subtotal={subtotal}
+        onApply={(c) => apply(c)}
+        className="mt-1"
+      />
     </div>
   );
 }
@@ -119,8 +127,10 @@ function CouponInput({ applied, onApply, onRemove }: {
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function CartPageClient() {
   const { data: session } = useSession();
-  const { items, subtotal, itemCount, isLoading, fetchCart, updateItem, removeItem } = useCartStore();
-  const [coupon,   setCoupon]   = useState<{ code: string; discount: number } | null>(null);
+  const {
+    items, subtotal, itemCount, isLoading, fetchCart, updateItem, removeItem,
+    appliedCoupon: coupon, setAppliedCoupon: setCoupon,
+  } = useCartStore();
   const [removing, setRemoving] = useState<number | null>(null);
 
   useEffect(() => { fetchCart(); }, []);
@@ -181,11 +191,13 @@ export default function CartPageClient() {
           <ShoppingBag size={26} className="text-[#c0555a]" />
           Your cart
           {itemCount > 0 && (
-            <span className="text-[16px] font-semibold text-[#888]">({itemCount} items)</span>
+            <span className="text-[16px] font-semibold text-[#888]">({itemCount} {itemCount === 1 ? "item" : "items"})</span>
           )}
         </h1>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8 items-start">
+        {/* xl instead of lg — same iPad-Pro-portrait cramming issue as
+            checkout's identical layout. */}
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-8 items-start">
 
           {/* ── LEFT — items ── */}
           <div className="flex flex-col gap-4">
@@ -229,8 +241,13 @@ export default function CartPageClient() {
                 items.map((item, idx) => {
                   const img        = item.product.images?.[0] || "/placeholder.jpg";
                   const isRemoving = removing === item.id;
-                  const discount   = item.product.comparePrice
-                    ? Math.round(((item.product.comparePrice - item.product.price) / item.product.comparePrice) * 100)
+                  // A selected variant's own price/stock govern this item —
+                  // falls back to the base product's when there's no variant.
+                  const unitPrice     = item.variant?.price ?? item.product.price;
+                  const comparePrice  = item.variant?.comparePrice ?? item.product.comparePrice;
+                  const availStock    = item.variant?.stock ?? item.product.stock;
+                  const discount      = comparePrice
+                    ? Math.round(((comparePrice - unitPrice) / comparePrice) * 100)
                     : 0;
 
                   return (
@@ -261,13 +278,19 @@ export default function CartPageClient() {
                         {item.customization && (
                           <div className="mt-1.5 flex flex-wrap gap-1.5">
                             {Object.entries(item.customization)
-                              .filter(([k, v]) => v && !["photoUrl","giftWrap","greetingCard"].includes(k))
+                              .filter(([k, v]) => {
+                                const excluded = ["photoUrl","giftWrap","greetingCard","photo_upload","preview_png"];
+                                if (excluded.includes(k)) return false;
+                                if (!v) return false;
+                                if (typeof v === "string" && v.startsWith("data:")) return false;
+                                return true;
+                              })
                               .map(([k, v]) => (
                                 <span key={k} className="text-[11px] bg-[#f3efe8] text-[#555] border border-[#e8e0d5] px-2 py-0.5 rounded-full capitalize">
                                   {v as string}
                                 </span>
                               ))}
-                            {item.customization.photoUrl && (
+                            {(item.customization.photoUrl || item.customization.photo_upload) && (
                               <span className="text-[11px] bg-[#c0555a]/10 text-[#c0555a] border border-[#c0555a]/20 px-2 py-0.5 rounded-full flex items-center gap-1">
                                 <Star size={9} /> Custom photo
                               </span>
@@ -280,15 +303,15 @@ export default function CartPageClient() {
                           <div className="flex items-center border border-[#e8e0d5] rounded-full overflow-hidden">
                             <button onClick={() => updateItem(item.id, item.quantity - 1)}
                               disabled={isLoading || item.quantity <= 1}
-                              className="w-8 h-8 flex items-center justify-center hover:bg-[#f3efe8] transition-colors disabled:opacity-40">
+                              className="w-10 h-10 sm:w-8 sm:h-8 flex items-center justify-center hover:bg-[#f3efe8] transition-colors disabled:opacity-40">
                               <Minus size={12} />
                             </button>
                             <span className="w-9 text-center text-[14px] font-bold">
                               {isLoading ? <Loader2 size={12} className="animate-spin mx-auto" /> : item.quantity}
                             </span>
                             <button onClick={() => updateItem(item.id, item.quantity + 1)}
-                              disabled={isLoading || item.quantity >= item.product.stock}
-                              className="w-8 h-8 flex items-center justify-center hover:bg-[#f3efe8] transition-colors disabled:opacity-40">
+                              disabled={isLoading || item.quantity >= availStock}
+                              className="w-10 h-10 sm:w-8 sm:h-8 flex items-center justify-center hover:bg-[#f3efe8] transition-colors disabled:opacity-40">
                               <Plus size={12} />
                             </button>
                           </div>
@@ -297,11 +320,11 @@ export default function CartPageClient() {
                             <div className="text-right">
                               <p className="text-[16px] font-bold text-[#1a1a1a]">{formatPrice(item.subtotal)}</p>
                               {item.quantity > 1 && (
-                                <p className="text-[11px] text-[#aaa]">{formatPrice(item.product.price)} each</p>
+                                <p className="text-[11px] text-[#aaa]">{formatPrice(unitPrice)} each</p>
                               )}
                             </div>
                             <button onClick={() => handleRemove(item.id)} disabled={isRemoving}
-                              className="w-8 h-8 rounded-full flex items-center justify-center text-[#ccc] hover:text-red-500 hover:bg-red-50 transition-all">
+                              className="w-10 h-10 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-[#ccc] hover:text-red-500 hover:bg-red-50 transition-all">
                               <Trash2 size={15} />
                             </button>
                           </div>
@@ -315,8 +338,8 @@ export default function CartPageClient() {
 
             {/* Coupon */}
             <div className="bg-white rounded-2xl border border-[#e8e0d5] p-5">
-              <CouponInput applied={coupon}
-                onApply={(c, d) => setCoupon({ code: c, discount: d })}
+              <CouponInput applied={coupon} subtotal={subtotal}
+                onApply={(c, d, id) => setCoupon({ code: c, discount: d, id })}
                 onRemove={() => setCoupon(null)} />
             </div>
 
@@ -328,7 +351,7 @@ export default function CartPageClient() {
           </div>
 
           {/* ── RIGHT — order summary ── */}
-          <div className="flex flex-col gap-4 lg:sticky lg:top-6">
+          <div className="flex flex-col gap-4 xl:sticky xl:top-6">
 
             {/* Summary card */}
             <div className="bg-white rounded-2xl border border-[#e8e0d5] p-5">
@@ -336,7 +359,7 @@ export default function CartPageClient() {
 
               <div className="flex flex-col gap-3 mb-5">
                 <div className="flex justify-between text-[14px]">
-                  <span className="text-[#888]">Subtotal ({itemCount} items)</span>
+                  <span className="text-[#888]">Subtotal ({itemCount} {itemCount === 1 ? "item" : "items"})</span>
                   <span className="font-semibold">{formatPrice(subtotal)}</span>
                 </div>
                 {discount > 0 && (
@@ -375,8 +398,8 @@ export default function CartPageClient() {
                 {[
                   { icon: <ShieldCheck size={16} className="text-[#c0555a]" />, text: "100% secure payment" },
                   { icon: <Truck       size={16} className="text-[#c0555a]" />, text: "Free delivery above Rs. 999" },
-                  { icon: <RefreshCw   size={16} className="text-[#c0555a]" />, text: "Easy 7-day returns" },
-                  { icon: <Gift        size={16} className="text-[#c0555a]" />, text: "Free gift wrapping available" },
+                  { icon: <RefreshCw   size={16} className="text-[#c0555a]" />, text: "Easy 7-day returns (except personalised items)" },
+                  { icon: <Headphones  size={16} className="text-[#c0555a]" />, text: "Dedicated customer care" },
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-3 text-[13px] text-[#555]">
                     {item.icon}

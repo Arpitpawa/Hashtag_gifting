@@ -1,43 +1,33 @@
-import Link from "next/link";
+"use client";
 
-const categories = [
-  {
-    title: "Drinkware",
-    desc: "From stylish mugs to sleek water bottles and tumblers — perfect for everyday use and brand recall.",
-    image: "https://confettigifts.in/cdn/shop/files/2_b636a062-abbe-48be-80e9-2e47c2b628b5.webp?v=1764568216&width=800",
-    link: "/corporate/drinkware",
-  },
-  {
-    title: "Electronics",
-    desc: "Branded speakers, headphones and tech accessories combining practicality with luxury.",
-    image: "https://confettigifts.in/cdn/shop/files/2-2_50e1fc1a-0290-4155-bec5-e9ae33018478.webp?v=1761636856&width=800",
-    link: "/corporate/electronics",
-  },
-  {
-    title: "Travel",
-    desc: "Make your brand travel far and wide with travel-friendly items designed for comfort and visibility.",
-    image: "https://confettigifts.in/cdn/shop/files/3-9_0615fbf0-3577-466d-8622-5449bdd5d20d.webp?v=1767951776&width=800",
-    link: "/corporate/travel",
-  },
-  {
-    title: "Desk essentials",
-    desc: "Equip your team with branded desk essentials that enhance productivity and reinforce your brand.",
-    image: "https://confettigifts.in/cdn/shop/files/CopyofIMG_2509.jpg?v=1761636856&width=800",
-    link: "/corporate/desk-essentials",
-  },
-  {
-    title: "Journals",
-    desc: "Inspire creativity with branded journals — a timeless gift that offers lasting utility.",
-    image: "https://confettigifts.in/cdn/shop/files/1-16_ad3cd0de-7dad-4136-8f95-cb92ae451fcc.webp?v=1772883529&width=800",
-    link: "/corporate/journals",
-  },
+import Link from "next/link";
+import { useGroupImages } from "./useRealProducts";
+
+// Temporary stopgap — using the homepage hero product photos here instead of
+// the previous hotlinked competitor CDN (confettigifts.in). Swap these for
+// real corporate product photography once available.
+const HERO_IMGS = [
+  "/Personalisedpassportcoverheroimage.png",
+  "/personaliseddiariespensheropng.png",
+  "/personalisedwalletskeychain.png",
 ];
+
+// Real product groups (SKU type numbers) — photos come from real products.
+const categories = [
+  { title: "Diaries & pen sets", desc: "Executive diary, card holder and pen gift sets — personalised with a name or your company logo.", types: "01", link: "/category/diary-pen-combos" },
+  { title: "Pens", desc: "Premium metal and crystal-twist pens in black, gold and colours — a gift that gets used every day.", types: "15", link: "/category/pens" },
+  { title: "Travel", desc: "Passport covers and travel wallet organisers — personalised for business trips and welcome kits.", types: "02,03,04", link: "/category/passport-covers" },
+  { title: "Wallets", desc: "Vegan leather and croc-texture wallets for him — a classic employee and client gift.", types: "11,13,14", link: "/category/mens-wallets" },
+  { title: "Desk essentials", desc: "Stationery pouches and multipurpose organisers that keep every desk tidy and on-brand.", types: "06,07", link: "/category/stationery-pouches" },
+];
+
+type Card = (typeof categories)[0] & { image: string | null };
 
 function CategoryCard({
   item,
   className = "",
 }: {
-  item: (typeof categories)[0];
+  item: Card;
   className?: string;
 }) {
   return (
@@ -46,12 +36,16 @@ function CategoryCard({
       className={`relative overflow-hidden rounded-2xl block group ${className}`}
     >
       {/* IMAGE */}
-      <img
-        src={item.image}
-        alt={item.title}
-        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-        draggable={false}
-      />
+      {item.image ? (
+        <img
+          src={item.image}
+          alt={item.title}
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          draggable={false}
+        />
+      ) : (
+        <div className="absolute inset-0 bg-[#e8e0d5]" />
+      )}
 
       {/* GRADIENT */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
@@ -76,6 +70,8 @@ function CategoryCard({
 }
 
 export default function CorporatePromotional() {
+  const images = useGroupImages(categories.map((c) => c.types));
+  const cards: Card[] = categories.map((c, i) => ({ ...c, image: images[i] }));
   return (
     <section className="pt-20 pb-16 md:pb-20">
       <div className="max-w-[1450px] mx-auto px-4 md:px-6 lg:px-10">
@@ -86,10 +82,10 @@ export default function CorporatePromotional() {
             className="text-[42px] md:text-[56px] font-normal text-black mb-3"
             style={{ fontFamily: "'Playfair Display', Georgia, serif", letterSpacing: "0.02em", lineHeight: "1.15" }}
           >
-            Best-Selling Promotional Products
+            Popular Corporate Gifts
           </h2>
           <p className="text-[black]/70 text-[14px] md:text-[15px]">
-            Promote your brand with our custom promotional gifts
+            Personalised gifts your team and clients will actually use
           </p>
         </div>
 
@@ -102,7 +98,7 @@ export default function CorporatePromotional() {
             {/* Drinkware — 2/3 width */}
             <div className="w-full md:w-2/3">
               <CategoryCard
-                item={categories[0]}
+                item={cards[0]}
                 className="h-[280px] md:h-[380px] w-full"
               />
             </div>
@@ -110,7 +106,7 @@ export default function CorporatePromotional() {
             {/* Electronics — 1/3 width */}
             <div className="w-full md:w-1/3">
               <CategoryCard
-                item={categories[1]}
+                item={cards[1]}
                 className="h-[280px] md:h-[380px] w-full"
               />
             </div>
@@ -122,7 +118,7 @@ export default function CorporatePromotional() {
             {/* Travel — 1/3 width, full height of row */}
             <div className="w-full md:w-1/3">
               <CategoryCard
-                item={categories[2]}
+                item={cards[2]}
                 className="h-[280px] md:h-[400px] w-full"
               />
             </div>
@@ -132,13 +128,13 @@ export default function CorporatePromotional() {
 
               {/* Desk Essentials — top half */}
               <CategoryCard
-                item={categories[3]}
+                item={cards[3]}
                 className="h-[180px] md:h-[190px] w-full"
               />
 
               {/* Journals — bottom half */}
               <CategoryCard
-                item={categories[4]}
+                item={cards[4]}
                 className="h-[180px] md:h-[190px] w-full"
               />
             </div>

@@ -5,19 +5,28 @@ import Image from "next/image";
 import Link from "next/link";
 import { Heart } from "lucide-react";
 
+// Temporary stopgap — using the homepage hero product photos here instead of
+// the previous hotlinked competitor CDN (confettigifts.in). Swap these for
+// real corporate product photography once available.
+const HERO_IMGS = [
+  "/Personalisedpassportcoverheroimage.png",
+  "/personaliseddiariespensheropng.png",
+  "/personalisedwalletskeychain.png",
+];
+
 const allProducts = [
-  { name: "Coffee Mug With Cork Detail", category: "Corporate Gifting", price: "Rs. 900", rating: 4, reviews: 2, image: "https://confettigifts.in/cdn/shop/files/CopyofIMG_2509.jpg?v=1761636856&width=800", link: "/corporate/coffee-mug-cork", wishlist: true },
-  { name: "Savvy and Sustainable Gift Hamper", category: "Corporate Gifting", price: "Rs. 2,940", rating: 5, reviews: 7, image: "https://confettigifts.in/cdn/shop/files/3-9_0615fbf0-3577-466d-8622-5449bdd5d20d.webp?v=1767951776&width=800", link: "/corporate/sustainable-hamper", wishlist: false },
-  { name: "Bamboo Coffee Sipper", category: "Corporate Gifting", price: "Rs. 1,000", rating: 4, reviews: 5, image: "https://confettigifts.in/cdn/shop/files/Souvinerbox1.webp?v=1767951776&width=800", link: "/corporate/bamboo-sipper", wishlist: false },
-  { name: "Journal - Rumi", category: "Corporate Gifting", price: "Rs. 600", rating: 5, reviews: 3, image: "https://confettigifts.in/cdn/shop/files/2_b636a062-abbe-48be-80e9-2e47c2b628b5.webp?v=1764568216&width=800", link: "/corporate/journal-rumi", wishlist: false },
-  { name: "The Eco-Employee Gift Hamper", category: "Corporate Gifting", price: "Rs. 3,340", rating: 3, reviews: 3, image: "https://confettigifts.in/cdn/shop/files/1-16_ad3cd0de-7dad-4136-8f95-cb92ae451fcc.webp?v=1772883529&width=800", link: "/corporate/eco-employee-hamper", wishlist: true },
-  { name: "Cork Calendar", category: "Corporate Gifting", price: "Rs. 1,260", rating: 4, reviews: 6, image: "https://confettigifts.in/cdn/shop/files/2-2_50e1fc1a-0290-4155-bec5-e9ae33018478.webp?v=1761636856&width=800", link: "/corporate/cork-calendar", wishlist: false },
-  { name: "Bold in Black Gift Box", category: "Corporate Gifting", price: "Rs. 4,360", rating: 4, reviews: 9, image: "https://confettigifts.in/cdn/shop/files/PetFaceSocks.webp?v=1771482164&width=800", link: "/corporate/bold-black-box", wishlist: true },
-  { name: "Water Sipper - Inari", category: "Corporate Gifting", price: "Rs. 930", rating: 3, reviews: 4, image: "https://confettigifts.in/cdn/shop/files/CopyofIMG_2509.jpg?v=1761636856&width=800", link: "/corporate/water-sipper-inari", wishlist: false },
-  { name: "The Branded Desk Essentials", category: "Corporate Gifting", price: "Rs. 2,800", rating: 5, reviews: 11, image: "https://confettigifts.in/cdn/shop/files/Souvinerbox1.webp?v=1767951776&width=800", link: "/corporate/desk-essentials", wishlist: false },
-  { name: "The Executive Welcome Kit", category: "Corporate Gifting", price: "Rs. 5,600", rating: 5, reviews: 8, image: "https://confettigifts.in/cdn/shop/files/3-9_0615fbf0-3577-466d-8622-5449bdd5d20d.webp?v=1767951776&width=800", link: "/corporate/executive-welcome-kit", wishlist: false },
-  { name: "The Festive Diwali Hamper", category: "Corporate Gifting", price: "Rs. 4,800", rating: 4, reviews: 14, image: "https://confettigifts.in/cdn/shop/files/2_b636a062-abbe-48be-80e9-2e47c2b628b5.webp?v=1764568216&width=800", link: "/corporate/diwali-hamper", wishlist: false },
-  { name: "The Premium Onboarding Kit", category: "Corporate Gifting", price: "Rs. 11,000", rating: 5, reviews: 4, image: "https://confettigifts.in/cdn/shop/files/1-16_ad3cd0de-7dad-4136-8f95-cb92ae451fcc.webp?v=1772883529&width=800", link: "/corporate/premium-onboarding-kit", wishlist: false },
+  { name: "Coffee Mug With Cork Detail", category: "Corporate Gifting", price: "Rs. 900", rating: 4, reviews: 2, image: HERO_IMGS[0], link: "/corporate/coffee-mug-cork", wishlist: true },
+  { name: "Savvy and Sustainable Gift Hamper", category: "Corporate Gifting", price: "Rs. 2,940", rating: 5, reviews: 7, image: HERO_IMGS[1], link: "/corporate/sustainable-hamper", wishlist: false },
+  { name: "Bamboo Coffee Sipper", category: "Corporate Gifting", price: "Rs. 1,000", rating: 4, reviews: 5, image: HERO_IMGS[2], link: "/corporate/bamboo-sipper", wishlist: false },
+  { name: "Journal - Rumi", category: "Corporate Gifting", price: "Rs. 600", rating: 5, reviews: 3, image: HERO_IMGS[0], link: "/corporate/journal-rumi", wishlist: false },
+  { name: "The Eco-Employee Gift Hamper", category: "Corporate Gifting", price: "Rs. 3,340", rating: 3, reviews: 3, image: HERO_IMGS[1], link: "/corporate/eco-employee-hamper", wishlist: true },
+  { name: "Cork Calendar", category: "Corporate Gifting", price: "Rs. 1,260", rating: 4, reviews: 6, image: HERO_IMGS[2], link: "/corporate/cork-calendar", wishlist: false },
+  { name: "Bold in Black Gift Box", category: "Corporate Gifting", price: "Rs. 4,360", rating: 4, reviews: 9, image: HERO_IMGS[0], link: "/corporate/bold-black-box", wishlist: true },
+  { name: "Water Sipper - Inari", category: "Corporate Gifting", price: "Rs. 930", rating: 3, reviews: 4, image: HERO_IMGS[1], link: "/corporate/water-sipper-inari", wishlist: false },
+  { name: "The Branded Desk Essentials", category: "Corporate Gifting", price: "Rs. 2,800", rating: 5, reviews: 11, image: HERO_IMGS[2], link: "/corporate/desk-essentials", wishlist: false },
+  { name: "The Executive Welcome Kit", category: "Corporate Gifting", price: "Rs. 5,600", rating: 5, reviews: 8, image: HERO_IMGS[0], link: "/corporate/executive-welcome-kit", wishlist: false },
+  { name: "The Festive Diwali Hamper", category: "Corporate Gifting", price: "Rs. 4,800", rating: 4, reviews: 14, image: HERO_IMGS[1], link: "/corporate/diwali-hamper", wishlist: false },
+  { name: "The Premium Onboarding Kit", category: "Corporate Gifting", price: "Rs. 11,000", rating: 5, reviews: 4, image: HERO_IMGS[2], link: "/corporate/premium-onboarding-kit", wishlist: false },
 ];
 
 const INITIAL_SHOW = 8;

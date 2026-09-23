@@ -13,7 +13,7 @@ export async function PUT(
     const { id } = await params;
 
     const user = await prisma.user.findUnique({
-      where:  { email: session!.user!.email! },
+      where:  { id: Number(session!.user!.id) },
       select: { id: true },
     });
 
@@ -66,7 +66,7 @@ export async function DELETE(
     const { id } = await params;
 
     const user = await prisma.user.findUnique({
-      where:  { email: session!.user!.email! },
+      where:  { id: Number(session!.user!.id) },
       select: { id: true },
     });
 

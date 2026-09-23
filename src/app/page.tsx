@@ -7,8 +7,10 @@ import TrendingGifts from "@/components/home/TrendingGifts";
 import Testimonials from "@/components/home/Testimonials";
 import InstagramReels from "@/components/home/InstagramReels";
 import BuildYourHamper from "@/components/home/BuildYourHamper";
+import { HAMPER_ENABLED } from "@/lib/features";
 import GiftsByRelationship from "@/components/home/GiftsByRelationship";
 import ShopByBudget from "@/components/home/ShopByBudget";
+import { getActiveProductCount, roundDownForMarketing } from "@/lib/productCount";
 
 const BASE_URL = "https://www.hashtaggifting.com";
 
@@ -16,14 +18,16 @@ export const metadata: Metadata = {
   alternates: { canonical: BASE_URL },
 };
 
-function HomeJsonLd() {
+function HomeJsonLd({ productCount }: { productCount: number }) {
   const schema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: "Hashtag Gifting",
     url: BASE_URL,
     description:
-      "Shop 500+ handcrafted personalised gifts — custom mugs, LED name lamps, photo frames, explosion boxes & more.",
+      productCount > 0
+        ? `Shop ${productCount}+ handcrafted personalised gifts — wallets, passport covers, diaries, pens, gift combos & more.`
+        : "Shop handcrafted personalised gifts — wallets, passport covers, diaries, pens, gift combos & more.",
     potentialAction: {
       "@type": "SearchAction",
       target: {
@@ -59,10 +63,10 @@ function HomeJsonLd() {
     telephone: "+91-7665909909",
     address: {
       "@type": "PostalAddress",
-      streetAddress: "Jaipur",
+      streetAddress: "Shop no. 83, Roop Vandana Complex, Arya Samaj Rd, Gurunanakpura, Raja Park",
       addressLocality: "Jaipur",
       addressRegion: "Rajasthan",
-      postalCode: "302001",
+      postalCode: "302004",
       addressCountry: "IN",
     },
     geo: { "@type": "GeoCoordinates", latitude: 26.9124, longitude: 75.7873 },
@@ -106,19 +110,27 @@ function HomeJsonLd() {
   );
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  let productCount = 0;
+  try {
+    productCount = roundDownForMarketing(await getActiveProductCount());
+  } catch (err) {
+    console.error("HOME PAGE: failed to load product count:", err);
+  }
+
   return (
     <main>
-      <HomeJsonLd />
+      <HomeJsonLd productCount={productCount} />
+      <h1 className="sr-only">Personalised Gifts Delivered Across India — Hashtag Gifting</h1>
       <Hero />
-      <div style={{ marginTop: "80px" }}>
+      <div className="mt-10 sm:mt-14 md:mt-20">
         <GiftsByRelationship />
         <BestSellers />
       </div>
       <ShopByCategory />
       <TrendingGifts />
       <ShopByBudget />
-      <BuildYourHamper />
+      {HAMPER_ENABLED && <BuildYourHamper productCount={productCount} />}
       <Testimonials />
       <InstagramReels />
     </main>

@@ -5,11 +5,14 @@ interface CustomizationData {
   name?:     string;
   message?:  string;
   photoUrl?: string;
+  variantSelections?: { groupName: string; optionName: string; variantId: number; price: number | null }[];
+  [key: string]: any;
 }
 
 interface CartItem {
   id:            number;
   productId:     number;
+  variantId:     number | null;
   quantity:      number;
   customization: CustomizationData | null;
   product: {
@@ -22,7 +25,24 @@ interface CartItem {
     stock:        number;
     customizable: boolean;
   };
-  subtotal: number; // paise
+  // Present only when this item was added with a specific variant selected —
+  // its price/stock, not the base product's, are what actually govern this
+  // item once set.
+  variant: {
+    id:           number;
+    optionName:   string;
+    groupName:    string;
+    price:        number | null;
+    comparePrice: number | null;
+    stock:        number;
+  } | null;
+  subtotal: number; // paise — already variant-price-aware from the API
+}
+
+interface AppliedCoupon {
+  code:     string;
+  discount: number; // paise
+  id:       number;
 }
 
 interface CartState {
@@ -31,15 +51,17 @@ interface CartState {
   itemCount: number;
   subtotal:  number; // paise
   isLoading: boolean;
+  appliedCoupon: AppliedCoupon | null;
 
   // Actions
   fetchCart:    ()                                                    => Promise<void>;
-  addToCart:    (productId: number, quantity?: number, customization?: CustomizationData) => Promise<void>;
+  addToCart:    (productId: number, quantity?: number, customization?: CustomizationData | null, variantId?: number | null) => Promise<void>;
   updateItem:   (itemId: number, quantity: number)                   => Promise<void>;
   removeItem:   (itemId: number)                                     => Promise<void>;
   clearCart:    ()                                                    => Promise<void>;
   mergeGuestCart: ()                                                  => Promise<void>;
   setCartId:    (id: number)                                         => void;
+  setAppliedCoupon: (coupon: AppliedCoupon | null)                   => void;
 }
 
 export const useCartStore = create<CartState>()(
@@ -50,8 +72,10 @@ export const useCartStore = create<CartState>()(
       itemCount: 0,
       subtotal:  0,
       isLoading: false,
+      appliedCoupon: null,
 
       setCartId: (id) => set({ cartId: id }),
+      setAppliedCoupon: (coupon) => set({ appliedCoupon: coupon }),
 
       // ── FETCH CART ──
       fetchCart: async () => {
@@ -69,6 +93,29 @@ export const useCartStore = create<CartState>()(
               itemCount: data.cart.itemCount,
               subtotal:  data.cart.subtotal,
             });
+
+            // Re-validate any applied coupon against the fresh subtotal.
+            // Cart contents may have changed since the coupon was applied
+            // (items added/removed, quantities changed) — without this, the
+            // cached discount goes stale and causes a checkout total mismatch.
+            const coupon = get().appliedCoupon;
+            if (coupon) {
+              try {
+                const vRes = await fetch("/api/coupons/validate", {
+                  method: "POST", headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ code: coupon.code, subtotal: data.cart.subtotal }),
+                });
+                const vData = await vRes.json();
+                if (vData.valid) {
+                  set({ appliedCoupon: { code: coupon.code, discount: vData.discount, id: vData.couponId } });
+                } else {
+                  // No longer eligible for this cart (e.g. min order no longer met) — drop it
+                  set({ appliedCoupon: null });
+                }
+              } catch {
+                // Network hiccup — leave it as-is rather than dropping it over a blip
+              }
+            }
           }
         } catch (err) {
           console.error("Fetch cart error:", err);
@@ -78,14 +125,14 @@ export const useCartStore = create<CartState>()(
       },
 
       // ── ADD TO CART ──
-      addToCart: async (productId, quantity = 1, customization) => {
+      addToCart: async (productId, quantity = 1, customization, variantId = null) => {
         set({ isLoading: true });
         try {
           const cartId = get().cartId;
           const res = await fetch("/api/cart/add", {
             method:  "POST",
             headers: { "Content-Type": "application/json" },
-            body:    JSON.stringify({ productId, quantity, customization, cartId }),
+            body:    JSON.stringify({ productId, quantity, customization, cartId, variantId }),
           });
 
           const data = await res.json();
@@ -147,7 +194,7 @@ export const useCartStore = create<CartState>()(
           body:    JSON.stringify({ cartId }),
         });
 
-        set({ items: [], itemCount: 0, subtotal: 0 });
+        set({ items: [], itemCount: 0, subtotal: 0, appliedCoupon: null });
       },
 
       // ── MERGE GUEST CART ON LOGIN ──
@@ -174,8 +221,8 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name:    "hashtag-cart",
-      // Only persist cartId — items are fetched fresh from DB
-      partialize: (state) => ({ cartId: state.cartId }),
+      // Persist cartId + applied coupon — items are always refetched fresh from DB
+      partialize: (state) => ({ cartId: state.cartId, appliedCoupon: state.appliedCoupon }),
     }
   )
 );

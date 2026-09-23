@@ -151,7 +151,7 @@ export default function CustomizationForm({
                   <button
                     onClick={removePhoto}
                     className="absolute top-2 right-2 w-7 h-7 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-red-50 transition-colors"
-                  >
+                   aria-label="Close">
                     <X size={14} className="text-red-500" />
                   </button>
                   <div className="absolute bottom-0 left-0 right-0 bg-[#c0555a] py-1 text-center">

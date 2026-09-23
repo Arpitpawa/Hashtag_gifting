@@ -4,8 +4,10 @@ import type { Metadata } from "next";
 import prisma            from "@/lib/prisma";
 import CategoryClient    from "@/components/category/CategoryClient";
 
-export const dynamic    = "force-dynamic";
-export const revalidate = 0;
+// Product listings for a category don't need to be rebuilt from Postgres on
+// every single request — 60s ISR serves repeat/concurrent visitors from
+// cache while still picking up new stock/price changes within a minute.
+export const revalidate = 60;
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 async function getCategoryData(slug: string) {
@@ -13,8 +15,7 @@ async function getCategoryData(slug: string) {
     where: { slug },
     include: {
       parent:   { select: { id: true, name: true, slug: true } },
-      children: { select: { id: true, name: true, slug: true } },
-      _count:   { select: { products: { where: { status: "ACTIVE" } } } },
+      children: { select: { id: true, name: true, slug: true }, orderBy: [{ navOrder: "asc" }, { name: "asc" }] },
     },
   });
 }
@@ -28,8 +29,12 @@ async function getInitialProducts(slug: string) {
   let where: any = { status: "ACTIVE" };
 
   if (category) {
-    const ids = [category.id, ...category.children.map((c) => c.id)];
-    where.categoryId = { in: ids };
+    const ids = [category.id, ...category.children.map((c: any) => c.id)];
+    // Primary category OR any ProductCategory row (multi-category products)
+    where.OR = [
+      { categoryId: { in: ids } },
+      { productCategories: { some: { categoryId: { in: ids } } } },
+    ];
   } else {
     const keyword = slug.replace(/-/g, " ");
     where.OR = [
@@ -48,16 +53,21 @@ async function getInitialProducts(slug: string) {
         stock: true, customizable: true,
         category: { select: { id: true, name: true, slug: true } },
         reviews:  { select: { rating: true } },
+        variants: {
+          where:   { groupName: { equals: "Color", mode: "insensitive" } },
+          orderBy: { sortOrder: "asc" },
+          select:  { id: true, optionName: true, images: true, stock: true },
+        },
       },
     }),
     prisma.product.count({ where }),
   ]);
 
   return {
-    products: products.map((p) => ({
+    products: products.map((p: any) => ({
       ...p,
       avgRating:   p.reviews.length
-        ? Math.round((p.reviews.reduce((s, r) => s + r.rating, 0) / p.reviews.length) * 10) / 10
+        ? Math.round((p.reviews.reduce((s: any, r: any) => s + r.rating, 0) / p.reviews.length) * 10) / 10
         : 0,
       reviewCount: p.reviews.length,
       reviews:     undefined,
@@ -75,7 +85,7 @@ export async function generateMetadata(
   const cat  = await getCategoryData(slug);
   const name = cat?.name ?? slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
   return {
-    title:       `${name} — Hashtag Gifting`,
+    title:       `${name}`,
     description: cat?.description ??
       `Shop the best personalised ${name.toLowerCase()} — handcrafted with love, fast delivery across India.`,
   };

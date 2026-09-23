@@ -10,9 +10,23 @@ const fp = (p: number) => `Rs. ${(p/100).toLocaleString("en-IN")}`;
 // ── Pure SVG Line Chart ──────────────────────────────────────────────────────
 function LineChart({ data }: { data: { date: string; revenue: number; orders: number }[] }) {
   const W = 800, H = 200, PAD = 40;
+
+  // With zero orders yet (or a date range with no data), `data` can be an
+  // empty array — points[points.length-1] was then undefined, and reading
+  // .x off it crashed the whole page. Same divide-by-zero risk with exactly
+  // 1 point (data.length - 1 === 0). Bail out to a plain empty state
+  // instead of computing a chart with nothing (or one point) to plot.
+  if (data.length === 0) {
+    return (
+      <div className="w-full h-[200px] flex items-center justify-center text-[13px] text-[#aaa]">
+        No revenue data for this period yet
+      </div>
+    );
+  }
+
   const maxRev = Math.max(...data.map(d => d.revenue), 1);
   const points = data.map((d, i) => ({
-    x: PAD + (i / (data.length - 1)) * (W - PAD * 2),
+    x: PAD + (data.length === 1 ? 0 : i / (data.length - 1)) * (W - PAD * 2),
     y: PAD + (1 - d.revenue / maxRev) * (H - PAD * 2),
     ...d,
   }));
@@ -150,7 +164,7 @@ export default function AnalyticsPage() {
   );
 
   return (
-    <div className="p-6 lg:p-8 flex flex-col gap-6">
+    <div className="p-4 sm:p-6 lg:p-8 flex flex-col gap-6">
 
       {/* Today's report card */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

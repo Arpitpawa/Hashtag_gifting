@@ -3,6 +3,9 @@ import type { NextRequest } from "next/server";
 import { uploadToCloudinary } from "@/lib/cloudinary";
 import { rateLimit }     from "@/lib/rateLimit";
 import { validateImageBuffer } from "@/lib/sanitize";
+import { getSignedGuestCartId } from "@/lib/cartAuth";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 
 export const runtime = "nodejs";
 
@@ -14,6 +17,14 @@ export async function POST(req: NextRequest) {
   const limited = rateLimit(`cust-upload:${ip}`, { maxRequests: 10, windowMs: 60_000 });
   if (!limited.success) {
     return NextResponse.json({ error: "Too many uploads. Please wait a moment." }, { status: 429 });
+  }
+
+  // Only real visitors: a logged-in user, or a browser that already holds a
+  // guest-cart cookie (set the moment any page loads the cart). Blocks bots
+  // hitting this URL directly to burn Cloudinary storage.
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id && !(await getSignedGuestCartId())) {
+    return NextResponse.json({ error: "Please refresh the page and try again." }, { status: 401 });
   }
 
   try {

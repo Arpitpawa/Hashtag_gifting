@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
+import HoverImage from "@/components/shared/HoverImage";
 import Image from "next/image";
 import { Heart, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import { useWishlistStore } from "@/lib/store/wishlistStore";
@@ -113,13 +114,13 @@ export default function SimilarProducts({
             <button
               onClick={scrollLeft}
               className="w-9 h-9 bg-white border border-[#e8e0d5] rounded-full flex items-center justify-center hover:bg-[#c0555a] hover:text-white hover:border-[#c0555a] transition-all duration-300"
-            >
+             aria-label="Previous">
               <ChevronLeft size={16} strokeWidth={2} />
             </button>
             <button
               onClick={scrollRight}
               className="w-9 h-9 bg-white border border-[#e8e0d5] rounded-full flex items-center justify-center hover:bg-[#c0555a] hover:text-white hover:border-[#c0555a] transition-all duration-300"
-            >
+             aria-label="Next">
               <ChevronRight size={16} strokeWidth={2} />
             </button>
           </div>
@@ -146,13 +147,7 @@ export default function SimilarProducts({
                 {/* IMAGE */}
                 <div className="relative aspect-square rounded-2xl overflow-hidden bg-[#f5f0ea] mb-3">
                   {product.images?.[0] ? (
-                  <Image
-                    src={product.images[0]}
-                    alt={product.name}
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    sizes="220px"
-                  />
+                  <HoverImage images={product.images} alt={product.name} sizes="220px" />
                   ) : (
                     <div className="w-full h-full bg-[#e8e0d5] flex items-center justify-center text-[#aaa] text-[12px]">No image</div>
                   )}
@@ -199,7 +194,7 @@ export default function SimilarProducts({
               {/* WISHLIST */}
               <button
                 onClick={() => toggle(product.id)}
-                className="absolute top-2 right-2 w-7 h-7 bg-white rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110"
+                className="absolute top-2 right-2 w-7 h-7 bg-white rounded-full flex items-center justify-center shadow-md opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 hover:scale-110"
               >
                 <Heart
                   size={13}

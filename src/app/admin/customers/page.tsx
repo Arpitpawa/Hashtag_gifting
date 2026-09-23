@@ -28,8 +28,8 @@ export default function AdminCustomers() {
   };
 
   return (
-    <div className="p-6 lg:p-8">
-      <h1 className="text-[28px] font-bold text-[#1a1a1a] mb-6">Customers</h1>
+    <div className="p-4 sm:p-6 lg:p-8">
+      <h1 className="text-[22px] sm:text-[28px] font-bold text-[#1a1a1a] mb-6">Customers</h1>
 
       <div className="bg-white rounded-2xl border border-[#e8e8e8] p-4 mb-5 flex items-center gap-4">
         <div className="relative flex-1">
@@ -46,7 +46,31 @@ export default function AdminCustomers() {
           <Loader2 size={24} className="animate-spin text-[#c0555a]" />
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-[#e8e8e8] overflow-hidden">
+        <>
+        {/* ── MOBILE: card list ── */}
+        <div className="md:hidden space-y-2.5">
+          {filtered.map(c => (
+            <div key={c.id} className="bg-white rounded-2xl border border-[#e8e8e8] p-3.5">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-[#c0555a] flex items-center justify-center text-white font-bold text-[15px] flex-shrink-0">
+                  {c.name?.[0]?.toUpperCase() || "?"}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-semibold text-[#1a1a1a] text-[14px] truncate">{c.name || "—"}</p>
+                  <p className="text-[12px] text-[#666] truncate flex items-center gap-1.5"><Mail size={11} className="flex-shrink-0" />{c.email}</p>
+                  {c.phone && <p className="text-[12px] text-[#888] flex items-center gap-1.5"><Phone size={11} className="flex-shrink-0" />{c.phone}</p>}
+                </div>
+              </div>
+              <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#f3f3f3] text-[12px]">
+                <span className="flex items-center gap-1 text-[#555]"><ShoppingBag size={12} /> {c._count?.orders || 0} orders</span>
+                <span className="font-bold text-[#1a1a1a]">{formatPrice(c.orders?.reduce((s: number, o: any) => s + o.totalAmount, 0) || 0)}</span>
+                <span className="text-[#999]">{new Date(c.createdAt).toLocaleDateString("en-IN", {day:"numeric",month:"short",year:"numeric"})}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+        {/* ── DESKTOP: table ── */}
+        <div className="hidden md:block bg-white rounded-2xl border border-[#e8e8e8] overflow-x-auto">
           <table className="w-full text-[13px]">
             <thead className="bg-[#fafafa] border-b border-[#f0f0f0]">
               <tr>
@@ -86,6 +110,7 @@ export default function AdminCustomers() {
             </tbody>
           </table>
         </div>
+        </>
       )}
     </div>
   );

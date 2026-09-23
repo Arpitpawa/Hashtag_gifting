@@ -5,6 +5,7 @@ import { useState } from "react";
 import {
   Gift, MessageSquare, CheckCircle, Minus, Plus,
   Phone, Loader2, ShoppingBag, Clock, Bell, Mail,
+  X, Flame, Zap,
 } from "lucide-react";
 import type { Product } from "@/types/product";
 
@@ -42,7 +43,7 @@ export function NotifyMeButton({ productId }: { productId: number }) {
     <div className="w-full">
       {!open ? (
         <button onClick={() => setOpen(true)}
-          className="w-full flex items-center justify-center gap-2 py-4 rounded-full text-[15px] font-bold border-2 border-[#c0555a] text-[#c0555a] hover:bg-[#c0555a] hover:text-white transition-all duration-200">
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-full text-[15px] font-bold border-2 border-[#c0555a] text-[#c0555a] hover:bg-[#c0555a] hover:text-white transition-all duration-200">
           <Bell size={18} /> Notify me when available
         </button>
       ) : (
@@ -118,16 +119,16 @@ export default function ProductActions({
       {/* Stock + countdown */}
       <div className="flex items-center gap-3 flex-wrap">
         {isOutOfStock ? (
-          <span className="text-[13px] font-semibold text-red-500 bg-red-50 px-3 py-1.5 rounded-full border border-red-200">
-            ✕ Out of stock
+          <span className="flex items-center gap-1 text-[13px] font-semibold text-red-500 bg-red-50 px-3 py-1.5 rounded-full border border-red-200">
+            <X size={13} /> Out of stock
           </span>
         ) : product.stock <= 5 ? (
-          <span className="text-[13px] font-semibold text-orange-600 bg-orange-50 px-3 py-1.5 rounded-full border border-orange-200">
-            🔥 Only {product.stock} left!
+          <span className="flex items-center gap-1 text-[13px] font-semibold text-orange-600 bg-orange-50 px-3 py-1.5 rounded-full border border-orange-200">
+            <Flame size={13} /> Only {product.stock} left!
           </span>
         ) : (
-          <span className="text-[13px] font-semibold text-green-700 bg-green-50 px-3 py-1.5 rounded-full border border-green-200">
-            ✓ In stock
+          <span className="flex items-center gap-1 text-[13px] font-semibold text-green-700 bg-green-50 px-3 py-1.5 rounded-full border border-green-200">
+            <CheckCircle size={13} /> In stock
           </span>
         )}
         {!isOutOfStock && (
@@ -144,7 +145,7 @@ export default function ProductActions({
 
       {/* Gift add-ons */}
       <div>
-        <p className="text-[12px] font-bold text-[#888] uppercase tracking-wider mb-2">🎁 Gift add-ons</p>
+        <p className="flex items-center gap-1.5 text-[12px] font-bold text-[#888] uppercase tracking-wider mb-2"><Gift size={13} /> Gift add-ons</p>
         <div className="flex flex-col gap-2">
           {addOns.map((item, i) => (
             <label
@@ -209,7 +210,7 @@ export default function ProductActions({
               ? "bg-green-500 text-white"
               : "bg-[#c0555a] text-white hover:bg-[#a84449]"
           }`}
-        >
+         aria-label="Open cart">
           {adding ? (
             <><Loader2 size={18} className="animate-spin" /> Adding...</>
           ) : added ? (
@@ -231,7 +232,7 @@ export default function ProductActions({
             href="/checkout"
             className="w-full flex items-center justify-center gap-2 py-4 rounded-full text-[15px] font-bold border-2 border-[#1a1a1a] text-[#1a1a1a] hover:bg-[#1a1a1a] hover:text-white transition-all duration-300 active:scale-[0.98]"
           >
-            ⚡ Buy now
+            <Zap size={16} /> Buy now
           </Link>
         )}
 

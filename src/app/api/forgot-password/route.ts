@@ -1,11 +1,24 @@
+import { esc } from "@/lib/emailTemplates";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
 import crypto from "crypto";
+import { rateLimit } from "@/lib/rateLimit";
 
 export async function POST(req: NextRequest) {
   try {
+    // 5 requests per hour per IP — generous for a real person who fat-fingered
+    // their email, tight enough to stop inbox-bombing or Resend-quota abuse.
+    const ip    = req.headers.get("x-forwarded-for") || "unknown";
+    const limit = rateLimit(`forgot-password:${ip}`, { maxRequests: 5, windowMs: 60 * 60_000 });
+    if (!limit.success) {
+      return NextResponse.json(
+        { message: "If this email exists, a reset link has been sent." },
+        { status: 200 } // same response shape as success — don't reveal rate-limit state to a scripted caller
+      );
+    }
+
     const { email } = await req.json();
     if (!email) return NextResponse.json({ error: "Email required" }, { status: 400 });
 
@@ -24,7 +37,7 @@ export async function POST(req: NextRequest) {
     await prisma.user.update({
       where: { id: user.id },
       data: {
-        resetToken:          token,
+        resetToken:          crypto.createHash("sha256").update(token).digest("hex"), // only the hash is stored
         resetTokenExpiresAt: expiresAt,
       } as any,
     });
@@ -37,7 +50,7 @@ export async function POST(req: NextRequest) {
       html: `
         <div style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;padding:24px">
           <h2 style="color:#1a1a1a;margin-bottom:8px">Reset your password</h2>
-          <p style="color:#555;margin-bottom:24px">Hi ${user.name || "there"},</p>
+          <p style="color:#555;margin-bottom:24px">Hi ${esc(user.name || "there")},</p>
           <p style="color:#555;margin-bottom:24px">
             We received a request to reset the password for your Hashtag Gifting account.
             Click the button below to reset it. This link expires in 1 hour.

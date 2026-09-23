@@ -12,7 +12,11 @@ export async function GET(req: NextRequest) {
   try {
     const coupons = await prisma.coupon.findMany({
       orderBy: { createdAt: "desc" },
-      include: { _count: { select: { orders: true } } },
+      include: {
+        _count:     { select: { orders: true } },
+        products:   { include: { product: { select: { id: true, name: true, images: true } } } },
+        categories: { include: { category: { select: { id: true, name: true } } } },
+      },
     });
     return NextResponse.json(coupons);
   } catch (err) {
@@ -37,30 +41,29 @@ export async function POST(req: NextRequest) {
       validTo,
       isActive   = true,
       usageLimit,
+      applyTo    = "ALL",       // "ALL" | "SPECIFIC_PRODUCTS" | "SPECIFIC_CATEGORIES"
+      productIds = [],           // number[]
+      categoryIds = [],          // number[]
     } = body;
 
     if (!code || !type || !value) {
-      return NextResponse.json(
-        { error: "Code, type and value are required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Code, type and value are required" }, { status: 400 });
     }
-
     if (!["PERCENT", "FLAT"].includes(type)) {
       return NextResponse.json({ error: "Type must be PERCENT or FLAT" }, { status: 400 });
     }
-
     if (type === "PERCENT" && (Number(value) < 1 || Number(value) > 100)) {
-      return NextResponse.json(
-        { error: "Percent value must be between 1 and 100" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Percent value must be between 1 and 100" }, { status: 400 });
+    }
+    if (applyTo === "SPECIFIC_PRODUCTS" && productIds.length === 0) {
+      return NextResponse.json({ error: "Select at least one product for this coupon" }, { status: 400 });
+    }
+    if (applyTo === "SPECIFIC_CATEGORIES" && categoryIds.length === 0) {
+      return NextResponse.json({ error: "Select at least one category for this coupon" }, { status: 400 });
     }
 
     const cleanCode = sanitizeString(code).toUpperCase().replace(/\s/g, "");
-
-    // Check duplicate
-    const existing = await prisma.coupon.findUnique({ where: { code: cleanCode } });
+    const existing  = await prisma.coupon.findUnique({ where: { code: cleanCode } });
     if (existing) {
       return NextResponse.json({ error: "Coupon code already exists" }, { status: 400 });
     }
@@ -75,11 +78,24 @@ export async function POST(req: NextRequest) {
         validFrom:  validFrom ? new Date(validFrom) : null,
         validTo:    validTo   ? new Date(validTo)   : null,
         usageLimit: usageLimit ? Number(usageLimit) : null,
+        applyTo,
+        // Create restriction join rows
+        products: applyTo === "SPECIFIC_PRODUCTS" && productIds.length > 0
+          ? { create: productIds.map((pid: number) => ({ productId: pid })) }
+          : undefined,
+        categories: applyTo === "SPECIFIC_CATEGORIES" && categoryIds.length > 0
+          ? { create: categoryIds.map((cid: number) => ({ categoryId: cid })) }
+          : undefined,
+      },
+      include: {
+        products:   { include: { product: { select: { id: true, name: true } } } },
+        categories: { include: { category: { select: { id: true, name: true } } } },
       },
     });
 
     return NextResponse.json({ success: true, coupon }, { status: 201 });
   } catch (err) {
+    console.error("CREATE COUPON ERROR:", err);
     return NextResponse.json({ error: "Failed to create coupon" }, { status: 500 });
   }
 }

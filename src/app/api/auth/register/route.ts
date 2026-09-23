@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { rateLimit } from "@/lib/rateLimit";
 import { sanitizeString } from "@/lib/sanitize";
 import type { NextRequest } from "next/server";
+import { issueEmailVerification, requireEmailVerification } from "@/lib/emailVerification";
 
 export async function POST(req: NextRequest) {
   try {
@@ -39,9 +40,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid email format" }, { status: 400 });
     }
 
-    if (password.length < 6 || password.length > 100) {
+    if (password.length < 8 || password.length > 100) {
       return NextResponse.json(
-        { error: "Password must be 6–100 characters" },
+        { error: "Password must be 8–100 characters" },
         { status: 400 }
       );
     }
@@ -66,7 +67,15 @@ export async function POST(req: NextRequest) {
       select: { id: true, name: true, email: true, role: true },
     });
 
-    return NextResponse.json({ success: true, user }, { status: 201 });
+    // Verification email (non-blocking for the response). The phone number
+    // typed here is NOT proof of ownership — it only becomes "verified" via OTP.
+    try { await issueEmailVerification({ id: user.id, email: user.email, name: user.name }); }
+    catch (e) { console.error("VERIFY EMAIL ISSUE ERROR:", e); }
+
+    return NextResponse.json(
+      { success: true, user, verificationRequired: requireEmailVerification() },
+      { status: 201 }
+    );
 
   } catch (err) {
     console.error("REGISTER ERROR:", err);

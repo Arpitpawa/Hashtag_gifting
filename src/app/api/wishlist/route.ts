@@ -6,10 +6,10 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.email) return NextResponse.json([], { status: 200 });
+    if (!session?.user?.id) return NextResponse.json([], { status: 200 });
 
     const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
+      where: { id: Number(session.user.id) },
     });
     if (!user) return NextResponse.json([], { status: 200 });
 

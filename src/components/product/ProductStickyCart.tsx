@@ -47,7 +47,9 @@ export default function ProductStickyCart({
     : "Add to cart";
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[#e8e0d5] shadow-2xl px-4 py-3 flex items-center gap-4">
+    // env(safe-area-inset-bottom) keeps this off the iPhone home-indicator
+    // gesture bar — without it, the CTA sat flush against/under it.
+    <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[#e8e0d5] shadow-2xl px-4 pt-3 flex items-center gap-4" style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}>
       <div className="relative w-10 h-10 rounded-xl overflow-hidden flex-shrink-0">
         <Image src={images[0]} alt="" fill className="object-cover" sizes="40px" />
       </div>
@@ -61,7 +63,7 @@ export default function ProductStickyCart({
         onClick={handleClick}
         disabled={isOutOfStock || adding}
         className="flex items-center gap-2 px-6 py-3 bg-[#c0555a] text-white text-[13px] font-bold rounded-full hover:bg-[#a84449] transition-all disabled:opacity-50 flex-shrink-0"
-      >
+       aria-label="Open cart">
         {adding
           ? <Loader2 size={14} className="animate-spin" />
           : <ShoppingBag size={14} />}

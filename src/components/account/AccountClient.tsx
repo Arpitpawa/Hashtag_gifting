@@ -11,9 +11,11 @@ import {
   CheckCircle, Loader2, Plus, Trash2,
   Phone, Mail, Home, Star, X,
   ShoppingBag, Clock, BadgeCheck,
-  CreditCard, Tag, AlertCircle,
+  CreditCard, Tag, AlertCircle, Truck, Pencil,
 } from "lucide-react";
 import { formatPrice } from "@/lib/store/cartStore";
+import { useCartStore } from "@/lib/store/cartStore";
+import AvailableCoupons from "@/components/shared/AvailableCoupons";
 
 type Tab = "profile" | "orders" | "addresses" | "wishlist" | "cards" | "coupons";
 
@@ -158,6 +160,172 @@ function ProfileTab({ session }: { session: any }) {
 }
 
 // ── orders tab ────────────────────────────────────────────────────────────────
+const DELIVERY_STEPS = ["PROCESSING","CONFIRMED","SHIPPED","OUT_FOR_DELIVERY","DELIVERED"];
+
+const DELIVERY_LABELS: Record<string,string> = {
+  PROCESSING:      "Order Placed",
+  CONFIRMED:       "Confirmed",
+  SHIPPED:         "Shipped",
+  OUT_FOR_DELIVERY:"Out for Delivery",
+  DELIVERED:       "Delivered",
+  CANCELLED:       "Cancelled",
+};
+
+const DELIVERY_COLORS: Record<string,string> = {
+  PROCESSING:      "bg-blue-100 text-blue-700",
+  CONFIRMED:       "bg-blue-100 text-blue-700",
+  SHIPPED:         "bg-purple-100 text-purple-700",
+  OUT_FOR_DELIVERY:"bg-orange-100 text-orange-700",
+  DELIVERED:       "bg-green-100 text-green-700",
+  CANCELLED:       "bg-gray-100 text-gray-500",
+};
+
+function MiniTimeline({ status }: { status: string }) {
+  if (status === "CANCELLED") return (
+    <div className="flex items-center gap-1.5 mt-3">
+      <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-gray-100 text-gray-500">Cancelled</span>
+    </div>
+  );
+  const currentIdx = DELIVERY_STEPS.indexOf(status);
+  return (
+    <div className="flex items-center gap-1 mt-3 overflow-x-auto" style={{ scrollbarWidth:"none" }}>
+      {DELIVERY_STEPS.map((step, i) => {
+        const done    = i <= currentIdx;
+        const current = i === currentIdx;
+        return (
+          <div key={step} className="flex items-center gap-1 flex-shrink-0">
+            <div className={`flex flex-col items-center gap-0.5`}>
+              <div className={`w-2.5 h-2.5 rounded-full transition-all ${
+                current ? "bg-[#c0555a] ring-2 ring-[#c0555a]/30" :
+                done    ? "bg-[#c0555a]" : "bg-[#e8e0d5]"
+              }`} />
+              <span className={`text-[9px] font-medium whitespace-nowrap ${
+                current ? "text-[#c0555a]" : done ? "text-[#888]" : "text-[#ccc]"
+              }`}>
+                {DELIVERY_LABELS[step]?.split(" ")[0]}
+              </span>
+            </div>
+            {i < DELIVERY_STEPS.length - 1 && (
+              <div className={`w-5 h-px mb-3 flex-shrink-0 ${done && i < currentIdx ? "bg-[#c0555a]" : "bg-[#e8e0d5]"}`} />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function OrderCard({ order }: { order: Order }) {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div className="bg-white rounded-2xl border border-[#e8e0d5] overflow-hidden">
+      {/* Header */}
+      <div className="p-5">
+        <div className="flex items-start justify-between mb-3 gap-3">
+          <div>
+            <p className="text-[14px] font-bold text-[#1a1a1a]">Order #{order.id}</p>
+            <p className="text-[12px] text-[#aaa] flex items-center gap-1 mt-0.5">
+              <Clock size={11} />
+              {new Date(order.createdAt).toLocaleDateString("en-IN", { day:"numeric", month:"short", year:"numeric" })}
+            </p>
+          </div>
+          <div className="flex flex-col items-end gap-1">
+            <span className="text-[15px] font-bold text-[#c0555a]">{formatPrice(order.totalAmount)}</span>
+            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+              order.paymentStatus === "PAID" ? "bg-green-100 text-green-700" :
+              order.paymentStatus === "PENDING" ? "bg-yellow-100 text-yellow-700" :
+              "bg-red-100 text-red-600"
+            }`}>
+              {order.paymentStatus === "PAID" ? <span className="flex items-center gap-1"><CheckCircle size={10} /> Paid</span> : order.paymentStatus}
+            </span>
+          </div>
+        </div>
+
+        {/* Product thumbnails */}
+        <div className="flex gap-2 overflow-x-auto" style={{ scrollbarWidth:"none" }}>
+          {order.items.slice(0,5).map((item, i) => (
+            <div key={i} className="relative w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 bg-[#f8f5f0] border border-[#e8e0d5]">
+              <Image src={item.product.images?.[0] || "/placeholder.jpg"} alt={item.product.name}
+                fill className="object-cover" sizes="48px" />
+              {item.quantity > 1 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#c0555a] text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                  {item.quantity}
+                </span>
+              )}
+            </div>
+          ))}
+          {order.items.length > 5 && (
+            <div className="w-12 h-12 rounded-xl bg-[#f3efe8] flex items-center justify-center text-[11px] font-bold text-[#888] flex-shrink-0 border border-[#e8e0d5]">
+              +{order.items.length - 5}
+            </div>
+          )}
+        </div>
+
+        {/* Mini status timeline */}
+        <MiniTimeline status={order.deliveryStatus} />
+
+        {/* Current status badge */}
+        <div className="flex items-center justify-between mt-3">
+          <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full ${DELIVERY_COLORS[order.deliveryStatus] || "bg-gray-100 text-gray-600"}`}>
+            {DELIVERY_LABELS[order.deliveryStatus] || order.deliveryStatus}
+          </span>
+          <button
+            onClick={() => setExpanded(!expanded)}
+            className="text-[12px] text-[#c0555a] font-semibold hover:underline flex items-center gap-1"
+          >
+            {expanded ? "Hide details ↑" : "View details ↓"}
+          </button>
+        </div>
+      </div>
+
+      {/* Expanded details */}
+      {expanded && (
+        <div className="border-t border-[#f0ece6] bg-[#fafaf9] px-5 py-4 flex flex-col gap-3">
+
+          {/* Full item list */}
+          <div className="flex flex-col gap-2">
+            {order.items.map((item, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <div className="relative w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 bg-[#f3efe8] border border-[#e8e0d5]">
+                  <Image src={item.product.images?.[0] || "/placeholder.jpg"} alt={item.product.name}
+                    fill className="object-cover" sizes="40px" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12px] font-semibold text-[#1a1a1a] truncate">{item.product.name}</p>
+                  <p className="text-[11px] text-[#aaa]">Qty: {item.quantity} · {formatPrice(item.price)}</p>
+                </div>
+                {(item as any).customization && (
+                  <span className="flex items-center gap-1 text-[10px] text-[#c0555a] font-semibold bg-[#c0555a]/10 px-2 py-0.5 rounded-full flex-shrink-0">
+                    <Pencil size={9} /> Custom
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Action buttons */}
+          <div className="flex gap-2 pt-1 flex-wrap">
+            <Link
+              href={`/track?orderId=${order.id}`}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-[#1a1a1a] text-white text-[12px] font-bold rounded-full hover:bg-[#333] transition-all"
+            >
+              <Truck size={12} /> Track Order
+            </Link>
+            <a
+              href={`https://wa.me/917665909909?text=Hi! My order ID is %23${order.id}. Can you help me?`}
+              target="_blank" rel="noopener noreferrer"
+              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-[#25D366] text-white text-[12px] font-bold rounded-full hover:bg-[#1da851] transition-all"
+            >
+              <Phone size={12} /> WhatsApp
+            </a>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function OrdersTab() {
   const [orders,  setOrders]  = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -168,19 +336,9 @@ function OrdersTab() {
       .finally(() => setLoading(false));
   }, []);
 
-  const statusColor = (s: string) => ({
-    PAID:       "bg-green-100 text-green-700",
-    PENDING:    "bg-yellow-100 text-yellow-700",
-    FAILED:     "bg-red-100 text-red-600",
-    PROCESSING: "bg-blue-100 text-blue-700",
-    SHIPPED:    "bg-purple-100 text-purple-700",
-    DELIVERED:  "bg-green-100 text-green-700",
-    CANCELLED:  "bg-gray-100 text-gray-600",
-  }[s] || "bg-gray-100 text-gray-600");
-
   if (loading) return (
     <div className="bg-white rounded-2xl border border-[#e8e0d5] p-6 flex flex-col gap-4">
-      {[1,2,3].map(i => <div key={i} className="h-20 bg-[#e8e0d5] rounded-2xl animate-pulse" />)}
+      {[1,2,3].map(i => <div key={i} className="h-36 bg-[#e8e0d5] rounded-2xl animate-pulse" />)}
     </div>
   );
 
@@ -197,54 +355,7 @@ function OrdersTab() {
 
   return (
     <div className="flex flex-col gap-4">
-      {orders.map(order => (
-        <div key={order.id} className="bg-white rounded-2xl border border-[#e8e0d5] p-5">
-          <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-            <div>
-              <p className="text-[14px] font-bold text-[#1a1a1a]">Order #{order.id}</p>
-              <p className="text-[12px] text-[#aaa] flex items-center gap-1 mt-0.5">
-                <Clock size={11} />
-                {new Date(order.createdAt).toLocaleDateString("en-IN", { day:"numeric", month:"short", year:"numeric" })}
-              </p>
-            </div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full ${statusColor(order.paymentStatus)}`}>
-                {order.paymentStatus}
-              </span>
-              <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full ${statusColor(order.deliveryStatus)}`}>
-                {order.deliveryStatus}
-              </span>
-              <span className="text-[14px] font-bold text-[#c0555a]">{formatPrice(order.totalAmount)}</span>
-            </div>
-          </div>
-          <div className="flex gap-2 overflow-x-auto" style={{ scrollbarWidth:"none" }}>
-            {order.items.slice(0,4).map((item, i) => (
-              <div key={i} className="relative w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 bg-[#f8f5f0] border border-[#e8e0d5]">
-                <Image src={item.product.images?.[0] || "/placeholder.jpg"} alt={item.product.name}
-                  fill className="object-cover" sizes="56px" />
-                {item.quantity > 1 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#c0555a] text-white text-[9px] font-bold rounded-full flex items-center justify-center">
-                    {item.quantity}
-                  </span>
-                )}
-              </div>
-            ))}
-            {order.items.length > 4 && (
-              <div className="w-14 h-14 rounded-xl bg-[#f3efe8] flex items-center justify-center text-[12px] font-bold text-[#888] flex-shrink-0">
-                +{order.items.length - 4}
-              </div>
-            )}
-          </div>
-          <div className="flex items-center justify-between mt-4">
-            <p className="text-[12px] text-[#888]">{order.items.length} item{order.items.length > 1 ? "s" : ""}</p>
-            <a href={`https://wa.me/917665909909?text=Hi! My order ID is %23${order.id}. Can you help me track it?`}
-              target="_blank" rel="noopener noreferrer"
-              className="text-[12px] text-[#25D366] font-semibold hover:underline flex items-center gap-1">
-              <Phone size={11} /> Track on WhatsApp
-            </a>
-          </div>
-        </div>
-      ))}
+      {orders.map(order => <OrderCard key={order.id} order={order} />)}
     </div>
   );
 }
@@ -310,7 +421,7 @@ function AddressesTab() {
                 </div>
               </div>
               <button onClick={() => handleDelete(addr.id)}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-[#ccc] hover:text-red-500 hover:bg-red-50 transition-all flex-shrink-0">
+                className="w-10 h-10 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-[#ccc] hover:text-red-500 hover:bg-red-50 transition-all flex-shrink-0">
                 <Trash2 size={15} />
               </button>
             </div>
@@ -392,24 +503,25 @@ function CardsTab() {
 
 // ── coupons tab ────────────────────────────────────────────────────────────────
 function CouponsTab() {
+  const { subtotal } = useCartStore();
   const [code,    setCode]    = useState("");
   const [loading, setLoading] = useState(false);
   const [msg,     setMsg]     = useState<{ type: "success" | "error"; text: string } | null>(null);
 
-  const availableCoupons = [
-    { code: "WELCOME10", discount: "10% off",       desc: "On your first order",              min: "No minimum" },
-    { code: "HASHTAG20", discount: "20% off",       desc: "On orders above Rs. 999",          min: "Min. Rs. 999" },
-    { code: "FLAT50",    discount: "Rs. 50 off",    desc: "Flat discount on any order",        min: "No minimum" },
-  ];
-
-  const validate = async () => {
-    if (!code.trim()) return;
+  const validate = async (codeOverride?: string) => {
+    const useCode = (codeOverride ?? code).trim();
+    if (!useCode) return;
     setLoading(true); setMsg(null);
     try {
-      const res  = await fetch(`/api/coupons/validate?code=${code.trim().toUpperCase()}`);
+      const res  = await fetch("/api/coupons/validate", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: useCode.toUpperCase(), subtotal: subtotal || 0 }),
+      });
       const data = await res.json();
-      if (res.ok) setMsg({ type: "success", text: `Valid! ${data.coupon?.type === "PERCENT" ? `${data.coupon.value}% off` : `Rs. ${data.coupon.value / 100} off`} applied at checkout.` });
+      if (data.valid) setMsg({ type: "success", text: data.message || "Coupon is valid!" });
       else setMsg({ type: "error", text: data.error || "Invalid coupon code" });
+    } catch {
+      setMsg({ type: "error", text: "Could not check this coupon right now." });
     } finally { setLoading(false); }
   };
 
@@ -422,13 +534,17 @@ function CouponsTab() {
         <p className="text-[13px] font-semibold text-[#555] mb-3">Have a coupon code?</p>
         <div className="flex gap-2">
           <input value={code} onChange={e => setCode(e.target.value.toUpperCase())}
+            onKeyDown={e => e.key === "Enter" && validate()}
             placeholder="Enter coupon code"
             className="flex-1 border border-[#e8e0d5] rounded-xl px-4 py-2.5 text-[14px] outline-none focus:border-[#c0555a] bg-white uppercase font-mono tracking-wider" />
-          <button onClick={validate} disabled={loading || !code.trim()}
+          <button onClick={() => validate()} disabled={loading || !code.trim()}
             className="px-5 py-2.5 bg-[#c0555a] text-white text-[13px] font-bold rounded-xl hover:bg-[#a84449] disabled:opacity-50 transition-all">
             {loading ? <Loader2 size={14} className="animate-spin" /> : "Check"}
           </button>
         </div>
+        {subtotal === 0 && (
+          <p className="text-[11px] text-[#aaa] mt-2">Your cart is empty — add items first to check eligibility against your real order.</p>
+        )}
         {msg && (
           <p className={`text-[12px] mt-2 font-medium flex items-center gap-1.5 ${msg.type === "success" ? "text-green-600" : "text-red-500"}`}>
             {msg.type === "success" ? <CheckCircle size={13} /> : <AlertCircle size={13} />}
@@ -437,27 +553,12 @@ function CouponsTab() {
         )}
       </div>
 
-      {/* Available coupons */}
-      <p className="text-[12px] font-bold text-[#aaa] uppercase tracking-wider mb-3">Available offers</p>
-      <div className="flex flex-col gap-3">
-        {availableCoupons.map((c, i) => (
-          <div key={i} className="flex items-center gap-4 bg-white border border-dashed border-[#e8e0d5] rounded-xl p-4 hover:border-[#c0555a] transition-colors">
-            <div className="flex flex-col items-center justify-center w-20 flex-shrink-0 border-r border-dashed border-[#e8e0d5] pr-4">
-              <Tag size={16} className="text-[#c0555a] mb-1" />
-              <span className="text-[10px] font-bold tracking-widest text-[#c0555a] font-mono">{c.code}</span>
-            </div>
-            <div className="flex-1">
-              <p className="text-[14px] font-bold text-[#1a1a1a]">{c.discount}</p>
-              <p className="text-[12px] text-[#888]">{c.desc}</p>
-              <p className="text-[11px] text-[#aaa] mt-0.5">{c.min}</p>
-            </div>
-            <button onClick={() => { setCode(c.code); validate(); }}
-              className="text-[12px] text-[#c0555a] font-bold hover:underline flex-shrink-0">
-              Apply
-            </button>
-          </div>
-        ))}
-      </div>
+      {/* Real available coupons — pulled live from the database, not hardcoded */}
+      <AvailableCoupons
+        subtotal={subtotal || undefined}
+        onApply={(c) => { setCode(c); validate(c); }}
+        collapsedCount={2}
+      />
     </div>
   );
 }
@@ -552,9 +653,12 @@ export default function AccountClient() {
           <span className="text-[#1a1a1a] font-medium">My account</span>
         </nav>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-6">
+        {/* xl instead of lg — an iPad Pro in portrait matches lg (1024px)
+            and was squeezing a fixed 260px sidebar beside cramped content
+            instead of stacking, on a screen that's actually tall/narrow. */}
+        <div className="grid grid-cols-1 xl:grid-cols-[260px_1fr] gap-6">
           {/* Sidebar */}
-          <div className="lg:sticky lg:top-6 lg:self-start">
+          <div className="xl:sticky xl:top-6 xl:self-start">
             <Sidebar tab={tab} setTab={setTab} session={session} />
           </div>
 

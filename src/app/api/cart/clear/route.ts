@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { ownsCart } from "@/lib/cartAuth";
 
 export async function DELETE(req: Request) {
   try {
@@ -9,9 +10,16 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ error: "cartId is required" }, { status: 400 });
     }
 
-    await prisma.cartItem.deleteMany({
-      where: { cartId: Number(cartId) },
+    const cart = await prisma.cart.findUnique({
+      where:  { id: Number(cartId) },
+      select: { id: true, userId: true },
     });
+
+    if (!cart || !(await ownsCart(cart))) {
+      return NextResponse.json({ error: "Cart not found" }, { status: 404 });
+    }
+
+    await prisma.cartItem.deleteMany({ where: { cartId: cart.id } });
 
     return NextResponse.json({ success: true, message: "Cart cleared" });
 

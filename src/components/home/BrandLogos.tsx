@@ -1,14 +1,14 @@
 "use client";
 
 const brands = [
-  { name: "Tata",               logo: "https://upload.wikimedia.org/wikipedia/commons/f/f1/Tata_logo.svg" },
-  { name: "Mahindra",           logo: "https://upload.wikimedia.org/wikipedia/commons/2/28/Mahindra_Rise_Logo.svg" },
+  { name: "Tata",               logo: "https://upload.wikimedia.org/wikipedia/commons/8/8e/Tata_logo.svg" },
+  { name: "Mahindra",           logo: "https://upload.wikimedia.org/wikipedia/commons/1/16/Mahindra_Rise_New_Logo.svg" },
   { name: "HDFC Bank",          logo: "https://upload.wikimedia.org/wikipedia/commons/2/28/HDFC_Bank_Logo.svg" },
   { name: "Infosys",            logo: "https://upload.wikimedia.org/wikipedia/commons/9/95/Infosys_logo.svg" },
   { name: "Wipro",              logo: "https://upload.wikimedia.org/wikipedia/commons/a/a0/Wipro_Primary_Logo_Color_RGB.svg" },
   { name: "ICICI Bank",         logo: "https://upload.wikimedia.org/wikipedia/commons/1/12/ICICI_Bank_Logo.svg" },
-  { name: "Reliance",           logo: "https://upload.wikimedia.org/wikipedia/commons/8/8b/Reliance_Industries_Logo.svg" },
-  { name: "Aditya Birla Group", logo: "https://upload.wikimedia.org/wikipedia/commons/3/36/Aditya_Birla_Group_Logo.svg" },
+  { name: "Reliance Jio",       logo: "https://upload.wikimedia.org/wikipedia/commons/b/bf/Reliance_Jio_Logo.svg" },
+  { name: "Aditya Birla Group", logo: "https://upload.wikimedia.org/wikipedia/en/7/75/Aditya_Birla_Group_Logo.svg" },
 ];
 
 const duplicatedBrands = [...brands, ...brands];
@@ -44,7 +44,27 @@ export default function BrandClients() {
                 <div key={index}
                   className="flex items-center justify-center min-w-[220px] px-10 grayscale hover:grayscale-0 opacity-70 hover:opacity-100 transition-all duration-300">
                   <img src={brand.logo} alt={brand.name}
-                    className="h-10 md:h-12 object-contain w-auto" draggable={false} />
+                    className="h-10 md:h-12 object-contain w-auto"
+                    draggable={false}
+                    onError={(e) => {
+                      // A hotlinked Wikimedia file can get renamed/moved out
+                      // from under us at any time (this is exactly what
+                      // happened to the old Mahindra logo URL) — rather than
+                      // showing a broken-image icon + alt text on the
+                      // homepage, fall back to a clean text badge with the
+                      // brand name so the slider never looks broken.
+                      const img = e.currentTarget;
+                      img.style.display = "none";
+                      const fallback = img.nextElementSibling as HTMLElement | null;
+                      if (fallback) fallback.style.display = "flex";
+                    }}
+                  />
+                  <span
+                    className="hidden items-center justify-center h-10 md:h-12 px-4 text-[15px] md:text-[17px] font-semibold text-[#555] whitespace-nowrap"
+                    style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+                  >
+                    {brand.name}
+                  </span>
                 </div>
               ))}
             </div>

@@ -13,7 +13,7 @@ export async function deductStockSafely(
   reservations: StockReservation[]
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: any) => {
       for (const { productId, quantity } of reservations) {
         // SELECT ... FOR UPDATE — locks the row while we check + update
         // This prevents another transaction from reading stale stock
@@ -63,7 +63,7 @@ export async function deductStockSafely(
 export async function restoreStock(
   reservations: StockReservation[]
 ): Promise<void> {
-  await prisma.$transaction(async (tx) => {
+  await prisma.$transaction(async (tx: any) => {
     for (const { productId, quantity } of reservations) {
       await tx.product.update({
         where: { id: productId },

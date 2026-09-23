@@ -1,84 +1,48 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Gift, Zap, Pencil, RotateCcw } from "lucide-react";
+import { Headphones, Zap, Pencil, RotateCcw, FolderTree } from "lucide-react";
 
-const categories = [
-  {
-    name: "Birthday gifts",
-    count: "120+ gifts",
-    image: "https://confettigifts.in/cdn/shop/files/PetFaceSocks.webp?v=1771482164&width=800",
-    link: "/category/birthday",
-  },
-  {
-    name: "Anniversary",
-    count: "85+ gifts",
-    image: "https://confettigifts.in/cdn/shop/files/3-9_0615fbf0-3577-466d-8622-5449bdd5d20d.webp?v=1767951776&width=800",
-    link: "/category/anniversary",
-  },
-  {
-    name: "Personalized mugs",
-    count: "80+ designs",
-    image: "https://confettigifts.in/cdn/shop/files/2_b636a062-abbe-48be-80e9-2e47c2b628b5.webp?v=1764568216&width=800",
-    link: "/category/mugs",
-  },
-  {
-    name: "Photo frames",
-    count: "65+ frames",
-    image: "https://confettigifts.in/cdn/shop/files/1-16_ad3cd0de-7dad-4136-8f95-cb92ae451fcc.webp?v=1772883529&width=800",
-    link: "/category/photo-frames",
-  },
-  {
-    name: "LED name lamps",
-    count: "50+ styles",
-    image: "https://confettigifts.in/cdn/shop/files/2-2_50e1fc1a-0290-4155-bec5-e9ae33018478.webp?v=1761636856&width=800",
-    link: "/category/led-lamps",
-  },
-  {
-    name: "Gift hampers",
-    count: "45+ hampers",
-    image: "https://confettigifts.in/cdn/shop/files/CopyofIMG_2509.jpg?v=1761636856&width=800",
-    link: "/category/hampers",
-  },
-  {
-    name: "Cushion covers",
-    count: "70+ prints",
-    image: "https://confettigifts.in/cdn/shop/files/Souvinerbox1.webp?v=1767951776&width=800",
-    link: "/category/cushions",
-  },
-  {
-    name: "Couple gifts",
-    count: "60+ gifts",
-    image: "https://confettigifts.in/cdn/shop/files/3-9_0615fbf0-3577-466d-8622-5449bdd5d20d.webp?v=1767951776&width=800",
-    link: "/category/couple",
-  },
-  {
-    name: "Wedding gifts",
-    count: "55+ gifts",
-    image: "https://confettigifts.in/cdn/shop/files/1-16_ad3cd0de-7dad-4136-8f95-cb92ae451fcc.webp?v=1772883529&width=800",
-    link: "/category/wedding",
-  },
-  {
-    name: "Bulk gifting",
-    count: "45+ options",
-    image: "https://confettigifts.in/cdn/shop/files/CopyofIMG_2509.jpg?v=1761636856&width=800",
-    link: "/category/bulk",
-  },
-];
+interface Category {
+  id:     number;
+  name:   string;
+  slug:   string;
+  image:  string | null;
+  _count?: { products: number };
+}
 
 const trustSignals = [
-  { icon: Gift, label: "Free gift wrapping", sub: "On every order" },
+  { icon: Headphones, label: "Dedicated customer care", sub: "We're here to help" },
   { icon: Zap, label: "3-hour delivery", sub: "Within Jaipur" },
   { icon: Pencil, label: "100% customized", sub: "Made with love" },
-  { icon: RotateCcw, label: "Easy returns", sub: "Hassle-free refunds" },
+  { icon: RotateCcw, label: "Easy returns", sub: "Except personalised items" },
 ];
 
 // Pastel red — warm dusty rose instead of harsh #c0392b
 const PASTEL_RED = "#6B4F3F";
-const PASTEL_RED_LIGHT = "#8B6F5F";
+
+const SKELETON_COUNT = 10;
 
 export default function ShopByCategory() {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading]       = useState(true);
+
+  // Real categories from the admin panel — same endpoint the navbar and shop
+  // page use. Previously this section had 10 hardcoded categories with
+  // images hotlinked from a competitor's site and guessed slugs that didn't
+  // match this store's actual catalog.
+  useEffect(() => {
+    fetch("/api/categories")
+      .then((r) => r.json())
+      .then((data: Category[]) => {
+        if (Array.isArray(data)) setCategories(data.slice(0, 10));
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
   return (
     <section className="pt-0 pb-0 relative overflow-hidden">
 
@@ -102,46 +66,64 @@ export default function ShopByCategory() {
 
         {/* ── GRID ── */}
         <div className="max-w-[1450px] mx-auto">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
-            {categories.map((cat, index) => (
-              <Link
-                href={cat.link}
-                key={index}
-                className="group block bg-white overflow-hidden rounded-md hover:shadow-xl transition-all duration-300"
-              >
-                {/* IMAGE */}
-                <div className="relative h-[160px] md:h-[190px] overflow-hidden">
-                  <Image
-                    src={cat.image}
-                    alt={cat.name}
-                    fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-                  />
+          {/* Added an xl:grid-cols-5 step (was a straight 4→5 jump at lg,
+              1024px — tight on an iPad Pro / small laptop). Image boxes now
+              use aspect-square instead of a fixed height, so they scale
+              with the column width at every breakpoint instead of getting
+              squeezed at in-between widths. */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
+            {loading ? (
+              Array.from({ length: SKELETON_COUNT }).map((_, i) => (
+                <div key={i} className="bg-white/20 rounded-md overflow-hidden animate-pulse">
+                  <div className="aspect-square bg-white/10" />
+                  <div className="px-3 py-3">
+                    <div className="h-3.5 bg-white/20 rounded-full mb-2" />
+                    <div className="h-3 bg-white/10 rounded-full w-2/3" />
+                  </div>
                 </div>
+              ))
+            ) : (
+              categories.map((cat) => (
+                <Link
+                  href={`/category/${cat.slug}`}
+                  key={cat.id}
+                  className="group block bg-white overflow-hidden rounded-md hover:shadow-xl transition-all duration-300"
+                >
+                  {/* IMAGE */}
+                  <div className="relative aspect-square overflow-hidden bg-[#f3efe8]">
+                    {cat.image ? (
+                      <Image
+                        src={cat.image}
+                        alt={cat.name}
+                        fill
+                        className="object-cover transition-transform duration-700 group-hover:scale-110"
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <FolderTree size={28} className="text-[#ccc]" />
+                      </div>
+                    )}
+                  </div>
 
-                {/* NAME */}
-                <div className="px-3 py-3">
-                  <h3
-                    className="text-[13px] md:text-[14px] font-semibold text-[#1a1a1a] leading-snug transition-colors duration-200"
-                    style={{ ["--hover-color" as string]: PASTEL_RED }}
-                  >
-                    <span className={`group-hover:text-[${PASTEL_RED}]`}>
+                  {/* NAME */}
+                  <div className="px-3 py-3">
+                    <h3 className="text-[13px] md:text-[14px] font-semibold text-[#1a1a1a] leading-snug transition-colors duration-200 group-hover:text-[#6B4F3F]">
                       {cat.name}
-                    </span>
-                  </h3>
-                  <p className="text-[11px] text-gray-400 mt-0.5">
-                    {cat.count}
-                  </p>
-                </div>
-              </Link>
-            ))}
+                    </h3>
+                    <p className="text-[11px] text-gray-400 mt-0.5">
+                      {cat._count?.products ?? 0} {cat._count?.products === 1 ? "product" : "products"}
+                    </p>
+                  </div>
+                </Link>
+              ))
+            )}
           </div>
 
           {/* VIEW ALL */}
           <div className="text-center mt-10">
             <Link
-              href="/shop"
+              href="/categories"
               className="inline-flex items-center gap-3 px-8 py-4 bg-white font-semibold text-[13px] tracking-wider hover:bg-white/90 transition-all duration-300 rounded-full"
               style={{ color: PASTEL_RED }}
             >

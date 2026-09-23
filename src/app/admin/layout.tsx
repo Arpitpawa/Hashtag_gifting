@@ -4,7 +4,7 @@ import { authOptions }       from "@/app/api/auth/[...nextauth]/options";
 import AdminSidebar          from "@/components/admin/AdminSidebar";
 import AdminHeader           from "@/components/admin/AdminHeader";
 
-export const metadata = { title: "Admin — Hashtag Gifting" };
+export const metadata = { title: "Admin" };
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
@@ -15,7 +15,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <div className="flex min-h-screen bg-[#f5f5f5]">
       <AdminSidebar />
-      <div className="flex-1 lg:ml-[240px] flex flex-col min-h-screen">
+      <div className="flex-1 min-w-0 lg:ml-[240px] flex flex-col min-h-screen">
         <AdminHeader />
         <main className="flex-1">
           {children}

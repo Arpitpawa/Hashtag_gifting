@@ -15,19 +15,19 @@ function formatPrice(p: number) {
 
 function StatCard({ label, value, sub, icon, color, href }: any) {
   const card = (
-    <div className="bg-white rounded-2xl border border-[#e8e8e8] p-5 flex items-start gap-4 hover:shadow-md transition-shadow">
-      <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${color}`}>
+    <div className="bg-white rounded-2xl border border-[#e8e8e8] p-4 sm:p-5 flex flex-col sm:flex-row items-start gap-3 sm:gap-4 hover:shadow-md transition-shadow h-full">
+      <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${color}`}>
         {icon}
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-[13px] text-[#888] font-medium">{label}</p>
-        <p className="text-[24px] font-bold text-[#1a1a1a] mt-0.5">{value}</p>
+        <p className="text-[20px] sm:text-[24px] font-bold text-[#1a1a1a] mt-0.5 leading-tight break-words">{value}</p>
         {sub && <p className="text-[12px] text-[#aaa] mt-0.5">{sub}</p>}
       </div>
-      {href && <ArrowRight size={16} className="text-[#ccc] mt-1 flex-shrink-0" />}
+      {href && <ArrowRight size={16} className="hidden sm:block text-[#ccc] mt-1 flex-shrink-0" />}
     </div>
   );
-  return href ? <Link href={href}>{card}</Link> : card;
+  return href ? <Link href={href} className="block">{card}</Link> : card;
 }
 
 const STATUS_COLOR: Record<string, string> = {
@@ -65,15 +65,15 @@ export default function AdminDashboard() {
   const lowStockProducts = data?.lowStockProducts || [];
 
   return (
-    <div className="p-6 lg:p-8">
+    <div className="p-4 sm:p-6 lg:p-8">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-[28px] font-bold text-[#1a1a1a]">Dashboard</h1>
+      <div className="mb-5 sm:mb-8">
+        <h1 className="text-[22px] sm:text-[28px] font-bold text-[#1a1a1a]">Dashboard</h1>
         <p className="text-[14px] text-[#888] mt-1">Welcome back, Admin</p>
       </div>
 
       {/* Stats grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
         <StatCard label="Total revenue"  value={formatPrice(s.totalRevenue || 0)}
           sub={`This month: ${formatPrice(s.monthRevenue || 0)}`}
           icon={<IndianRupee size={22} className="text-green-600" />}
@@ -121,15 +121,15 @@ export default function AdminDashboard() {
               const snap = order.addressSnapshot as any;
               const img  = order.items?.[0]?.product?.images?.[0];
               return (
-                <Link key={order.id} href={`/admin/orders?id=${order.id}`}
-                  className="flex items-center gap-4 px-6 py-4 hover:bg-[#fafafa] transition-colors">
+                <Link key={order.id} href={`/admin/orders/${order.id}`}
+                  className="flex items-center gap-3 sm:gap-4 px-4 sm:px-6 py-4 hover:bg-[#fafafa] transition-colors">
                   {img && (
                     <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-[#f5f5f5] flex-shrink-0 border border-[#e8e8e8]">
                       <Image src={img} alt="" fill className="object-cover" sizes="48px" />
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-[13px] font-semibold text-[#1a1a1a]">
+                    <p className="text-[13px] font-semibold text-[#1a1a1a] truncate">
                       #{order.id} — {snap?.name || order.user?.name || "Guest"}
                     </p>
                     <p className="text-[12px] text-[#888] mt-0.5">
@@ -138,7 +138,7 @@ export default function AdminDashboard() {
                       })}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
+                  <div className="flex flex-col-reverse items-end sm:flex-row sm:items-center gap-1 sm:gap-2 flex-shrink-0">
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${STATUS_COLOR[order.paymentStatus] || ""}`}>
                       {order.paymentStatus}
                     </span>

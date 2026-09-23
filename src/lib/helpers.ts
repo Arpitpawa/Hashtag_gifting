@@ -15,8 +15,11 @@ export const isValidEmail = (email: string): boolean =>
 export const isValidPhone = (phone: string): boolean =>
   /^[6-9]\d{9}$/.test(phone.replace(/\s/g, ""));
 
+// Indian PIN codes are exactly 6 digits and the first digit is never 0
+// (postal zones are numbered 1-9), so "000000"/"012345" etc. are rejected
+// here as malformed — this is a format check only, not a realness check.
 export const isValidPincode = (pincode: string): boolean =>
-  /^\d{6}$/.test(pincode);
+  /^[1-9]\d{5}$/.test(pincode);
 
 // ── SLUG HELPER ──
 export const generateSlug = (name: string): string =>

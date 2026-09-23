@@ -7,14 +7,14 @@ import bcrypt from "bcryptjs";
 export async function PUT(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
     const { name, phone, currentPassword, newPassword } = await req.json();
 
     const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
+      where: { id: Number(session.user.id) },
     });
 
     if (!user) {
@@ -24,7 +24,11 @@ export async function PUT(req: Request) {
     const updateData: any = {};
 
     if (name)  updateData.name  = name;
-    if (phone) updateData.phone = phone;
+    if (phone) {
+      updateData.phone = phone;
+      // A changed number is unverified until it's proven again by OTP.
+      if (phone !== user.phone) updateData.phoneVerifiedAt = null;
+    }
 
     // Password change
     if (newPassword) {
@@ -50,9 +54,9 @@ export async function PUT(req: Request) {
         );
       }
 
-      if (newPassword.length < 6) {
+      if (newPassword.length < 8) {
         return NextResponse.json(
-          { error: "New password must be at least 6 characters" },
+          { error: "New password must be at least 8 characters" },
           { status: 400 }
         );
       }
@@ -61,7 +65,7 @@ export async function PUT(req: Request) {
     }
 
     const updated = await prisma.user.update({
-      where: { email: session.user.email },
+      where: { id: Number(session.user.id) },
       data: updateData,
       select: {
         id: true, name: true, email: true, phone: true, image: true,

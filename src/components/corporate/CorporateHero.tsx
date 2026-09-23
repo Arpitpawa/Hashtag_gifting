@@ -2,39 +2,51 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useGroupImages } from "./useRealProducts";
+
+// Temporary stopgap — using the homepage hero product photos here instead of
+// the previous hotlinked competitor CDN (confettigifts.in) / Unsplash images.
+// Swap these for real corporate product photography once available.
+const HERO_IMGS = [
+  "/Personalisedpassportcoverheroimage.png",
+  "/personaliseddiariespensheropng.png",
+  "/personalisedwalletskeychain.png",
+];
 
 const slides = [
   {
     id: 1,
-    image: "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?q=80&w=1800&auto=format&fit=crop",
+    image: HERO_IMGS[0],
     button: "GET A FREE QUOTE",
     link: "#inquiry",
   },
   {
     id: 2,
-    image: "https://images.unsplash.com/photo-1521737711867-e3b97375f902?q=80&w=1800&auto=format&fit=crop",
+    image: HERO_IMGS[1],
     button: "EXPLORE EMPLOYEE GIFTS",
     link: "/category/employee-hampers",
   },
   {
     id: 3,
-    image: "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=1800&auto=format&fit=crop",
-    button: "BUILD YOUR HAMPER",
-    link: "/category/gift-hampers",
+    image: HERO_IMGS[2],
+    button: "SHOP GIFT COMBOS",
+    link: "/category/gift-combos",
   },
 ];
 
+// Real product types (SKU numbers) — the tile photo is a real product of that type.
 const categories = [
-  { label: "Employee welcome kits", image: "https://confettigifts.in/cdn/shop/files/Souvinerbox1.webp?v=1767951776&width=200", link: "/corporate/welcome-kits" },
-  { label: "Eco friendly gifts",    image: "https://confettigifts.in/cdn/shop/files/PetFaceSocks.webp?v=1771482164&width=200", link: "/corporate/eco-gifts" },
-  { label: "Client gifts",          image: "https://confettigifts.in/cdn/shop/files/CopyofIMG_2509.jpg?v=1761636856&width=200", link: "/corporate/client-gifts" },
-  { label: "Employee gifts",        image: "https://confettigifts.in/cdn/shop/files/2_b636a062-abbe-48be-80e9-2e47c2b628b5.webp?v=1764568216&width=200", link: "/corporate/employee-gifts" },
-  { label: "Drinkware",             image: "https://confettigifts.in/cdn/shop/files/3-9_0615fbf0-3577-466d-8622-5449bdd5d20d.webp?v=1767951776&width=200", link: "/corporate/drinkware" },
-  { label: "Promotional products",  image: "https://confettigifts.in/cdn/shop/files/1-16_ad3cd0de-7dad-4136-8f95-cb92ae451fcc.webp?v=1772883529&width=200", link: "/corporate/promotional" },
+  { label: "Diary & pen sets",  types: "01",             link: "/category/diary-pen-combos" },
+  { label: "Pens",              types: "15",             link: "/category/pens" },
+  { label: "Men's wallets",     types: "11,12,13,14",    link: "/category/mens-wallets" },
+  { label: "Passport covers",   types: "02,03",          link: "/category/passport-covers" },
+  { label: "Stationery pouches",types: "06",             link: "/category/stationery-pouches" },
+  { label: "Gift combos",       types: "19,16,17",       link: "/category/gift-combos" },
 ];
 
 export default function CorporateHero() {
   const [current, setCurrent] = useState(0);
+  const tileImages = useGroupImages(categories.map((c) => c.types));
 
   useEffect(() => {
     const slider = setInterval(() => {
@@ -48,12 +60,16 @@ export default function CorporateHero() {
       {/* ── CATEGORY CIRCLES ── */}
       <section className="py-8 bg-white border-b border-[#ececec]">
         <div className="max-w-[1450px] mx-auto px-4 md:px-6 lg:px-10">
-          <div className="flex items-center justify-center gap-6 md:gap-12 overflow-x-auto no-scrollbar pb-2">
+          <div className="flex items-center justify-start xl:justify-center gap-6 md:gap-12 overflow-x-auto no-scrollbar pb-2 px-4">
             {categories.map((cat, i) => (
               <Link key={i} href={cat.link} className="flex flex-col items-center gap-3 flex-shrink-0 group">
                 <div className="w-[90px] h-[90px] md:w-[110px] md:h-[110px] rounded-full overflow-hidden border-2 border-[#e8e0d5] group-hover:border-[#c0555a] transition-all duration-300 group-hover:shadow-lg">
-                  <img src={cat.image} alt={cat.label}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                  {tileImages[i] ? (
+                    <img src={tileImages[i] as string} alt={cat.label}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                  ) : (
+                    <div className="w-full h-full bg-[#f5f0ea]" />
+                  )}
                 </div>
                 <p className="text-[12px] text-center text-[#555] group-hover:text-[#c0555a] font-medium transition-colors max-w-[90px] leading-snug">
                   {cat.label}
@@ -66,7 +82,9 @@ export default function CorporateHero() {
 
       {/* ── HERO SLIDER — image only + button ── */}
       <section className="relative w-full">
-        <div className="relative h-[92vh] lg:h-[88vh] overflow-hidden">
+        {/* xl: not lg: — lg (1024px) also matches iPad Pro in portrait,
+            which would get treated like wide desktop and crop oddly. */}
+        <div className="relative h-[92vh] xl:h-[88vh] overflow-hidden">
           {slides.map((slide, index) => (
             <div key={slide.id}
               className={`absolute inset-0 transition-all duration-1000 ease-in-out ${

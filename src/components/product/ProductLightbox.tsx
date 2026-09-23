@@ -51,7 +51,7 @@ export default function ProductLightbox({
           <button
             onClick={onClose}
             className="w-9 h-9 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors"
-          >
+           aria-label="Close">
             <X size={18} className="text-white" />
           </button>
         </div>
@@ -66,7 +66,7 @@ export default function ProductLightbox({
           <button
             onClick={prevImg}
             className="absolute left-4 w-11 h-11 bg-white/10 hover:bg-white/25 rounded-full flex items-center justify-center transition-all"
-          >
+           aria-label="Previous">
             <ChevronLeft size={22} className="text-white" />
           </button>
         )}
@@ -86,7 +86,7 @@ export default function ProductLightbox({
           <button
             onClick={nextImg}
             className="absolute right-4 w-11 h-11 bg-white/10 hover:bg-white/25 rounded-full flex items-center justify-center transition-all"
-          >
+           aria-label="Next">
             <ChevronRight size={22} className="text-white" />
           </button>
         )}

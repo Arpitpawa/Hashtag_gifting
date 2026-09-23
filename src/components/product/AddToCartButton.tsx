@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ShoppingBag, X, Loader2 } from "lucide-react";
+import { ShoppingBag, X, Loader2, Check } from "lucide-react";
 import CustomizationForm from "./CustomizationForm";
 import { useCartStore } from "@/lib/store/cartStore";
 
@@ -31,7 +31,7 @@ export default function AddToCartButton({
   const { addToCart, isLoading } = useCartStore();
 
   const [showModal,     setShowModal]     = useState(false);
-  const [customization, setCustomization] = useState<Record<string, string>>({});
+  const [customization, setCustomization] = useState<Record<string, string | undefined>>({});
   const [errors,        setErrors]        = useState<Record<string, string>>({});
   const [adding,        setAdding]        = useState(false);
   const [added,         setAdded]         = useState(false);
@@ -53,7 +53,7 @@ export default function AddToCartButton({
 
   const handleModalSubmit = async () => {
     // Validate customization
-    const res  = await fetch("/api/customization/validate", {
+    const res  = await fetch("/api/customization/validation", {
       method:  "POST",
       headers: { "Content-Type": "application/json" },
       body:    JSON.stringify({ productId, customization }),
@@ -103,7 +103,7 @@ export default function AddToCartButton({
             Adding...
           </>
         ) : added ? (
-          <>✓ Added to cart</>
+          <><Check size={16} /> Added to cart</>
         ) : isOutOfStock ? (
           "Out of stock"
         ) : (
@@ -167,7 +167,7 @@ export default function AddToCartButton({
                 onClick={handleModalSubmit}
                 disabled={adding}
                 className="flex-1 py-3 bg-[#c0555a] text-white text-[13px] font-semibold rounded-full hover:bg-[#a84449] transition-all duration-300 flex items-center justify-center gap-2"
-              >
+               aria-label="Open cart">
                 {adding ? (
                   <><Loader2 size={14} className="animate-spin" /> Adding...</>
                 ) : (

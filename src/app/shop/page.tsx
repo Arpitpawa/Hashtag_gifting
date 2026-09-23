@@ -1,10 +1,22 @@
 import { Suspense } from "react";
 import ShopClient from "@/components/shop/ShopClient";
+import { getActiveProductCount, roundDownForMarketing } from "@/lib/productCount";
 
-export const metadata = {
-  title: "Shop — Hashtag Gifting",
-  description: "Browse 500+ personalized gifts for every occasion and relationship.",
-};
+export async function generateMetadata() {
+  let productCount = 0;
+  try {
+    productCount = roundDownForMarketing(await getActiveProductCount());
+  } catch (err) {
+    console.error("SHOP PAGE: failed to load product count:", err);
+  }
+
+  return {
+    title: "Shop",
+    description: productCount > 0
+      ? `Browse ${productCount}+ personalized gifts for every occasion and relationship.`
+      : "Browse personalized gifts for every occasion and relationship.",
+  };
+}
 
 export default function ShopPage() {
   return (

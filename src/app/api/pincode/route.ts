@@ -3,48 +3,40 @@ import type { NextRequest } from "next/server";
 import { rateLimit } from "@/lib/rateLimit";
 import { isValidPincode } from "@/lib/helpers";
 
-// Jaipur pincodes — expand this list
-const SERVICEABLE_PINCODES: Record<string, {
-  area:          string;
-  expressDelivery: boolean;  // 3-hour delivery
-  standardDays:  number;
-}> = {
-  // Central Jaipur
-  "302001": { area: "Jaipur City Centre",    expressDelivery: true,  standardDays: 1 },
-  "302002": { area: "Jaipur City",           expressDelivery: true,  standardDays: 1 },
-  "302003": { area: "Jaipur",                expressDelivery: true,  standardDays: 1 },
-  "302004": { area: "Jaipur",                expressDelivery: true,  standardDays: 1 },
-  "302005": { area: "Jaipur",                expressDelivery: true,  standardDays: 1 },
-  "302006": { area: "Jaipur",                expressDelivery: true,  standardDays: 1 },
-  "302011": { area: "Sanganer",              expressDelivery: true,  standardDays: 1 },
-  "302012": { area: "Mansarovar",            expressDelivery: true,  standardDays: 1 },
-  "302013": { area: "Vaishali Nagar",        expressDelivery: true,  standardDays: 1 },
-  "302015": { area: "Malviya Nagar",         expressDelivery: true,  standardDays: 1 },
-  "302016": { area: "Pratap Nagar",          expressDelivery: true,  standardDays: 1 },
-  "302017": { area: "Sodala",                expressDelivery: true,  standardDays: 1 },
-  "302018": { area: "Shyam Nagar",           expressDelivery: true,  standardDays: 1 },
-  "302019": { area: "Kartarpura",            expressDelivery: true,  standardDays: 1 },
-  "302020": { area: "Jhotwara",              expressDelivery: true,  standardDays: 1 },
-  "302021": { area: "Muhana",                expressDelivery: false, standardDays: 1 },
-  "302022": { area: "Sitapura",              expressDelivery: true,  standardDays: 1 },
-  "302023": { area: "Jagatpura",             expressDelivery: true,  standardDays: 1 },
-  "302025": { area: "Hawa Sadak",            expressDelivery: true,  standardDays: 1 },
-  "302026": { area: "Ambabari",              expressDelivery: true,  standardDays: 1 },
-  "302027": { area: "Raja Park",             expressDelivery: true,  standardDays: 1 },
-  "302028": { area: "Tilak Nagar",           expressDelivery: true,  standardDays: 1 },
-  "302029": { area: "Nirman Nagar",          expressDelivery: true,  standardDays: 1 },
-  "302031": { area: "Vidhyadhar Nagar",      expressDelivery: true,  standardDays: 1 },
-  "302033": { area: "Niwaru",                expressDelivery: false, standardDays: 2 },
-  "302034": { area: "Amer",                  expressDelivery: false, standardDays: 2 },
-  "302039": { area: "Goner",                 expressDelivery: false, standardDays: 2 },
-  "303119": { area: "Shahpura",              expressDelivery: false, standardDays: 2 },
-};
+// Pincodes we know are real (verified via India Post below) but can't
+// currently deliver to — add specific pincodes here if that ever comes up.
+const PAN_INDIA_EXCLUDED: string[] = [];
 
-// All Rajasthan pincodes starting with 30 — standard delivery
-const RAJASTHAN_PREFIX = "30";
+// Look up a pincode against India Post's official public directory
+// (https://api.postalpincode.in) to confirm it's a real, allocated Indian
+// PIN code and find out exactly where it is — no hardcoded pincode list,
+// this covers every pincode in the country the same way.
+async function lookupIndiaPost(pincode: string): Promise<{ area: string; district: string; state: string } | null> {
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 4000);
+    const res = await fetch(`https://api.postalpincode.in/pincode/${pincode}`, {
+      signal: controller.signal,
+      next:   { revalidate: 60 * 60 * 24 }, // pincode data barely changes — cache a day
+    });
+    clearTimeout(timer);
+    if (!res.ok) return null;
 
-// Pan India — all deliverable, 3-7 days
-const PAN_INDIA_EXCLUDED: string[] = []; // add non-serviceable pincodes here
+    const data  = await res.json();
+    const entry = Array.isArray(data) ? data[0] : null;
+    const po    = entry?.PostOffice?.[0];
+    if (entry?.Status !== "Success" || !po) return null;
+
+    return {
+      area:     po.Name     as string,
+      district: po.District as string,
+      state:    po.State    as string,
+    };
+  } catch (e) {
+    console.error("INDIA POST LOOKUP ERROR:", e);
+    return null;
+  }
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -58,7 +50,7 @@ export async function POST(req: NextRequest) {
     const body    = await req.json();
     const pincode = body?.pincode?.toString().trim();
 
-    // ── VALIDATE ──
+    // ── VALIDATE FORMAT ──
     if (!pincode || !isValidPincode(pincode)) {
       return NextResponse.json(
         { success: false, message: "Please enter a valid 6-digit pincode" },
@@ -72,46 +64,48 @@ export async function POST(req: NextRequest) {
         success:         false,
         deliverable:     false,
         message:         "Delivery not available at this pincode",
+        area:            null,
         expressDelivery: false,
         estimatedDays:   null,
       });
     }
 
-    // ── CHECK JAIPUR (express delivery) ──
-    const jaipurInfo = SERVICEABLE_PINCODES[pincode];
-    if (jaipurInfo) {
-      return NextResponse.json({
-        success:         true,
-        deliverable:     true,
-        area:            jaipurInfo.area,
-        expressDelivery: jaipurInfo.expressDelivery,
-        estimatedDays:   jaipurInfo.standardDays,
-        message:         jaipurInfo.expressDelivery
-          ? `✓ 3-hour express delivery available in ${jaipurInfo.area}`
-          : `✓ Same day delivery available in ${jaipurInfo.area}`,
-      });
-    }
+    // ── VERIFY IT'S A REAL, ALLOCATED INDIAN PINCODE ──
+    // Everything below is decided from what India Post actually returns —
+    // no hardcoded list of specific pincodes or prefixes to maintain.
+    const postOffice = await lookupIndiaPost(pincode);
 
-    // ── RAJASTHAN — standard 2-3 days ──
-    if (pincode.startsWith(RAJASTHAN_PREFIX)) {
+    if (!postOffice) {
       return NextResponse.json({
-        success:         true,
-        deliverable:     true,
-        area:            "Rajasthan",
+        success:         false,
+        deliverable:     false,
+        message:         "That doesn't look like a valid Indian pincode. Please double-check and try again.",
+        area:            null,
         expressDelivery: false,
-        estimatedDays:   3,
-        message:         "✓ Delivery available in 2–3 business days",
+        estimatedDays:   null,
       });
     }
 
-    // ── PAN INDIA — 5-7 days ──
+    const { area, district, state } = postOffice;
+    const isJaipur    = /jaipur/i.test(district);
+    const isRajasthan = /rajasthan/i.test(state);
+
+    const expressDelivery = isJaipur;
+    const estimatedDays   = isJaipur ? 1 : isRajasthan ? 3 : 7;
+    const areaLabel        = isJaipur ? `${area}, Jaipur, Rajasthan` : `${district}, ${state}`;
+    const message           = isJaipur
+      ? `✓ Same-day delivery available in ${area}`
+      : isRajasthan
+        ? "✓ Delivery available in 2–3 business days"
+        : "✓ Delivery available in 5–7 business days";
+
     return NextResponse.json({
       success:         true,
       deliverable:     true,
-      area:            "Pan India",
-      expressDelivery: false,
-      estimatedDays:   7,
-      message:         "✓ Delivery available in 5–7 business days",
+      area:            areaLabel,
+      expressDelivery,
+      estimatedDays,
+      message,
     });
 
   } catch (err) {

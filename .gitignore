@@ -36,6 +36,33 @@ yarn-error.log*
 # vercel
 .vercel
 
+# raw product photoshoot dump (huge, staging-only, never needs to be in git
+# or served by Next — see product-photos-import/ at project root)
+/product-photos-import/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# image-replace script artifacts
+/product-photos-enhanced/
+/.image-replace-progress.json
+/old-product-image-urls.json
+/backup-product-images-*.json
+/contact-sheets/
+/image-order.json
+/backup-reorder-*.json
+/backup-info-graphics-*.json
+/image-order-dairy.json
+
+# editor local history + category backups
+/.history/
+
+# huge local-only asset dumps / debug scripts — never belongs in git
+*.zip
+/dbcheck.js
+/backup-categories-*.json
+/products-sheet.csv
+/backup-products-*.json
+/backup-names-*.json
+/assets-originals/

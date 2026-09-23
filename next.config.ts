@@ -2,20 +2,22 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
 
+  // ── Standalone output ───────────────────────────────────────────────────────
+  // Traces only the files/node_modules the server actually needs into
+  // .next/standalone. Without this, `next start` on your VPS runs against
+  // the FULL node_modules (Prisma, Konva, everything) — standalone cuts the
+  // deployed footprint way down and speeds up cold starts / restarts (pm2
+  // reload, server reboot, etc). Deploy by copying .next/standalone,
+  // .next/static, and public/ to the server and running `node server.js`.
+  output: "standalone",
+
   // ── Image domains whitelist ─────────────────────────────────────────────────
   images: {
     remotePatterns: [
-      { protocol: "https", hostname: "res.cloudinary.com"        },
+      { protocol: "https", hostname: "res.cloudinary.com", pathname: "/dxioc14zc/**" }, // only OUR Cloudinary account
       { protocol: "https", hostname: "images.unsplash.com"       },
-      { protocol: "https", hostname: "confettigifts.in"          },
       { protocol: "https", hostname: "lh3.googleusercontent.com" },
-      { protocol: "https", hostname: "aicagifts.com"             },
-      { protocol: "https", hostname: "**.shopify.com"            },
-      { protocol: "https", hostname: "cdn.shopify.com"           },
-      { protocol: "https", hostname: "**.cdninstagram.com"       },
-      { protocol: "https", hostname: "images.weserv.nl"          },
-      { protocol: "https", hostname: "img.magnific.com"          },
-      { protocol: "https", hostname: "encrypted-tbn0.gstatic.com"},
+      { protocol: "https", hostname: "placehold.co"               },
     ],
     // Limit image sizes that can be generated
     deviceSizes:    [640, 750, 828, 1080, 1200, 1920],
@@ -26,9 +28,16 @@ const nextConfig: NextConfig = {
   // ── API body size limit ─────────────────────────────────────────────────────
   experimental: {
     serverActions: {
-      bodySizeLimit: "10mb",
+      bodySizeLimit: "50mb",
     },
   },
+
+  // ── pdfkit needs to run un-bundled ──────────────────────────────────────────
+  // pdfkit loads its base-14 font metrics off disk using paths relative to its
+  // own node_modules folder. If webpack/Turbopack bundles it into the route's
+  // chunk, those relative paths break and every PDF generation throws — this
+  // tells Next to require() it straight from node_modules at runtime instead.
+  serverExternalPackages: ["pdfkit"],
 
   // ── Powered by header removal ───────────────────────────────────────────────
   poweredByHeader: false,

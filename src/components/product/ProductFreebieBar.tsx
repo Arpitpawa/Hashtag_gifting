@@ -1,6 +1,6 @@
 "use client";
 
-import { Gift } from "lucide-react";
+import { Gift, PartyPopper, Check } from "lucide-react";
 import { useCartStore } from "@/lib/store/cartStore";
 
 const TIERS = [
@@ -42,8 +42,8 @@ export default function ProductFreebieBar({ currentProductPrice }: Props) {
       <p className="text-[12px] text-[#555] mb-2.5 flex items-center gap-1.5">
         <Gift size={13} className="text-[#c0555a] flex-shrink-0" />
         {reached ? (
-          <span className="font-semibold text-green-700">
-            🎉 You've unlocked all freebies!
+          <span className="flex items-center gap-1 font-semibold text-green-700">
+            <PartyPopper size={13} /> You've unlocked all freebies!
           </span>
         ) : currentTier ? (
           <>
@@ -54,7 +54,7 @@ export default function ProductFreebieBar({ currentProductPrice }: Props) {
           <>
             Add{" "}
             <span className="font-semibold text-[#c0555a]">Rs. {amountLeft}</span>
-            {" "}more to unlock a free gift 🎁
+            {" "}more to unlock a free gift
           </>
         )}
       </p>
@@ -80,7 +80,7 @@ export default function ProductFreebieBar({ currentProductPrice }: Props) {
                     : "bg-white border-[#e8e0d5] text-[#aaa]"
                 }`}
               >
-                {unlocked ? "✓" : i + 1}
+                {unlocked ? <Check size={11} /> : i + 1}
               </div>
               <p className={`text-[9px] font-semibold text-center leading-tight ${unlocked ? "text-[#c0555a]" : "text-[#aaa]"}`}>
                 {tier.label}

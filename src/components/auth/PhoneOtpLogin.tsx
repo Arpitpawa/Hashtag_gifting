@@ -241,8 +241,11 @@ export default function PhoneOtpLogin({ callbackUrl = "/" }: Props) {
             </p>
           </div>
 
-          {/* OTP BOXES */}
-          <div className="flex gap-3 justify-between" onPaste={handleOtpPaste}>
+          {/* OTP BOXES — 6 boxes at a fixed w-12 (48px) + gap-3 (12px) needed
+              ~348px of width, which overflowed the login card on every phone
+              under ~444px wide (i.e. basically all of them). A CSS grid
+              with 6 equal columns shrinks each box to fit instead. */}
+          <div className="grid grid-cols-6 gap-2 sm:gap-3" onPaste={handleOtpPaste}>
             {otp.map((digit, index) => (
               <input
                 key={index}
@@ -253,7 +256,7 @@ export default function PhoneOtpLogin({ callbackUrl = "/" }: Props) {
                 value={digit}
                 onChange={(e) => handleOtpChange(index, e.target.value)}
                 onKeyDown={(e) => handleOtpKeyDown(index, e)}
-                className={`w-12 h-14 text-center text-[20px] font-bold border-2 rounded-xl outline-none transition-all duration-200 ${
+                className={`w-full aspect-[3/4] text-center text-[18px] sm:text-[20px] font-bold border-2 rounded-xl outline-none transition-all duration-200 ${
                   digit
                     ? "border-[#c0555a] bg-[#c0555a]/5 text-[#c0555a]"
                     : "border-[#e8e0d5] focus:border-[#c0555a] text-[#1a1a1a]"

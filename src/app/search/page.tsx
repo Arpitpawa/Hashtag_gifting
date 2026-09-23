@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect, useCallback, Suspense } from "react";
+import ThemedSelect from "@/components/shared/ThemedSelect";
 import { useSearchParams, useRouter }                  from "next/navigation";
 import Link                                            from "next/link";
+import HoverImage from "@/components/shared/HoverImage";
 import Image                                           from "next/image";
 import {
   Search, SlidersHorizontal, X, Heart,
@@ -11,6 +13,7 @@ import {
 } from "lucide-react";
 import { useWishlistStore } from "@/lib/store/wishlistStore";
 import { formatPrice }      from "@/lib/store/cartStore";
+import ColorSwatchDots, { type SwatchVariant } from "@/components/shop/ColorSwatchDots";
 
 interface Product {
   id: number; name: string; slug: string;
@@ -18,6 +21,7 @@ interface Product {
   images: string[]; badge: string | null;
   stock: number; customizable: boolean;
   avgRating: number; reviewCount: number;
+  variants?: SwatchVariant[];
 }
 
 const SORT_OPTIONS = [
@@ -37,9 +41,7 @@ function ProductCard({ product }: { product: Product }) {
     <div className="group relative bg-white border border-[#e8e0d5] rounded-2xl overflow-hidden hover:shadow-md transition-all duration-300">
       <Link href={`/product/${product.slug}`}>
         <div className="relative aspect-square bg-[#f8f5f0] overflow-hidden">
-          <Image src={product.images[0] || "/placeholder.jpg"} alt={product.name}
-            fill loading="lazy" className="object-cover group-hover:scale-[1.04] transition-transform duration-500"
-            sizes="(max-width:768px) 50vw, 25vw" />
+          <HoverImage images={product.images} alt={product.name} sizes="(max-width:768px) 50vw, 25vw" />
           {product.badge && (
             <span className="absolute top-2 left-2 bg-[#c0555a] text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
               {product.badge}
@@ -61,7 +63,12 @@ function ProductCard({ product }: { product: Product }) {
             </div>
           )}
         </div>
-        <div className="p-3">
+      </Link>
+      <div className="px-3 pt-2">
+        <ColorSwatchDots variants={product.variants || []} productSlug={product.slug} className="mb-1.5" />
+      </div>
+      <Link href={`/product/${product.slug}`}>
+        <div className="px-3 pb-3">
           <p className="text-[13px] font-medium text-[#1a1a1a] capitalize line-clamp-2 leading-snug mb-1.5 group-hover:text-[#c0555a] transition-colors">
             {product.name}
           </p>
@@ -82,7 +89,7 @@ function ProductCard({ product }: { product: Product }) {
         </div>
       </Link>
       <button onClick={() => toggle(product.id)}
-        className="absolute top-2 right-2 w-7 h-7 bg-white rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-all hover:scale-110 z-10">
+        className="absolute top-2 right-2 w-7 h-7 bg-white rounded-full flex items-center justify-center shadow-md opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all hover:scale-110 z-10">
         <Heart size={13} className={wishlisted ? "fill-[#c0555a] text-[#c0555a]" : "text-[#555]"} />
       </button>
     </div>
@@ -151,7 +158,7 @@ function SearchContent() {
                 </button>
               )}
               <button type="submit"
-                className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-[#c0555a] text-white rounded-full flex items-center justify-center hover:bg-[#a84449] transition-colors">
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-[#c0555a] text-white rounded-full flex items-center justify-center hover:bg-[#a84449] transition-colors" aria-label="Search">
                 <Search size={16} />
               </button>
             </div>
@@ -166,10 +173,7 @@ function SearchContent() {
                     : <>No results for "<span className="font-bold text-[#c0555a]">{q}</span>"</>
                 )}
               </p>
-              <select value={sort} onChange={e => handleSort(e.target.value)}
-                className="text-[13px] border border-[#e8e0d5] rounded-full px-4 py-2 outline-none bg-white text-[#555] focus:border-[#c0555a] cursor-pointer">
-                {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-              </select>
+              <ThemedSelect value={sort} onChange={handleSort} options={SORT_OPTIONS} ariaLabel="Sort results" />
             </div>
           )}
         </div>

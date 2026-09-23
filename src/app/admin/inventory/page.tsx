@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { Package, AlertTriangle, CheckCircle, Loader2, Download } from "lucide-react";
+import { Package, AlertTriangle, CheckCircle, Loader2, Download, XCircle } from "lucide-react";
 
 const fp = (p: number) => `Rs. ${(p/100).toLocaleString("en-IN")}`;
 
@@ -26,22 +26,18 @@ export default function InventoryPage() {
     if (edits[id] === undefined) return;
     setSaving(p => ({ ...p, [id]: true }));
     const newStock = edits[id];
-    await fetch(`/api/admin/products/${id}`, {
+
+    // Restock notification emails now auto-fire server-side (see
+    // src/app/api/admin/products/[id]/route.ts) whenever this PATCH takes
+    // stock from 0 to something — no separate call needed here, and the
+    // response tells us how many customers just got emailed.
+    const res  = await fetch(`/api/admin/products/${id}`, {
       method: "PATCH", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ stock: newStock }),
     });
-
-    // Auto-trigger stock notifications if restocked from 0
-    if (newStock > 0) {
-      const res  = await fetch("/api/admin/stock-notify", {
-        method:  "POST",
-        headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ productId: id }),
-      });
-      const data = await res.json();
-      if (data.sent > 0) {
-        alert(`✅ Stock updated! ${data.sent} customer${data.sent > 1 ? "s" : ""} notified by email that "${data.product}" is back in stock.`);
-      }
+    const data = await res.json().catch(() => ({}));
+    if (data.notified > 0) {
+      alert(`Stock updated! ${data.notified} customer${data.notified > 1 ? "s" : ""} notified by email that this product is back in stock.`);
     }
 
     setSaving(p => ({ ...p, [id]: false }));
@@ -52,7 +48,7 @@ export default function InventoryPage() {
 
   const exportCSV = () => {
     const rows = [["Name","SKU","Stock","Price","Status"]];
-    products.forEach(p => rows.push([p.name, p.slug, p.stock, (p.price/100).toString(), p.status]));
+    products.forEach(p => rows.push([p.name, p.sku || "", p.stock, (p.price/100).toString(), p.status]));
     const csv  = rows.map(r => r.join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const a    = document.createElement("a"); a.href = URL.createObjectURL(blob);
@@ -68,10 +64,10 @@ export default function InventoryPage() {
   const outCount = products.filter(p => p.stock === 0).length;
 
   return (
-    <div className="p-6 lg:p-8">
+    <div className="p-4 sm:p-6 lg:p-8">
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <div>
-          <h1 className="text-[26px] font-bold text-[#1a1a1a]">Inventory</h1>
+          <h1 className="text-[22px] sm:text-[26px] font-bold text-[#1a1a1a]">Inventory</h1>
           <p className="text-[13px] text-[#888] mt-0.5">{products.length} products · {lowCount} low · {outCount} out of stock</p>
         </div>
         <button onClick={exportCSV}
@@ -81,16 +77,16 @@ export default function InventoryPage() {
       </div>
 
       {/* Filter tabs */}
-      <div className="flex gap-2 mb-5">
+      <div className="flex gap-2 mb-5 overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 pb-1">
         {[
-          { key:"all", label:`All (${products.length})` },
-          { key:"low", label:`⚠️ Low stock (${lowCount})` },
-          { key:"out", label:`❌ Out of stock (${outCount})` },
+          { key:"all", label:`All (${products.length})`,          icon: null },
+          { key:"low", label:`Low stock (${lowCount})`,            icon: AlertTriangle },
+          { key:"out", label:`Out of stock (${outCount})`,         icon: XCircle },
         ].map(f => (
           <button key={f.key} onClick={() => setFilter(f.key as any)}
-            className={`px-4 py-2 rounded-full text-[13px] font-semibold transition-all ${
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-semibold whitespace-nowrap flex-shrink-0 transition-all ${
               filter === f.key ? "bg-[#c0555a] text-white" : "bg-white border border-[#e8e8e8] text-[#555] hover:border-[#c0555a] hover:text-[#c0555a]"
-            }`}>{f.label}
+            }`}>{f.icon && <f.icon size={13} />}{f.label}
           </button>
         ))}
       </div>
@@ -98,11 +94,52 @@ export default function InventoryPage() {
       {loading ? (
         <div className="flex items-center justify-center py-20"><Loader2 size={24} className="animate-spin text-[#c0555a]" /></div>
       ) : (
-        <div className="bg-white rounded-2xl border border-[#e8e8e8] overflow-hidden">
+        <>
+        {/* ── MOBILE: card list ── */}
+        <div className="md:hidden space-y-2.5">
+          {filtered.map(p => (
+            <div key={p.id} className={`bg-white rounded-2xl border border-[#e8e8e8] p-3 ${p.stock === 0 ? "bg-red-50/40" : p.stock < 10 ? "bg-orange-50/40" : ""}`}>
+              <div className="flex gap-3">
+                {p.images?.[0] ? (
+                  <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-[#f5f5f5] flex-shrink-0 border border-[#e8e8e8]">
+                    <Image src={p.images[0]} alt="" fill className="object-cover" sizes="56px" />
+                  </div>
+                ) : <div className="w-14 h-14 rounded-xl bg-[#f5f5f5] flex-shrink-0" />}
+                <div className="min-w-0 flex-1">
+                  <p className="text-[13px] font-semibold text-[#1a1a1a] leading-snug line-clamp-2 capitalize">{p.name}</p>
+                  <p className="text-[11px] text-[#999] mt-0.5 truncate">
+                    <span className="font-mono">{p.sku || "—"}</span> · {p.category?.name || "—"}
+                  </p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-[13px] font-bold">{fp(p.price)}</span>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${p.status === "ACTIVE" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"}`}>{p.status}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 mt-3 pt-3 border-t border-[#f3f3f3]">
+                <span className={`text-[12px] font-bold mr-auto ${p.stock === 0 ? "text-red-500" : p.stock < 10 ? "text-orange-500" : "text-green-700"}`}>
+                  {p.stock === 0 ? "Out of stock" : `${p.stock} units`}
+                </span>
+                <input type="number" min="0" inputMode="numeric"
+                  placeholder={String(p.stock)}
+                  value={edits[p.id] !== undefined ? edits[p.id] : ""}
+                  onChange={e => setEdits(prev => ({ ...prev, [p.id]: parseInt(e.target.value) || 0 }))}
+                  className="w-20 border border-[#e8e8e8] rounded-lg px-2 py-2 text-[14px] outline-none focus:border-[#c0555a] text-center" />
+                <button onClick={() => updateStock(p.id)}
+                  disabled={saving[p.id] || edits[p.id] === undefined}
+                  className="px-4 py-2 bg-[#c0555a] text-white text-[12px] font-bold rounded-lg disabled:opacity-40 whitespace-nowrap">
+                  {saving[p.id] ? <Loader2 size={12} className="animate-spin" /> : saved.has(p.id) ? <CheckCircle size={12} /> : "Update"}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+        {/* ── DESKTOP: table ── */}
+        <div className="hidden md:block bg-white rounded-2xl border border-[#e8e8e8] overflow-x-auto">
           <table className="w-full text-[13px]">
             <thead className="bg-[#fafafa] border-b border-[#f0f0f0]">
               <tr>
-                {["Product","Category","Price","Current stock","Update stock","Status"].map(h => (
+                {["Product","SKU","Category","Price","Current stock","Update stock","Status"].map(h => (
                   <th key={h} className="px-4 py-3 text-left text-[11px] font-semibold text-[#888] uppercase tracking-wider whitespace-nowrap">{h}</th>
                 ))}
               </tr>
@@ -120,6 +157,7 @@ export default function InventoryPage() {
                       <p className="font-semibold text-[#1a1a1a] capitalize line-clamp-1">{p.name}</p>
                     </div>
                   </td>
+                  <td className="px-4 py-3 text-[#888] font-mono text-[12px]">{p.sku || "—"}</td>
                   <td className="px-4 py-3 text-[#888]">{p.category?.name || "—"}</td>
                   <td className="px-4 py-3 font-semibold">{fp(p.price)}</td>
                   <td className="px-4 py-3">
@@ -161,6 +199,7 @@ export default function InventoryPage() {
             </tbody>
           </table>
         </div>
+        </>
       )}
     </div>
   );

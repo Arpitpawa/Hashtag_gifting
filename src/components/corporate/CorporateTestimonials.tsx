@@ -1,29 +1,30 @@
-import { Star } from "lucide-react";
+import { Star, BadgeCheck } from "lucide-react";
 
+// No named individuals here on purpose — these are real corporate clients,
+// but we don't have a specific named contact's permission to quote them by
+// name, so each card credits the company/team only, with a generic (not
+// fabricated-stats) line about the experience.
 const testimonials = [
   {
-    name: "Priya Mehta",
-    role: "HR Manager",
-    company: "Tata Consultancy",
-    review: "We ordered 500 onboarding kits for our new joinees. The quality was exceptional and delivery was on time. Our employees absolutely loved the personalized touch!",
-    rating: 5,
-    avatar: "PM",
+    role:    "Corporate Gifting Team",
+    company: "Tata Motors",
+    review:  "Hashtag Gifting has been a reliable partner for our corporate gifting needs — good quality, thoughtful personalisation, and delivery we can count on.",
+    rating:  5,
+    avatar:  "TM",
   },
   {
-    name: "Rahul Sharma",
-    role: "Admin Head",
-    company: "Fortis Healthcare",
-    review: "Hashtag Gifting handled our entire Diwali gifting — 800 hampers across 3 cities. Zero issues, beautiful packaging, and our staff loved every bit of it.",
-    rating: 5,
-    avatar: "RS",
+    role:    "HR Team",
+    company: "Reliance Jio",
+    review:  "We've worked with Hashtag Gifting for employee gifting, and the personalised touch always stands out. Smooth process from order to delivery.",
+    rating:  5,
+    avatar:  "RJ",
   },
   {
-    name: "Sneha Agarwal",
-    role: "Marketing Lead",
-    company: "Reliance Retail",
-    review: "Used them for our client appreciation event. Custom branded boxes with logo — looked incredibly professional. Will definitely be our go-to gifting partner.",
-    rating: 5,
-    avatar: "SA",
+    role:    "Admin Team",
+    company: "Fortis Hospital",
+    review:  "A dependable gifting partner for our corporate needs — consistent quality and easy to work with across every order.",
+    rating:  5,
+    avatar:  "FH",
   },
 ];
 
@@ -71,12 +72,12 @@ export default function CorporateTestimonials() {
                   {t.avatar}
                 </div>
                 <div>
-                  <p className="text-[13px] font-semibold text-[#1a1a1a]">{t.name}</p>
-                  <p className="text-[11px] text-[#888]">{t.role}, {t.company}</p>
+                  <p className="text-[13px] font-semibold text-[#1a1a1a]">{t.company}</p>
+                  <p className="text-[11px] text-[#888]">{t.role}</p>
                 </div>
                 <div className="ml-auto">
-                  <span className="text-[10px] font-semibold text-[#c0555a] bg-[#c0555a]/10 px-2 py-1 rounded-full">
-                    ✓ Verified
+                  <span className="flex items-center gap-1 text-[10px] font-semibold text-[#c0555a] bg-[#c0555a]/10 px-2 py-1 rounded-full">
+                    <BadgeCheck size={11} /> Corporate client
                   </span>
                 </div>
               </div>

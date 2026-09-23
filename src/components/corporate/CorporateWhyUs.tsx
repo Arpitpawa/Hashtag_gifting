@@ -1,22 +1,31 @@
 import Link from "next/link";
 
+// Temporary stopgap — using the homepage hero product photos here instead of
+// the previous hotlinked competitor CDN (confettigifts.in). Swap these for
+// real corporate product photography once available.
+const HERO_IMGS = [
+  "/Personalisedpassportcoverheroimage.png",
+  "/personaliseddiariespensheropng.png",
+  "/personalisedwalletskeychain.png",
+];
+
 const cards = [
   {
     title: "Ready to ship",
     desc: "We offer a wide range of ready-to-ship corporate gift options. From employee onboarding to client appreciation — premium bulk gifting solutions and unique gift ideas for office employees & clients.",
-    image: "https://confettigifts.in/cdn/shop/files/CopyofIMG_2509.jpg?v=1761636856&width=800",
+    image: HERO_IMGS[0],
     link: "/corporate/ready-to-ship",
   },
   {
     title: "Semi-customized",
     desc: "Do you see a hamper that you like on our website? We can have your branding on the products you see in a hamper and make it feel like your very own.",
-    image: "https://confettigifts.in/cdn/shop/files/3-9_0615fbf0-3577-466d-8622-5449bdd5d20d.webp?v=1767951776&width=800",
+    image: HERO_IMGS[1],
     link: "/corporate/semi-customized",
   },
   {
     title: "Custom curated",
     desc: "Our products stylist will help you curate truly one-of-a-kind hampers for the most important people in your life — be it family, friends, clients, or your employees.",
-    image: "https://confettigifts.in/cdn/shop/files/Souvinerbox1.webp?v=1767951776&width=800",
+    image: HERO_IMGS[2],
     link: "/corporate/custom-curated",
   },
 ];

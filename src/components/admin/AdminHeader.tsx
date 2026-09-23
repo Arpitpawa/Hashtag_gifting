@@ -15,6 +15,8 @@ const PAGE_TITLES: Record<string, string> = {
   "/admin/customers":   "Customers",
   "/admin/coupons":     "Coupons",
   "/admin/reviews":     "Reviews",
+  "/admin/categories":  "Categories",
+  "/admin/charms":      "Charms",
 };
 
 export default function AdminHeader() {
@@ -23,8 +25,10 @@ export default function AdminHeader() {
   const title = PAGE_TITLES[pathname] || "Admin";
 
   return (
-    <div className="sticky top-0 z-20 bg-white border-b border-[#e8e8e8] px-6 py-3.5 flex items-center justify-between">
-      <h2 className="text-[16px] font-bold text-[#1a1a1a]">{title}</h2>
+    <div className="sticky top-0 z-20 bg-white border-b border-[#e8e8e8] px-4 sm:px-6 py-3.5 flex items-center justify-between min-h-[60px]">
+      {/* Mobile: the fixed menu button owns the left edge, so the title is centred; desktop: left-aligned */}
+      <h2 className="absolute left-1/2 -translate-x-1/2 max-w-[45%] truncate text-center text-[16px] font-bold text-[#1a1a1a] lg:static lg:translate-x-0 lg:max-w-none lg:text-left">{title}</h2>
+      <span className="w-10 lg:hidden" aria-hidden />
 
       <div className="flex items-center gap-3">
         {/* Notifications bell */}

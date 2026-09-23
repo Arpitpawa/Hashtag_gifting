@@ -5,57 +5,29 @@ import Image from "next/image";
 import { useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
+// Labels + link slugs are a curated marketing grouping (not literal
+// top-level admin categories), so they stay hardcoded.
+//
+// The "-nobg.png" files have had their baked-in background (both the outer
+// square canvas and the illustration's own inner arch backdrop) stripped to
+// transparent, so the card's own bg-[#f3efe8] arch shows through cleanly
+// instead of a mismatched rectangle/second-arch showing behind the art.
+//
+// TODO(production): images are served straight out of /public/giftbyrelationship
+// for now — they still need to be uploaded to Cloudinary (matching how every
+// other image on the site is served) and swapped over to the Cloudinary URLs
+// before this goes live. Don't ship to production with these local paths.
 const relationships = [
-  {
-    label: "For her",
-    link: "/category/gifts-for-her",
-    image: "https://confettigifts.in/cdn/shop/files/3-9_0615fbf0-3577-466d-8622-5449bdd5d20d.webp?v=1767951776&width=800",
-  },
-  {
-    label: "For him",
-    link: "/category/gifts-for-him",
-    image: "https://confettigifts.in/cdn/shop/files/2_b636a062-abbe-48be-80e9-2e47c2b628b5.webp?v=1764568216&width=800",
-  },
-  {
-    label: "For couple",
-    link: "/category/gifts-for-couple",
-    image: "https://confettigifts.in/cdn/shop/files/1-16_ad3cd0de-7dad-4136-8f95-cb92ae451fcc.webp?v=1772883529&width=800",
-  },
-  {
-    label: "For girlfriend",
-    link: "/category/gifts-for-girlfriend",
-    image: "https://confettigifts.in/cdn/shop/files/PetFaceSocks.webp?v=1771482164&width=800",
-  },
-  {
-    label: "For boyfriend",
-    link: "/category/gifts-for-boyfriend",
-    image: "https://confettigifts.in/cdn/shop/files/2-2_50e1fc1a-0290-4155-bec5-e9ae33018478.webp?v=1761636856&width=800",
-  },
-  {
-    label: "For parents",
-    link: "/category/gifts-for-parents",
-    image: "https://confettigifts.in/cdn/shop/files/Souvinerbox1.webp?v=1767951776&width=800",
-  },
-  {
-    label: "For kids",
-    link: "/category/gifts-for-kids",
-    image: "https://confettigifts.in/cdn/shop/files/CopyofIMG_2509.jpg?v=1761636856&width=800",
-  },
-  {
-    label: "For friends",
-    link: "/category/gifts-for-friends",
-    image: "https://confettigifts.in/cdn/shop/files/PetFaceSocks.webp?v=1771482164&width=800",
-  },
-  {
-    label: "For wife",
-    link: "/category/gifts-for-wife",
-    image: "https://confettigifts.in/cdn/shop/files/3-9_0615fbf0-3577-466d-8622-5449bdd5d20d.webp?v=1767951776&width=800",
-  },
-  {
-    label: "For husband",
-    link: "/category/gifts-for-husband",
-    image: "https://confettigifts.in/cdn/shop/files/2_b636a062-abbe-48be-80e9-2e47c2b628b5.webp?v=1764568216&width=800",
-  },
+  { label: "For her",       link: "/category/gifts-for-her",       image: "/giftbyrelationship/forher-nobg.png" },
+  { label: "For him",       link: "/category/gifts-for-him",       image: "/giftbyrelationship/forhim-nobg.png" },
+  { label: "For couple",    link: "/category/gifts-for-couple",    image: "/giftbyrelationship/forcouple-nobg.png" },
+  { label: "For girlfriend", link: "/category/gifts-for-girlfriend", image: "/giftbyrelationship/forgirlfriend-nobg.png" },
+  { label: "For boyfriend", link: "/category/gifts-for-boyfriend", image: "/giftbyrelationship/forboyfriend-nobg.png" },
+  { label: "For parents",   link: "/category/gifts-for-parents",   image: "/giftbyrelationship/forparents-nobg.png" },
+  { label: "For kids",      link: "/category/gifts-for-kids",      image: "/giftbyrelationship/forkids-nobg.png" },
+  { label: "For friends",   link: "/category/gifts-for-friends",   image: "/giftbyrelationship/forfriends-nobg.png" },
+  { label: "For wife",      link: "/category/gifts-for-wife",      image: "/giftbyrelationship/forwife-nobg.png" },
+  { label: "For husband",   link: "/category/gifts-for-husband",   image: "/giftbyrelationship/forhusband-nobg.png" },
 ];
 
 // ── GIFTING SVG DECORATIONS ──
@@ -149,17 +121,20 @@ export default function GiftsByRelationship() {
   return (
     <section className="pt-0 pb-16 md:pb-20 relative overflow-hidden">
 
-      {/* ── GIFTING SVG DECORATIONS ── */}
-      <div className="absolute top-0 right-0 w-[200px] h-[200px] pointer-events-none">
+      {/* ── GIFTING SVG DECORATIONS ──
+          Sized down on phones — at 320-375px wide a 200px decoration covers
+          well over half the screen and could visually collide with the
+          heading. */}
+      <div className="absolute top-0 right-0 w-[100px] h-[100px] sm:w-[150px] sm:h-[150px] md:w-[200px] md:h-[200px] pointer-events-none">
         <GiftBoxSVG />
       </div>
-      <div className="absolute bottom-0 left-0 w-[200px] h-[200px] pointer-events-none">
+      <div className="absolute bottom-0 left-0 w-[100px] h-[100px] sm:w-[150px] sm:h-[150px] md:w-[200px] md:h-[200px] pointer-events-none">
         <RibbonHeartsSVG />
       </div>
-      <div className="absolute top-0 left-0 w-[140px] h-[140px] pointer-events-none">
+      <div className="absolute top-0 left-0 w-[70px] h-[70px] sm:w-[105px] sm:h-[105px] md:w-[140px] md:h-[140px] pointer-events-none">
         <ConfettiSVG />
       </div>
-      <div className="absolute bottom-0 right-0 w-[140px] h-[140px] pointer-events-none">
+      <div className="absolute bottom-0 right-0 w-[70px] h-[70px] sm:w-[105px] sm:h-[105px] md:w-[140px] md:h-[140px] pointer-events-none">
         <SparkleSVG />
       </div>
 
@@ -183,10 +158,10 @@ export default function GiftsByRelationship() {
             Find the perfect match
           </span>
           <h2
-            className="text-[42px] md:text-[66px] font-normal text-[#1a1a1a]"
+            className="text-[32px] sm:text-[42px] md:text-[66px] font-normal text-[#1a1a1a]"
             style={{ fontFamily: "'Playfair Display', Georgia, serif", letterSpacing: "0.02em", lineHeight: "1.15" }}
           >
-            Gifts by relationship
+            GIFTS BY RELATIONSHIP
           </h2>
           <p className="text-[#6b6b6b] text-base md:text-lg mt-4 max-w-md mx-auto">
             Perfect picks for every person in your life
@@ -199,25 +174,25 @@ export default function GiftsByRelationship() {
           {/* LEFT ARROW */}
           <button
             onClick={scrollLeft}
-            className="hidden lg:flex absolute -left-5 top-[40%] -translate-y-1/2 z-20 w-11 h-11 bg-white rounded-full shadow-lg items-center justify-center hover:bg-black hover:text-white transition-all duration-300 border border-[#e8e0d5]"
-          >
+            className="hidden xl:flex absolute -left-5 top-[40%] -translate-y-1/2 z-20 w-11 h-11 bg-white rounded-full shadow-lg items-center justify-center hover:bg-black hover:text-white transition-all duration-300 border border-[#e8e0d5]"
+           aria-label="Previous">
             <ChevronLeft size={20} strokeWidth={2} />
           </button>
 
           {/* CARDS */}
           <div
             ref={sliderRef}
-            className="flex gap-6 md:gap-10 overflow-x-auto scroll-smooth no-scrollbar pb-4 px-1"
+            className="flex gap-6 md:gap-10 overflow-x-auto scroll-smooth snap-x snap-mandatory no-scrollbar pb-4 px-1"
           >
             {relationships.map((rel, index) => (
               <Link
                 key={index}
                 href={rel.link}
-                className="flex-shrink-0 flex flex-col items-center gap-0 group"
+                className="flex-shrink-0 flex flex-col items-center gap-0 group snap-start"
               >
                 {/* ARCH IMAGE */}
                 <div
-                  className="relative overflow-hidden w-[150px] md:w-[175px] shadow-md group-hover:shadow-xl transition-all duration-500 group-hover:-translate-y-1"
+                  className="relative overflow-hidden w-[150px] md:w-[175px] shadow-md group-hover:shadow-xl transition-all duration-500 group-hover:-translate-y-1 bg-[#f3efe8]"
                   style={{
                     height: "185px",
                     borderRadius: "100px 100px 16px 16px",
@@ -247,8 +222,8 @@ export default function GiftsByRelationship() {
           {/* RIGHT ARROW */}
           <button
             onClick={scrollRight}
-            className="hidden lg:flex absolute -right-5 top-[40%] -translate-y-1/2 z-20 w-11 h-11 bg-white rounded-full shadow-lg items-center justify-center hover:bg-black hover:text-white transition-all duration-300 border border-[#e8e0d5]"
-          >
+            className="hidden xl:flex absolute -right-5 top-[40%] -translate-y-1/2 z-20 w-11 h-11 bg-white rounded-full shadow-lg items-center justify-center hover:bg-black hover:text-white transition-all duration-300 border border-[#e8e0d5]"
+           aria-label="Next">
             <ChevronRight size={20} strokeWidth={2} />
           </button>
         </div>

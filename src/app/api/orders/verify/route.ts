@@ -17,33 +17,84 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing parameters" }, { status: 400 });
     }
 
+    // ── FETCH THE ORDER FIRST ──
+    // Everything below depends on this existing and genuinely matching the
+    // payment being verified — nothing gets written before that's confirmed.
+    const existing = await prisma.order.findUnique({
+      where: { id: Number(orderId) },
+      select: { id: true, razorpayOrderId: true, paymentStatus: true },
+    });
+
+    if (!existing) {
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    }
+
+    // Already processed — return success without re-sending emails or
+    // re-writing fields. Handles double-calls (e.g. a retry after a network
+    // hiccup) safely.
+    if (existing.paymentStatus === "PAID") {
+      return NextResponse.json({ success: true, orderId: existing.id });
+    }
+
+    // ── THE CRITICAL CHECK ──
+    // A valid signature only proves razorpay_order_id/razorpay_payment_id are
+    // a genuine pair from Razorpay — it says nothing about which internal
+    // order they belong to. Without this check, a real (but tiny) payment's
+    // signature could be replayed against any other orderId to mark it PAID
+    // for free. razorpayOrderId was set once, server-side, when this specific
+    // order was created (see orders/create/route.ts) — it's the only trusted
+    // link between a Razorpay payment and an internal order.
+    if (existing.razorpayOrderId !== razorpay_order_id) {
+      console.warn(`PAYMENT VERIFY MISMATCH: order ${orderId} has razorpayOrderId ${existing.razorpayOrderId}, but request claims ${razorpay_order_id}`);
+      return NextResponse.json(
+        { success: false, error: "This payment does not match this order" },
+        { status: 400 }
+      );
+    }
+
     // ── VERIFY SIGNATURE ──
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+    if (!keySecret) {
+      console.error("RAZORPAY_KEY_SECRET is not set");
+      return NextResponse.json({ error: "Payments are not configured" }, { status: 500 });
+    }
+
     const generatedSignature = crypto
-      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET!)
+      .createHmac("sha256", keySecret)
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
       .digest("hex");
 
-    if (generatedSignature !== razorpay_signature) {
-      // Payment failed — update DB
-      await prisma.order.update({
-        where: { id: Number(orderId) },
-        data:  { paymentStatus: "FAILED" },
-      });
-
+    const given    = Buffer.from(String(razorpay_signature));
+    const expected = Buffer.from(generatedSignature);
+    if (given.length !== expected.length || !crypto.timingSafeEqual(given, expected)) {
+      // Deliberately NOT writing paymentStatus=FAILED here: this route can be
+      // called by anyone, and a failed/garbage signature shouldn't be able to
+      // flip a real pending order. Razorpay's webhook is what reports real
+      // payment failures.
       return NextResponse.json(
         { success: false, error: "Payment verification failed" },
         { status: 400 }
       );
     }
 
-    // ── SIGNATURE VALID — UPDATE ORDER ──
-    const order = await prisma.order.update({
-      where: { id: Number(orderId) },
+    // ── SIGNATURE VALID AND CONFIRMED TO BELONG TO THIS ORDER — UPDATE ──
+    // Atomic: only the first caller (this route or the webhook) flips it to
+    // PAID, so the confirmation email can never be sent twice.
+    const claimed = await prisma.order.updateMany({
+      where: { id: existing.id, paymentStatus: { not: "PAID" } },
       data: {
         paymentStatus:     "PAID",
         razorpayPaymentId: razorpay_payment_id,
         razorpaySignature: razorpay_signature,
       },
+    });
+
+    if (claimed.count === 0) {
+      return NextResponse.json({ success: true, orderId: existing.id });
+    }
+
+    const order = await prisma.order.findUniqueOrThrow({
+      where: { id: existing.id },
       include: {
         user:  true,
         items: { include: { product: true } },
@@ -51,7 +102,11 @@ export async function POST(req: Request) {
       },
     });
 
-    // ── SEND CONFIRMATION EMAIL ──
+    // ── SEND CONFIRMATION EMAIL (non-critical) ──
+    // Payment is already verified and the order already marked PAID above —
+    // an email hiccup here must never turn into a "verification failed"
+    // response, since that would tell a customer who genuinely paid that
+    // something went wrong and risk them trying to pay again.
     const emailTo      = order.user?.email;
     const addressSnap  = order.addressSnapshot as any;
     const displayAddr  = addressSnap
@@ -59,21 +114,27 @@ export async function POST(req: Request) {
       : "Jaipur";
 
     if (emailTo) {
-      await sendEmail({
-        to:      emailTo,
-        subject: `Payment confirmed #${order.id} — Hashtag Gifting`,
-        html:    orderConfirmedTemplate(
-          addressSnap?.name || order.user?.name || "Customer",
-          order.id,
-          order.items.map((i) => ({
-            name:     i.product.name,
-            quantity: i.quantity,
-            price:    i.price,
-          })),
-          order.totalAmount,
-          displayAddr
-        ),
-      });
+      try {
+        await sendEmail({
+          to:      emailTo,
+          subject: `Payment confirmed #${order.id} — Hashtag Gifting`,
+          html:    orderConfirmedTemplate(
+            addressSnap?.name || order.user?.name || "Customer",
+            order.id,
+            order.items.map((i: any) => ({
+              name:     i.product.name,
+              quantity: i.quantity,
+              price:    i.price,
+            })),
+            order.totalAmount,
+            displayAddr,
+            order.paymentMethod,
+            order.createdAt
+          ),
+        });
+      } catch (emailErr) {
+        console.warn("Payment confirmation email failed (non-critical):", emailErr);
+      }
     }
 
     return NextResponse.json({
@@ -83,8 +144,10 @@ export async function POST(req: Request) {
 
   } catch (err: any) {
     console.error("ORDER VERIFY ERROR:", err);
+    // Generic message — avoid leaking internal (DB/Razorpay SDK) error
+    // details to the client on a payment endpoint.
     return NextResponse.json(
-      { error: err?.message || "Verification failed" },
+      { error: "Verification failed. Please try again." },
       { status: 500 }
     );
   }

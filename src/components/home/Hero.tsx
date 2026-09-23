@@ -1,60 +1,148 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 const slides = [
   {
     id: 1,
-    image: "https://aicagifts.com/cdn/shop/files/Generative_Fill_3_06168f08-294e-41d7-9a34-acd09592c0c6.jpg?crop=center&height=800&v=1753897752&width=1600",
-    button: "SHOP COLLECTION",
-    link: "/shop",
+    image: "/Personalisedpassportcoverheroimage.png",
+    button: "SHOP PASSPORT COVERS",
+    link: "/shop?search=passport",
   },
   {
     id: 2,
-    image: "https://aicagifts.com/cdn/shop/files/Generative_Fill_65f2a7d3-c62c-48eb-a8c3-ed057dbd6bb0.jpg?crop=center&height=800&v=1753897752&width=1600",
-    button: "EXPLORE GIFTS",
-    link: "/shop",
+    image: "/personaliseddiariespensheropng.png",
+    button: "SHOP DIARIES & PENS",
+    link: "/shop?search=diary",
   },
   {
     id: 3,
-    image: "https://aicagifts.com/cdn/shop/files/Generative_Fill_3_06168f08-294e-41d7-9a34-acd09592c0c6.jpg?crop=center&height=800&v=1753897752&width=1600",
-    button: "DISCOVER NOW",
-    link: "/shop",
+    image: "/personalisedwalletskeychain.png",
+    button: "SHOP WALLETS & KEYCHAINS",
+    link: "/shop?search=wallet",
   },
 ];
 
 export default function HeroSlider() {
   const [current, setCurrent] = useState(0);
 
-  useEffect(() => {
-    const slider = setInterval(() => {
-      setCurrent((prev) => (prev + 1) % slides.length);
+  // Slides only join the DOM once they've actually been shown. All 3 sit
+  // "absolute inset-0" (i.e. inside the viewport, just opacity: 0), so
+  // rendering them all up front meant the browser fetched all 3 full-bleed
+  // hero images immediately — tripling the payload on the page's LCP
+  // element for visitors who often never even see slide 2 or 3.
+  const [mounted, setMounted] = useState<Set<number>>(() => new Set([0]));
+
+  // Kept in a ref (not a plain setInterval in useEffect) so a manual
+  // navigation — swipe or dot tap — can restart the 5s countdown instead of
+  // the autoplay yanking to the next slide a moment after someone just
+  // picked one themselves.
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const startAutoplay = useCallback(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    intervalRef.current = setInterval(() => {
+      setCurrent((prev) => {
+        const next = (prev + 1) % slides.length;
+        setMounted((m) => (m.has(next) ? m : new Set(m).add(next)));
+        return next;
+      });
     }, 5000);
-    return () => clearInterval(slider);
   }, []);
+
+  useEffect(() => {
+    startAutoplay();
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, [startAutoplay]);
+
+  const goTo = (index: number) => {
+    const wrapped = (index + slides.length) % slides.length;
+    setCurrent(wrapped);
+    setMounted((m) => (m.has(wrapped) ? m : new Set(m).add(wrapped)));
+    startAutoplay();
+  };
+
+  // ── Touch swipe ──
+  // Slides were only auto-rotating on a timer with no way to flick between
+  // them by hand, which feels broken on a touchscreen. This tracks the
+  // horizontal drag distance and swaps slides once it clears a small
+  // threshold — swipe left for next, right for previous.
+  const touchStartX = useRef<number | null>(null);
+  const touchDeltaX  = useRef(0);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchDeltaX.current = 0;
+  };
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    touchDeltaX.current = e.touches[0].clientX - touchStartX.current;
+  };
+  const handleTouchEnd = () => {
+    const SWIPE_THRESHOLD = 40;
+    if (Math.abs(touchDeltaX.current) > SWIPE_THRESHOLD) {
+      goTo(current + (touchDeltaX.current < 0 ? 1 : -1));
+    }
+    touchStartX.current = null;
+    touchDeltaX.current = 0;
+  };
 
   return (
     <section className="relative w-full bg-[#f6f1eb]">
-      <div className="relative h-[92vh] lg:h-[88vh] overflow-hidden">
+      {/* One fixed aspect ratio for every slide — sizing the box to each
+          slide's own exact ratio (a previous version of this) meant the
+          section's height visibly shifted every time it rotated, which
+          reads as a layout jump/glitch rather than a smooth slider. A
+          single ratio keeps the box height constant across all 3 slides
+          and every screen width. object-contain (below) still shows each
+          full image with no cropping — any gap between an image's own
+          shape and this box just letterboxes instead of moving the box. */}
+      <div
+        className="relative overflow-hidden touch-pan-y aspect-[16/9]"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
 
-        {slides.map((slide, index) => (
+        {slides.map((slide, index) => mounted.has(index) && (
           <div
             key={slide.id}
             className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
               current === index ? "opacity-100 scale-100 z-10" : "opacity-0 scale-105 z-0"
             }`}
           >
-            <img
+            {/* Mobile/tablet keep object-contain — no cropping, full photo
+                visible with letterboxing where needed. From xl (1280px,
+                genuine laptop/desktop widths — not xl: lg would also catch
+                an iPad Pro in portrait at exactly 1024px) it switches to
+                object-cover so the image fills the whole box edge-to-edge
+                on wide screens, cropping slightly rather than letterboxing. */}
+            <Image
               src={slide.image}
               alt="Hashtag Gifting"
-              className="w-full h-full object-cover"
+              fill
+              priority={index === 0}
+              fetchPriority={index === 0 ? "high" : "auto"}
+              sizes="100vw"
+              className="object-contain xl:object-cover"
             />
+            {/* Button was sized for the old near-full-height box (px-8
+                py-4 text-sm) — in the new, much shorter mobile box it ran
+                wide enough to crowd the centered dots below it. Shrunk on
+                mobile and given extra bottom clearance so the two never
+                share the same strip; it scales back up to the original
+                size from md onward where the box is roomier. */}
             <div className="relative z-20 h-full flex items-end justify-start absolute inset-0">
-              <div className="max-w-7xl mx-auto px-6 md:px-12 w-full pb-20">
+              {/* justify-end — the product mockups sit on the left side of
+                  every slide's photo, so a left-anchored button was landing
+                  right on top of them. Right-anchoring puts it over the
+                  empty/text side of the image instead. */}
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12 w-full pb-9 sm:pb-10 lg:pb-14 xl:pb-20 flex justify-end">
                 <Link
                   href={slide.link}
-                  className="inline-block bg-white text-[#c0555a] border border-white px-8 py-4 text-sm tracking-[2px] font-semibold hover:bg-[#c0555a] hover:text-white hover:border-[#c0555a] transition-all duration-300"
+                  className="inline-block bg-white text-[#c0555a] border border-white px-4 py-2 text-[10px] sm:px-6 sm:py-3 sm:text-[12px] md:px-8 md:py-4 md:text-sm tracking-[1.5px] sm:tracking-[2px] font-semibold hover:bg-[#c0555a] hover:text-white hover:border-[#c0555a] transition-all duration-300"
                 >
                   {slide.button}
                 </Link>
@@ -64,11 +152,11 @@ export default function HeroSlider() {
         ))}
 
         {/* Dots */}
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-30 flex items-center gap-3">
+        <div className="absolute bottom-4 sm:bottom-6 lg:bottom-8 xl:bottom-10 left-1/2 -translate-x-1/2 z-30 flex items-center gap-3">
           {slides.map((_, index) => (
             <button
               key={index}
-              onClick={() => setCurrent(index)}
+              onClick={() => goTo(index)}
               className={`transition-all duration-300 rounded-full ${
                 current === index ? "w-10 h-[3px] bg-[#f4d35e]" : "w-5 h-[3px] bg-white/60"
               }`}

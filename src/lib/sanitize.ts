@@ -110,6 +110,52 @@ export function sanitizeObject(obj: Record<string, any>): Record<string, any> {
 }
 
 /**
+ * Sanitize personalisation ("customization") data — used for order-item
+ * text/photo fields entered via the product personalisation modal.
+ *
+ * This deliberately does NOT reuse sanitizeString()/sanitizeObject() for
+ * every value: those strip any "data:" substring and truncate at 10,000
+ * chars, which silently corrupts base64 image data URIs (uploaded photos,
+ * the generated live-preview PNG) into garbage or empty strings. Here,
+ * recognised base64 image data URIs are preserved as-is (just length-capped
+ * as a sanity limit), while plain text values (typed name, message, chosen
+ * font label, etc.) still go through the normal HTML/script-stripping
+ * sanitizeString().
+ */
+const DATA_URI_RE = /^data:image\/(png|jpe?g|webp);base64,/i;
+// The client now uploads photos/previews to Cloudinary first and only ever
+// sends back a short URL (see LivePreviewModal.tsx / CustomizationForm.tsx)
+// — a real data: URI landing here at all would mean either a stale cached
+// client or something bypassing that flow. This cap is now just a defensive
+// backstop (not the primary control), so it's sized way down from the old
+// 12,000,000 (~9MB decoded) allowance, which was large enough for a single
+// bad request to meaningfully eat into a small Postgres plan's storage.
+const MAX_DATA_URI_LENGTH = 500_000; // ~375KB decoded
+
+export function sanitizeCustomizationValue(value: any): any {
+  if (typeof value === "string" && DATA_URI_RE.test(value)) {
+    return value.slice(0, MAX_DATA_URI_LENGTH);
+  }
+  if (typeof value === "string")  return sanitizeString(value);
+  if (typeof value === "number")  return isFinite(value) ? value : 0;
+  if (typeof value === "boolean") return value;
+  if (value === null || value === undefined) return value;
+  if (Array.isArray(value)) return value.map(sanitizeCustomizationValue);
+  if (typeof value === "object") return sanitizeCustomizationObject(value);
+  return value;
+}
+
+export function sanitizeCustomizationObject(obj: Record<string, any>): Record<string, any> {
+  if (!obj || typeof obj !== "object") return {};
+  const clean: Record<string, any> = {};
+  for (const [key, value] of Object.entries(obj)) {
+    if (key === "__proto__" || key === "constructor" || key === "prototype") continue;
+    clean[key] = sanitizeCustomizationValue(value);
+  }
+  return clean;
+}
+
+/**
  * Validate & sanitize file uploads — prevents malware uploads
  */
 export interface FileValidationResult {

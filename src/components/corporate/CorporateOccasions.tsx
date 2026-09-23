@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Gift, Award, HeartHandshake, BadgeCheck, UserPlus, Handshake } from "lucide-react";
+import { Gift, Award, HeartHandshake, BadgeCheck, UserPlus, Handshake, Sparkles } from "lucide-react";
 
 const occasions = [
   { icon: Gift,          title: "Birthday Gifts",              link: "/corporate/birthday" },
@@ -16,8 +16,11 @@ export default function CorporateOccasions() {
   return (
     <section className="relative w-full overflow-hidden min-h-[580px] md:min-h-[640px] flex items-center">
 
+      {/* Temporary stopgap — using a homepage hero product photo instead of a
+          hotlinked Unsplash stock image. Swap for real corporate photography
+          once available. */}
       <img
-        src="https://images.unsplash.com/photo-1512909006721-3d6018887383?q=80&w=1974&auto=format&fit=crop"
+        src="/personaliseddiariespensheropng.png"
         alt="Corporate gifting occasions"
         className="absolute inset-0 w-full h-full object-cover"
         draggable={false}
@@ -29,7 +32,7 @@ export default function CorporateOccasions() {
 
       <div className="relative z-10 w-full px-8 md:px-14 lg:px-20 py-14 md:py-20">
 
-        <div className="text-white/30 text-xl mb-4 pointer-events-none">✦</div>
+        <Sparkles size={20} className="text-white/30 mb-4 pointer-events-none" />
 
         {/* HEADING — Playfair Display */}
         <h2

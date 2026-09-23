@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import NewsletterForm from "@/components/layout/NewsletterForm";
 import {
   MapPin,
   Phone,
   Mail,
   ChevronRight,
   Zap,
-  Gift,
+  Headphones,
   Heart,
   RefreshCw,
 } from "lucide-react";
@@ -48,6 +49,8 @@ const footerLinks = [
       { label: "Bulk gifting",  href: "/category/bulk-gifting" },
       { label: "Track order",   href: "/track" },
       { label: "About us",      href: "/about" },
+      { label: "Blog",           href: "/blog" },
+      { label: "Careers",        href: "/careers" },
     ],
   },
   {
@@ -68,7 +71,7 @@ const footerLinks = [
       { label: "Gifts for boyfriend", href: "/category/gifts-for-boyfriend" },
       { label: "Gifts for wife", href: "/category/gifts-for-wife" },
       { label: "Gifts for husband", href: "/category/gifts-for-husband" },
-      { label: "Gifts for parents", href: "/category/gifts-for-mother" },
+      { label: "Gifts for parents", href: "/category/gifts-for-parents" },
       { label: "Gifts for friends", href: "/category/gifts-for-friends" },
     ],
   },
@@ -98,17 +101,16 @@ export default function Footer() {
     <footer style={{ backgroundColor: FOOTER_BG }} className="text-white">
 
       {/* ── TOP STRIP ── */}
-      <div style={{ backgroundColor: FOOTER_BG_DARK }} className="py-4 px-4 border-b border-white/5">
-        <div className="max-w-[1450px] mx-auto flex flex-col md:flex-row items-center justify-center gap-3 md:gap-12 text-center">
+      <div style={{ backgroundColor: FOOTER_BG_DARK }} className="py-3 md:py-4 px-4 border-b border-white/5">
+        <div className="max-w-[1450px] mx-auto grid grid-cols-2 md:flex md:flex-row md:items-center md:justify-center gap-x-4 gap-y-2.5 md:gap-12">
           {[
             { icon: <Zap size={13} />, text: "3-hour express delivery in Jaipur" },
-            { icon: <Gift size={13} />, text: "Free gift wrapping on every order" },
+            { icon: <Headphones size={13} />, text: "Dedicated customer care support" },
             { icon: <Heart size={13} />, text: "100% customized & made with love" },
-            { icon: <RefreshCw size={13} />, text: "Easy returns & hassle-free refunds" },
+            { icon: <RefreshCw size={13} />, text: "Easy returns (except personalised items)" },
           ].map((item, i) => (
-            <span key={i} className="flex items-center gap-2 text-[12px] text-white font-medium">
-              {/* ✅ icons now white */}
-              <span className="text-white">{item.icon}</span>
+            <span key={i} className="flex items-start md:items-center gap-1.5 md:gap-2 text-[11px] md:text-[12px] leading-snug text-white font-medium">
+              <span className="text-white mt-0.5 md:mt-0 flex-shrink-0">{item.icon}</span>
               {item.text}
             </span>
           ))}
@@ -116,14 +118,19 @@ export default function Footer() {
       </div>
 
       {/* ── MAIN FOOTER ── */}
-      <div className="max-w-[1450px] mx-auto px-4 md:px-6 lg:px-10 pt-14 pb-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10">
+      <div className="max-w-[1450px] mx-auto px-4 md:px-6 lg:px-10 pt-10 md:pt-14 pb-8 md:pb-10">
+        {/* Was grid-cols-1 md:grid-cols-2 lg:grid-cols-6 — at md (768-1023px,
+            tablet portrait) that's a plain 2-col grid holding 5 items (brand
+            + 4 link columns), so the last link column sat alone in its own
+            row. Giving the brand column its own full-width row at sm/md and
+            letting the 4 link columns pair up 2x2 balances it out. */}
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-x-6 gap-y-8 md:gap-10">
 
           {/* ── BRAND COLUMN ── */}
-          <div className="lg:col-span-2">
+          <div className="col-span-2 md:col-span-4 lg:col-span-2">
 
             {/* LOGO */}
-            <Link href="/" className="flex flex-col leading-none select-none mb-5 w-fit">
+            <Link href="/" className="flex flex-col leading-none select-none mb-4 w-fit">
               <span style={{ fontFamily: "var(--font-playfair), serif" }}
                 className="text-[28px] font-semibold tracking-wide text-white leading-none">
                 Hashtag
@@ -133,22 +140,22 @@ export default function Footer() {
               </span>
             </Link>
 
-            <p className="text-[13px] text-white/80 leading-relaxed mb-6 max-w-xs">
+            <p className="text-[13px] text-white/80 leading-relaxed mb-5 max-w-sm">
               Jaipur's most loved personalized gifting brand. Crafting memories,
               one gift at a time — with love, care & creativity.
             </p>
 
             {/* CONTACT — brighter white */}
-            <div className="flex flex-col gap-3 mb-8">
+            <div className="flex flex-col gap-2.5 mb-6">
               <a
-                href="https://maps.google.com/?q=Hashtag+Gifts+Jaipur"
+                href="https://maps.google.com/?q=Shop+no.+83,+Roop+Vandana+Complex,+Arya+Samaj+Rd,+Gurunanakpura,+Raja+Park,+Jaipur,+Rajasthan+302004"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-start gap-2.5 text-[13px] text-white/80 hover:text-white transition-colors"
               >
                 {/* ✅ icons now white */}
                 <MapPin size={14} className="mt-0.5 flex-shrink-0 text-white" />
-                Shankar Nagar Main Road, Raipur, Jaipur
+                Shop no. 83, Roop Vandana Complex, Arya Samaj Rd, Raja Park, Jaipur
               </a>
                 <a
                 href="tel:+917665909909"
@@ -180,7 +187,7 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={social.label}
-                  className="w-9 h-9 rounded-full border border-white/30 flex items-center justify-center text-white/80 hover:text-white hover:border-white hover:bg-white/10 transition-all duration-300"
+                  className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center text-white/80 hover:text-white hover:border-white hover:bg-white/10 transition-all duration-300"
                 >
                   {social.icon}
                 </a>
@@ -191,10 +198,10 @@ export default function Footer() {
           {/* ── LINKS COLUMNS ── */}
           {footerLinks.map((col, i) => (
             <div key={i} className="lg:col-span-1">
-              <h4 className="text-[11px] font-semibold uppercase tracking-[2px] text-white mb-5">
+              <h4 className="text-[11px] font-semibold uppercase tracking-[2px] text-white mb-3 md:mb-5">
                 {col.title}
               </h4>
-              <ul className="flex flex-col gap-3">
+              <ul className="flex flex-col gap-2 md:gap-3">
                 {col.links.map((link, j) => (
                   <li key={j}>
                     <Link
@@ -203,7 +210,7 @@ export default function Footer() {
                     >
                       <ChevronRight
                         size={11}
-                        className="opacity-0 group-hover:opacity-100 -ml-1 transition-all duration-200 text-white"
+                        className="hidden lg:block opacity-0 group-hover:opacity-100 -ml-1 transition-all duration-200 text-white"
                       />
                       {link.label}
                     </Link>
@@ -215,11 +222,11 @@ export default function Footer() {
         </div>
 
         {/* ── NEWSLETTER ── */}
-        <div className="mt-12 pt-10 border-t border-white/20">
+        <div className="mt-10 md:mt-12 pt-8 md:pt-10 border-t border-white/20">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div>
               <h4
-                className="text-2xl font-bold text-white mb-1"
+                className="text-xl md:text-2xl font-bold text-white mb-1"
                 style={{ fontFamily: "var(--font-heading)" }}
               >
                 Get gifting ideas in your inbox
@@ -228,26 +235,23 @@ export default function Footer() {
                 Subscribe for exclusive deals, new arrivals & gifting inspiration.
               </p>
             </div>
-            <div className="flex items-center gap-2 w-full md:w-auto">
-              <input
-                type="email"
-                placeholder="Enter your email..."
-                className="flex-1 md:w-[280px] bg-white/10 border border-white/20 text-white placeholder:text-white/40 text-[13px] px-4 py-3 rounded-xl outline-none focus:border-white transition-colors"
-              />
-              {/* ✅ subscribe button — white bg + red text */}
-              <button className="bg-white text-[#c0555a] text-[13px] font-semibold px-5 py-3 rounded-xl hover:bg-white/90 transition-colors whitespace-nowrap">
-                Subscribe
-              </button>
-            </div>
+            {/* Stacks below sm instead of forcing input+button side by side —
+                at 320-375px the input was getting squeezed under the
+                nowrap "Subscribe" button. */}
+            <NewsletterForm
+              className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto"
+              inputClass="flex-1 md:w-[280px] bg-white/10 border border-white/20 text-white placeholder:text-white/40 text-[13px] px-4 py-3 rounded-xl outline-none focus:border-white transition-colors"
+              buttonClass="bg-white text-[#c0555a] text-[13px] font-semibold px-5 py-3 rounded-xl hover:bg-white/90 transition-colors whitespace-nowrap"
+            />
           </div>
         </div>
 
         {/* ── BOTTOM BAR ── */}
-        <div className="mt-10 pt-6 border-t border-white/20 flex flex-col md:flex-row items-center justify-between gap-3">
+        <div className="mt-8 md:mt-10 pt-5 md:pt-6 border-t border-white/20 flex flex-col md:flex-row items-center justify-between gap-3">
           <p className="text-[12px] text-white/60 text-center">
             © {new Date().getFullYear()} Hashtag Gifting, Jaipur. All rights reserved.
           </p>
-          <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center justify-center gap-2 md:gap-3 flex-wrap">
             {/* Visa */}
             <div className="h-7 px-2 bg-white rounded flex items-center justify-center" title="Visa">
               <svg viewBox="0 0 60 20" height="13" width="38" xmlns="http://www.w3.org/2000/svg">
@@ -273,8 +277,8 @@ export default function Footer() {
               </svg>
             </div>
             {/* COD */}
-            <div className="h-7 px-2 bg-white/10 border border-white/20 rounded flex items-center justify-center" title="Cash on Delivery">
-              <span className="text-[10px] font-bold text-white/80 tracking-wide">COD</span>
+            <div className="h-7 px-2 bg-white rounded flex items-center justify-center" title="Cash on Delivery">
+              <span className="text-[10px] font-bold text-[#1a1a1a] tracking-wide">COD</span>
             </div>
           </div>
         </div>

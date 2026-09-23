@@ -17,107 +17,98 @@ interface WishlistItem {
 
 interface WishlistState {
   items:       WishlistItem[];
+  localIds:    number[];
   isLoading:   boolean;
-  isLoggedIn:  boolean;
 
-  // Local toggle (works without login)
-  localIds:    number[]; // productIds for guests
-
-  fetch:       ()                   => Promise<void>;
-  toggle:      (productId: number)  => Promise<void>;
-  isWishlisted: (productId: number) => boolean;
-  sync:        ()                   => Promise<void>;
+  fetch:               ()                  => Promise<void>;
+  toggle:              (productId: number) => Promise<void>;
+  isWishlisted:        (productId: number) => boolean;
+  mergeGuestWishlist:  ()                  => Promise<void>;
 }
 
 export const useWishlistStore = create<WishlistState>()(
   persist(
     (set, get) => ({
-      items:      [],
-      isLoading:  false,
-      isLoggedIn: false,
-      localIds:   [],
+      items:     [],
+      localIds:  [],
+      isLoading: false,
 
-      // ── FETCH FROM DB ──
       fetch: async () => {
         set({ isLoading: true });
         try {
           const res  = await fetch("/api/wishlist");
           const data = await res.json();
-
-          if (Array.isArray(data)) {
+          if (Array.isArray(data) && data.length > 0) {
             set({
-              items:      data,
-              isLoggedIn: true,
-              localIds:   data.map((i: WishlistItem) => i.productId),
+              items:    data,
+              localIds: data.map((i: WishlistItem) => i.productId),
             });
           }
-        } catch (err) {
-          console.error("Wishlist fetch error:", err);
-        } finally {
-          set({ isLoading: false });
-        }
+        } catch {}
+        finally { set({ isLoading: false }); }
       },
 
-      // ── TOGGLE (add/remove) ──
       toggle: async (productId) => {
-        const isWishlisted = get().isWishlisted(productId);
-        const isLoggedIn   = get().isLoggedIn;
+        const wishlisted = get().isWishlisted(productId);
 
-        if (!isLoggedIn) {
-          // Guest — just toggle local
-          const localIds = get().localIds;
+        // Optimistic update locally first
+        if (wishlisted) {
           set({
-            localIds: isWishlisted
-              ? localIds.filter((id) => id !== productId)
-              : [...localIds, productId],
+            localIds: get().localIds.filter(id => id !== productId),
+            items:    get().items.filter(i => i.productId !== productId),
           });
-          return;
+        } else {
+          set({ localIds: [...get().localIds, productId] });
         }
 
-        // Logged in — sync with DB
+        // Try to sync with DB (works if logged in, silently fails if not)
         try {
-          if (isWishlisted) {
+          if (wishlisted) {
             await fetch("/api/wishlist/remove", {
               method:  "POST",
               headers: { "Content-Type": "application/json" },
               body:    JSON.stringify({ productId }),
             });
-            set({
-              items:    get().items.filter((i) => i.productId !== productId),
-              localIds: get().localIds.filter((id) => id !== productId),
-            });
           } else {
-            await fetch("/api/wishlist/add", {
+            const res = await fetch("/api/wishlist/add", {
               method:  "POST",
               headers: { "Content-Type": "application/json" },
               body:    JSON.stringify({ productId }),
             });
-            await get().fetch();
+            if (res.ok) {
+              // Refresh to get full product data
+              await get().fetch();
+            }
           }
-        } catch (err) {
-          console.error("Wishlist toggle error:", err);
-        }
+        } catch {}
       },
 
-      // ── IS WISHLISTED ──
-      isWishlisted: (productId) => {
-        return get().localIds.includes(productId);
-      },
+      isWishlisted: (productId) => get().localIds.includes(productId),
 
-      // ── SYNC GUEST WISHLIST ON LOGIN ──
-      sync: async () => {
-        const localIds = get().localIds;
-        if (localIds.length === 0) return;
+      // Called once, right after a login/signup is detected (see
+      // WishlistSync.tsx) — pushes whatever was wishlisted while browsing
+      // as a guest up to the account's real DB wishlist, instead of that
+      // selection either vanishing or staying stuck as local-only forever.
+      // /api/wishlist/add is an upsert (safe to call for ids already
+      // synced), so this is safe to run more than once.
+      mergeGuestWishlist: async () => {
+        const idsToMerge = get().localIds;
+        if (idsToMerge.length === 0) return;
 
         try {
-          await fetch("/api/wishlist/sync", {
-            method:  "POST",
-            headers: { "Content-Type": "application/json" },
-            body:    JSON.stringify({ items: localIds }),
-          });
+          await Promise.all(
+            idsToMerge.map((productId) =>
+              fetch("/api/wishlist/add", {
+                method:  "POST",
+                headers: { "Content-Type": "application/json" },
+                body:    JSON.stringify({ productId }),
+              }).catch(() => {})
+            )
+          );
+        } finally {
+          // Re-pull from the DB now that it's the merged, authoritative
+          // list — replaces the local-only ids with the real synced ones.
           await get().fetch();
-        } catch (err) {
-          console.error("Wishlist sync error:", err);
         }
       },
     }),

@@ -19,7 +19,9 @@ const GoogleIcon = () => (
 function RegisterForm() {
   const router       = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl  = searchParams.get("callbackUrl") || "/";
+  // Only same-site relative paths — blocks ?callbackUrl=https://evil.com open redirects.
+  const rawCallback  = searchParams.get("callbackUrl") || "/";
+  const callbackUrl  = rawCallback.startsWith("/") && !rawCallback.startsWith("//") && !rawCallback.startsWith("/\\") ? rawCallback : "/";
 
   const [name,       setName]       = useState("");
   const [email,      setEmail]      = useState("");
@@ -36,7 +38,7 @@ function RegisterForm() {
 
     // Client-side validation
     if (name.trim().length < 2)    { setError("Name must be at least 2 characters"); setLoading(false); return; }
-    if (password.length < 6)        { setError("Password must be at least 6 characters"); setLoading(false); return; }
+    if (password.length < 8)        { setError("Password must be at least 8 characters"); setLoading(false); return; }
     if (phone && !/^\d{10}$/.test(phone)) { setError("Phone must be 10 digits"); setLoading(false); return; }
 
     try {
@@ -48,6 +50,9 @@ function RegisterForm() {
       const data = await res.json();
 
       if (!res.ok) { setError(data.error || "Registration failed"); return; }
+
+      // Email verification switched on → don't auto-login, ask them to check email.
+      if (data.verificationRequired) { router.push("/login?registered=1"); return; }
 
       // Auto-login after register
       const result = await signIn("credentials", { email: email.trim(), password, redirect: false, callbackUrl });
@@ -133,8 +138,8 @@ function RegisterForm() {
               <div className="relative">
                 <Lock size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#aaa]" />
                 <input type={showPass ? "text" : "password"} value={password}
-                  onChange={e => setPassword(e.target.value)} required minLength={6}
-                  placeholder="Minimum 6 characters"
+                  onChange={e => setPassword(e.target.value)} required minLength={8}
+                  placeholder="Minimum 8 characters"
                   className="w-full pl-10 pr-12 py-3.5 border-2 border-[#e8e0d5] rounded-xl text-[14px] outline-none focus:border-[#c0555a] transition-colors" />
                 <button type="button" onClick={() => setShowPass(!showPass)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-[#aaa] hover:text-[#555]">

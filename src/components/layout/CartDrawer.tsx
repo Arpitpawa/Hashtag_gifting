@@ -79,7 +79,7 @@ function CouponInput({ applied, onApply, onRemove }: {
         <span className="text-[13px] font-semibold text-green-700">{applied.code}</span>
         <span className="text-[12px] text-green-600">— {formatPrice(applied.discount)} off</span>
       </div>
-      <button onClick={onRemove} className="text-green-600 hover:text-red-500 transition-colors"><X size={13} /></button>
+      <button onClick={onRemove} className="text-green-600 hover:text-red-500 transition-colors" aria-label="Close"><X size={13} /></button>
     </div>
   );
 
@@ -195,7 +195,7 @@ export default function CartDrawer({ open, onClose }: Props) {
               </Link>
             )}
             <button onClick={onClose}
-              className="w-8 h-8 rounded-full bg-[#f3efe8] flex items-center justify-center hover:bg-[#e8e0d5] transition-colors ml-2">
+              className="w-8 h-8 rounded-full bg-[#f3efe8] flex items-center justify-center hover:bg-[#e8e0d5] transition-colors ml-2" aria-label="Close">
               <X size={15} className="text-[#555]" />
             </button>
           </div>
@@ -275,15 +275,15 @@ export default function CartDrawer({ open, onClose }: Props) {
                         <div className="flex items-center border border-[#e8e0d5] rounded-full overflow-hidden">
                           <button onClick={() => updateItem(item.id, item.quantity - 1)}
                             disabled={isLoading || item.quantity <= 1}
-                            className="w-7 h-7 flex items-center justify-center hover:bg-[#f3efe8] transition-colors disabled:opacity-40">
+                            className="w-9 h-9 flex items-center justify-center hover:bg-[#f3efe8] transition-colors disabled:opacity-40">
                             <Minus size={11} />
                           </button>
                           <span className="w-7 text-center text-[13px] font-bold">
                             {isLoading ? <Loader2 size={11} className="animate-spin mx-auto" /> : item.quantity}
                           </span>
                           <button onClick={() => updateItem(item.id, item.quantity + 1)}
-                            disabled={isLoading || item.quantity >= item.product.stock}
-                            className="w-7 h-7 flex items-center justify-center hover:bg-[#f3efe8] transition-colors disabled:opacity-40">
+                            disabled={isLoading || item.quantity >= (item.variant?.stock ?? item.product.stock)}
+                            className="w-9 h-9 flex items-center justify-center hover:bg-[#f3efe8] transition-colors disabled:opacity-40">
                             <Plus size={11} />
                           </button>
                         </div>

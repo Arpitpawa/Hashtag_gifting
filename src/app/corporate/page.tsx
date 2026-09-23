@@ -1,5 +1,4 @@
 import CorporateHero from "@/components/corporate/CorporateHero";
-import WoodenCorporateGifting from "@/components/corporate/WoodenCorporateGifting";
 import CorporateProducts from "@/components/corporate/CorporateProducts";
 
 import BrandLogos from "@/components/home/BrandLogos";
@@ -11,7 +10,7 @@ import InquiryForm from "@/components/corporate/InquiryForm";
 import CorporateFAQ from "@/components/corporate/CorporateFAQ";
 
 export const metadata = {
-  title: "Corporate gifting — Hashtag Gifting",
+  title: "Corporate gifting",
   description: "Premium corporate gifting solutions for businesses across India.",
 };
 

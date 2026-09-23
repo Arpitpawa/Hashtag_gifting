@@ -2,7 +2,7 @@
 
 import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, Expand } from "lucide-react";
+import { ChevronLeft, ChevronRight, Expand, ZoomIn } from "lucide-react";
 
 interface Props {
   images:         string[];
@@ -143,8 +143,8 @@ export default function ProductGallery({
 
             {/* Zoom hint — shows briefly on hover */}
             <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-              <span className="bg-black/60 text-white text-[10px] px-2 py-1 rounded-full backdrop-blur-sm">
-                🔍 Hover to zoom · Click to expand
+              <span className="flex items-center gap-1 bg-black/60 text-white text-[10px] px-2 py-1 rounded-full backdrop-blur-sm">
+                <ZoomIn size={11} /> Hover to zoom · Click to expand
               </span>
             </div>
 

@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import Link from "next/link";
+import HoverImage from "@/components/shared/HoverImage";
 import Image from "next/image";
 import { Heart, ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import { formatPrice } from "@/lib/store/cartStore";
@@ -15,6 +16,27 @@ interface ViewedProduct {
   comparePrice: number | null;
   images:       string[];
   badge:        string | null;
+}
+
+// "Recently viewed" is a full product snapshot (incl. image URL) cached
+// straight in the visitor's own localStorage indefinitely — see
+// useRecentlyViewed.ts. It never gets revalidated against the DB, so if a
+// product is later deleted, or its image host is ever removed from
+// next.config's remotePatterns (like confettigifts.in was), next/image
+// hard-crashes the whole page for anyone who has that stale entry cached,
+// not just shows a broken image. This guard makes sure we only ever hand
+// next/image a URL from a host we know is currently allowed — anything
+// else (leftover dummy data, a domain we've since delisted, etc.) quietly
+// falls back to the placeholder instead of taking the page down.
+const SAFE_IMAGE_HOSTS = ["res.cloudinary.com"];
+function safeImageSrc(url?: string): string {
+  if (!url) return "/placeholder.jpg";
+  if (url.startsWith("/")) return url; // local public asset
+  try {
+    return SAFE_IMAGE_HOSTS.includes(new URL(url).hostname) ? url : "/placeholder.jpg";
+  } catch {
+    return "/placeholder.jpg";
+  }
 }
 
 interface Props {
@@ -64,13 +86,13 @@ export default function RecentlyViewed({ products, currentId }: Props) {
             <button
               onClick={scrollLeft}
               className="w-9 h-9 bg-white border border-[#e8e0d5] rounded-full flex items-center justify-center hover:bg-[#c0555a] hover:text-white hover:border-[#c0555a] transition-all duration-300"
-            >
+             aria-label="Previous">
               <ChevronLeft size={16} />
             </button>
             <button
               onClick={scrollRight}
               className="w-9 h-9 bg-white border border-[#e8e0d5] rounded-full flex items-center justify-center hover:bg-[#c0555a] hover:text-white hover:border-[#c0555a] transition-all duration-300"
-            >
+             aria-label="Next">
               <ChevronRight size={16} />
             </button>
           </div>
@@ -98,13 +120,7 @@ export default function RecentlyViewed({ products, currentId }: Props) {
 
                 {/* Image */}
                 <div className="relative aspect-square rounded-2xl overflow-hidden bg-[#f5f0ea] mb-3">
-                  <Image
-                    src={product.images[0] || "/placeholder.jpg"}
-                    alt={product.name}
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"
-                    sizes="200px"
-                  />
+                  <HoverImage images={[safeImageSrc(product.images[0]), ...(product.images[1] ? [safeImageSrc(product.images[1])] : [])]} alt={product.name} sizes="200px" />
 
                   {/* Badge */}
                   {product.badge && (
@@ -149,7 +165,7 @@ export default function RecentlyViewed({ products, currentId }: Props) {
               <button
                 onClick={() => toggle(product.id)}
                 aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
-                className="absolute top-2 right-2 w-7 h-7 bg-white rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110"
+                className="absolute top-2 right-2 w-7 h-7 bg-white rounded-full flex items-center justify-center shadow-md opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 hover:scale-110"
               >
                 <Heart
                   size={13}

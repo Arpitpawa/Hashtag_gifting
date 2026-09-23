@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MapPin, Loader2, CheckCircle, X, Truck, ShieldCheck, RefreshCw } from "lucide-react";
+import { MapPin, Loader2, CheckCircle, X, PenLine, Lock, MessageCircle, Trophy } from "lucide-react";
 
 export default function ProductDelivery() {
   const [pincode,     setPincode]     = useState("");
@@ -75,6 +75,9 @@ export default function ProductDelivery() {
             : <X size={13} className="mt-0.5 flex-shrink-0" />}
           <div>
             <p>{pincodeInfo.message}</p>
+            {pincodeInfo.success && pincodeInfo.area && (
+              <p className="opacity-80 mt-0.5">Delivering to: <strong>{pincodeInfo.area}</strong></p>
+            )}
             {pincodeInfo.success && (
               <p className="opacity-80 mt-0.5">Estimated delivery: <strong>{deliveryDate()}</strong></p>
             )}
@@ -85,12 +88,13 @@ export default function ProductDelivery() {
       {/* Trust strip */}
       <div className="flex items-center justify-between border border-[#e8e0d5] bg-white rounded-xl px-3 py-2.5 divide-x divide-[#e8e0d5]">
         {[
-          { icon: <ShieldCheck size={14} className="text-[#c0555a]" />, label: "Partial COD\nAvailable" },
-          { icon: <Truck       size={14} className="text-[#c0555a]" />, label: "Freebie On\nEvery Order" },
-          { icon: <RefreshCw   size={14} className="text-[#c0555a]" />, label: "Easy\nReturn" },
+          { icon: PenLine,       label: "Free\nPersonalisation" },
+          { icon: Lock,          label: "Secure\nCheckout" },
+          { icon: MessageCircle, label: "Prompt\nCustomer Care" },
+          { icon: Trophy,        label: "8+ yrs\nTrusted" },
         ].map((item, i) => (
           <div key={i} className="flex-1 flex flex-col items-center gap-1 px-2">
-            {item.icon}
+            <item.icon size={15} className="text-[#c0555a]" />
             <p className="text-[10px] font-semibold text-[#444] text-center leading-tight whitespace-pre-line">
               {item.label}
             </p>

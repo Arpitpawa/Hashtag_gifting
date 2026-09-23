@@ -58,9 +58,13 @@ export async function GET(req: NextRequest) {
         take:    10,
       }),
 
-      // Revenue from paid orders
+      // Revenue: paid online, OR delivered (COD — cash changes hands on
+      // delivery, not at the moment the order is placed). Previously this
+      // only checked paymentStatus === "PAID", so every COD order (which
+      // sits at PENDING for its whole lifecycle unless manually changed)
+      // never counted as revenue at all.
       prisma.order.findMany({
-        where:  { paymentStatus: "PAID" },
+        where:  { OR: [{ paymentStatus: "PAID" }, { deliveryStatus: "DELIVERED" }] },
         select: { totalAmount: true, createdAt: true },
       }),
 
@@ -92,16 +96,16 @@ export async function GET(req: NextRequest) {
         },
       }),
 
-      // This month's orders
+      // This month's orders — same PAID-or-DELIVERED revenue logic
       prisma.order.findMany({
-        where:  { createdAt: { gte: thirtyDaysAgo }, paymentStatus: "PAID" },
+        where:  { createdAt: { gte: thirtyDaysAgo }, OR: [{ paymentStatus: "PAID" }, { deliveryStatus: "DELIVERED" }] },
         select: { totalAmount: true, createdAt: true },
       }),
     ]);
 
     // ── CALCULATE REVENUE ──
-    const totalRevenue  = paidOrders.reduce((sum, o) => sum + o.totalAmount, 0);
-    const monthRevenue  = monthOrders.reduce((sum, o) => sum + o.totalAmount, 0);
+    const totalRevenue  = paidOrders.reduce((sum: any, o: any) => sum + o.totalAmount, 0);
+    const monthRevenue  = monthOrders.reduce((sum: any, o: any) => sum + o.totalAmount, 0);
 
     // ── REVENUE CHART (last 7 days) ──
     const last7Days = Array.from({ length: 7 }, (_, i) => {
@@ -112,11 +116,11 @@ export async function GET(req: NextRequest) {
 
     const revenueByDay = last7Days.map((day) => {
       const dayOrders = paidOrders.filter(
-        (o) => o.createdAt.toISOString().split("T")[0] === day
+        (o: any) => o.createdAt.toISOString().split("T")[0] === day
       );
       return {
         date:    day,
-        revenue: dayOrders.reduce((sum, o) => sum + o.totalAmount, 0),
+        revenue: dayOrders.reduce((sum: any, o: any) => sum + o.totalAmount, 0),
         orders:  dayOrders.length,
       };
     });

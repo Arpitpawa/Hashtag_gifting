@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -18,10 +18,12 @@ const GoogleIcon = () => (
   </svg>
 );
 
-export default function LoginPage() {
+function LoginForm() {
   const router      = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl  = searchParams.get("callbackUrl") || "/";
+  // Only same-site relative paths — blocks ?callbackUrl=https://evil.com open redirects.
+  const rawCallback  = searchParams.get("callbackUrl") || "/";
+  const callbackUrl  = rawCallback.startsWith("/") && !rawCallback.startsWith("//") && !rawCallback.startsWith("/\\") ? rawCallback : "/";
 
   const [tab,         setTab]         = useState<LoginTab>("email");
   const [email,       setEmail]       = useState("");
@@ -30,6 +32,26 @@ export default function LoginPage() {
   const [loading,     setLoading]     = useState(false);
   const [googleLoad,  setGoogleLoad]  = useState(false);
   const [error,       setError]       = useState("");
+  const [needsVerify, setNeedsVerify] = useState(false);
+  const [resent,      setResent]      = useState(false);
+
+  // Banners coming back from signup / the emailed verification link.
+  const verified   = searchParams.get("verified");
+  const registered = searchParams.get("registered");
+  const notice =
+    verified === "1"       ? "Email verified — you can log in now." :
+    verified === "invalid" ? "That verification link is invalid or has expired. Log in to get a new one." :
+    registered === "1"     ? "Account created! Check your email and click the verification link, then log in." :
+    "";
+
+  const resendVerification = async () => {
+    setResent(true);
+    await fetch("/api/auth/resend-verification", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    }).catch(() => {});
+  };
 
   // ── GOOGLE LOGIN ──
   const handleGoogle = async () => {
@@ -52,6 +74,12 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
+        if (result.error === "EMAIL_NOT_VERIFIED") {
+          setNeedsVerify(true);
+          setError("Please verify your email first — we sent you a link when you signed up.");
+          return;
+        }
+        setNeedsVerify(false);
         setError(
           result.error === "CredentialsSignin"
             ? "Invalid email or password"
@@ -182,9 +210,25 @@ export default function LoginPage() {
                 </div>
               </div>
 
+              {notice && !error && (
+                <p className="text-[13px] text-green-700 bg-green-50 px-4 py-3 rounded-xl">
+                  {notice}
+                </p>
+              )}
+
               {error && (
                 <p className="text-[13px] text-red-500 bg-red-50 px-4 py-3 rounded-xl">
                   {error}
+                  {needsVerify && (
+                    <button
+                      type="button"
+                      onClick={resendVerification}
+                      disabled={resent}
+                      className="block mt-2 font-semibold underline disabled:no-underline disabled:opacity-60"
+                    >
+                      {resent ? "Verification link sent — check your inbox" : "Resend verification email"}
+                    </button>
+                  )}
                 </p>
               )}
 
@@ -217,5 +261,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#f3efe8]" />}>
+      <LoginForm />
+    </Suspense>
   );
 }

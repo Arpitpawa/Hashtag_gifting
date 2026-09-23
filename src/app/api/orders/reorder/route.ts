@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
 
     // ── VERIFY OWNERSHIP ──
     const user = await prisma.user.findUnique({
-      where:  { email: session!.user!.email! },
+      where:  { id: Number(session!.user!.id) },
       select: { id: true },
     });
 
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
 
     // ── FILTER: Only add items that are still available ──
     const availableItems = order.items.filter(
-      (item) => item.product.status === "ACTIVE" && item.product.stock > 0
+      (item: any) => item.product.status === "ACTIVE" && item.product.stock > 0
     );
 
     if (availableItems.length === 0) {
@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
       data: {
         userId: user!.id,
         items: {
-          create: availableItems.map((item) => ({
+          create: availableItems.map((item: any) => ({
             productId:     item.productId,
             quantity:      Math.min(item.quantity, item.product.stock), // cap at current stock
             customization: item.customization || null,

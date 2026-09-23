@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { getSignedGuestCartId, clearGuestCartCookie } from "@/lib/cartAuth";
 
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
@@ -16,16 +18,21 @@ export async function POST(req: Request) {
     }
 
     const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
+      where: { id: Number(session.user.id) },
     });
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Get guest cart items
-    const guestCart = await prisma.cart.findUnique({
-      where: { id: Number(guestCartId) },
+    // Only a guest cart the caller can prove is theirs (signed cookie) and
+    // that isn't a logged-in user's cart may be merged.
+    if (Number(guestCartId) !== (await getSignedGuestCartId())) {
+      return NextResponse.json({ success: true, message: "No guest cart to merge" });
+    }
+
+    const guestCart = await prisma.cart.findFirst({
+      where: { id: Number(guestCartId), userId: null },
       include: { items: true },
     });
 
@@ -45,6 +52,7 @@ export async function POST(req: Request) {
         where: {
           cartId:    userCart.id,
           productId: guestItem.productId,
+          variantId: guestItem.variantId,
         },
       });
 
@@ -60,15 +68,17 @@ export async function POST(req: Request) {
           data: {
             cartId:        userCart.id,
             productId:     guestItem.productId,
+            variantId:     guestItem.variantId,
             quantity:      guestItem.quantity,
-            customization: guestItem.customization,
+            customization: guestItem.customization === null ? Prisma.JsonNull : guestItem.customization,
           },
         });
       }
     }
 
     // Delete guest cart
-    await prisma.cart.delete({ where: { id: Number(guestCartId) } });
+    await prisma.cart.delete({ where: { id: guestCart.id } });
+    await clearGuestCartCookie();
 
     return NextResponse.json({
       success: true,

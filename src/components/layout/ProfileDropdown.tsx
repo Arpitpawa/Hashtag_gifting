@@ -31,11 +31,15 @@ export default function ProfileDropdown() {
   ];
 
   return (
-    <div ref={ref} className="relative hidden md:block">
+    // Used to be `hidden md:block` — below 768px there was no account/login
+    // entry point anywhere in the navbar (the mobile hamburger Sheet doesn't
+    // have one either), so phone visitors had no way to log in short of
+    // typing /login directly. Now visible at every screen size.
+    <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(!open)}
         onMouseEnter={() => setOpen(true)}
-        className="p-2 hover:bg-gray-100 rounded-full transition-colors flex items-center justify-center"
+        className="p-2.5 hover:bg-gray-100 rounded-full transition-colors flex items-center justify-center"
       >
         <User size={19} strokeWidth={1.5} />
       </button>
@@ -43,7 +47,7 @@ export default function ProfileDropdown() {
       {open && (
         <div
           onMouseLeave={() => setOpen(false)}
-          className="absolute right-0 top-10 w-[240px] bg-white rounded-2xl shadow-2xl border border-[#e8e0d5] z-50 overflow-hidden"
+          className="absolute right-0 top-10 w-[240px] max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl border border-[#e8e0d5] z-50 overflow-hidden"
         >
           {/* Header */}
           <div className="px-5 py-4 border-b border-[#f0f0f0]">

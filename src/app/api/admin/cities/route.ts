@@ -13,7 +13,7 @@ export async function GET() {
   });
 
   const cityMap: Record<string, { orders: number; revenue: number }> = {};
-  orders.forEach(o => {
+  orders.forEach((o: any) => {
     const snap = o.addressSnapshot as any;
     const city = snap?.city?.trim();
     if (!city) return;

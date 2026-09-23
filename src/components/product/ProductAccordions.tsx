@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Rocket, Package, RefreshCw } from "lucide-react";
 import type { Product } from "@/types/product";
 
 const SHIPPING_POLICY = `We offer FREE delivery on all orders above Rs. 999. Orders placed before 2 PM are dispatched same day. Standard delivery takes 4–7 business days. Expedited delivery (1–3 days) is available at checkout. We deliver across all major Indian cities and towns.`;
@@ -11,7 +11,7 @@ const MORE_INFO = `All our products are handcrafted with premium materials and q
 const FAQS = [
   { q: "How long does customization take?",    a: "Personalized products are crafted within 24–48 hours of order placement. You'll receive a dispatch notification once it ships." },
   { q: "Can I see a proof before production?", a: "Our live canvas preview shows exactly how your product will look. Production starts immediately after order confirmation." },
-  { q: "What if I'm not satisfied?",           a: "We offer a 100% satisfaction guarantee. Contact us within 7 days of delivery for a free replacement or full refund." },
+  { q: "What if I'm not satisfied?",           a: "If there's a manufacturing defect or damage, contact us within 7 days of delivery for a free replacement or full refund. Personalised/customized products can't be returned or refunded for change of mind once production has started." },
   { q: "Do you offer bulk/corporate orders?",  a: "Yes! We specialize in bulk corporate gifting with volume discounts. WhatsApp us for a custom quote." },
 ];
 
@@ -57,18 +57,31 @@ export default function ProductAccordions({ product }: Props) {
       id:    "details",
       label: "Product Details",
       content: (
-        <div className="space-y-4">
-          {product.description && (
-            <p className="text-[13px] text-[#555] leading-relaxed">{product.description}</p>
+        <div className="space-y-5">
+          {product.detailsDescription || product.description ? (
+            <div>
+              <p className="text-[11px] font-bold text-[#c0555a] uppercase tracking-wide mb-1.5">Description</p>
+              <p className="text-[13.5px] text-[#333] leading-relaxed whitespace-pre-line">
+                {product.detailsDescription || product.description}
+              </p>
+            </div>
+          ) : (
+            <p className="text-[13px] text-[#aaa] italic">No description added for this product yet.</p>
           )}
           {specs.length > 0 && (
-            <div className="grid grid-cols-2 gap-2">
-              {specs.map((spec) => (
-                <div key={spec.label} className="flex gap-2 p-2.5 bg-[#f3efe8] rounded-xl">
-                  <span className="text-[11px] font-bold text-[#c0555a] w-[90px] flex-shrink-0">{spec.label}</span>
-                  <span className="text-[11px] text-[#555]">{spec.value}</span>
-                </div>
-              ))}
+            <div>
+              <p className="text-[11px] font-bold text-[#c0555a] uppercase tracking-wide mb-1.5">Specifications</p>
+              {/* Single column on the smallest phones — a 2-col grid left
+                  only ~140px per cell, and a fixed 90px label plus value
+                  text was crowding/wrapping badly. */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {specs.map((spec) => (
+                  <div key={spec.label} className="flex gap-2 p-2.5 bg-[#f3efe8] rounded-xl">
+                    <span className="text-[11px] font-bold text-[#c0555a] w-[90px] flex-shrink-0">{spec.label}</span>
+                    <span className="text-[11px] text-[#555]">{spec.value}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>
@@ -82,12 +95,12 @@ export default function ProductAccordions({ product }: Props) {
           <p className="text-[13px] text-[#555] leading-relaxed">{SHIPPING_POLICY}</p>
           <div className="flex flex-col gap-2">
             {[
-              { icon: "🚀", label: "Same-day dispatch", sub: "Orders placed before 2 PM" },
-              { icon: "📦", label: "Free delivery",     sub: "On orders above Rs. 999"   },
-              { icon: "🔄", label: "Easy returns",      sub: "7 days for non-personalized items" },
+              { icon: Rocket,     label: "Same-day dispatch", sub: "Orders placed before 2 PM" },
+              { icon: Package,    label: "Free delivery",     sub: "On orders above Rs. 999"   },
+              { icon: RefreshCw,  label: "Easy returns",      sub: "7 days for non-personalized items" },
             ].map((item, i) => (
               <div key={i} className="flex items-center gap-3 bg-[#f3efe8] rounded-xl px-3 py-2">
-                <span className="text-[18px]">{item.icon}</span>
+                <item.icon size={18} className="text-[#c0555a] flex-shrink-0" />
                 <div>
                   <p className="text-[12px] font-semibold text-[#1a1a1a]">{item.label}</p>
                   <p className="text-[11px] text-[#888]">{item.sub}</p>

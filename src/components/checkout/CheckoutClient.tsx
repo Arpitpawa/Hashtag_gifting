@@ -13,6 +13,8 @@ import {
   ArrowLeft, BadgeCheck, Edit2,
 } from "lucide-react";
 import { useCartStore, formatPrice } from "@/lib/store/cartStore";
+import { isValidPincode } from "@/lib/helpers";
+import AvailableCoupons from "@/components/shared/AvailableCoupons";
 
 // ── types ─────────────────────────────────────────────────────────────────────
 interface Address {
@@ -157,8 +159,8 @@ function OrderSummary({
   items:          any[];
   subtotal:       number;
   discount:       number;
-  coupon:         { code: string; discount: number; id?: number } | null;
-  onApplyCoupon:  (code: string, discount: number, id?: number) => void;
+  coupon:         { code: string; discount: number; id: number } | null;
+  onApplyCoupon:  (code: string, discount: number, id: number) => void;
   onRemoveCoupon: () => void;
 }) {
   const [code,    setCode]    = useState("");
@@ -167,16 +169,17 @@ function OrderSummary({
   const finalTotal = Math.max(0, subtotal - discount);
   const freeShip   = finalTotal >= 99900;
 
-  const apply = async () => {
-    if (!code.trim()) return;
+  const apply = async (codeOverride?: string) => {
+    const useCode = (codeOverride ?? code).trim();
+    if (!useCode) return;
     setLoading(true); setError("");
     try {
       const res  = await fetch("/api/coupons/validate", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: code.trim().toUpperCase() }),
+        body: JSON.stringify({ code: useCode.toUpperCase(), subtotal }),
       });
       const data = await res.json();
-      if (data.valid) { onApplyCoupon(code.trim().toUpperCase(), data.discount, data.id); setCode(""); }
+      if (data.valid) { onApplyCoupon(useCode.toUpperCase(), data.discount, data.couponId); setCode(""); }
       else setError(data.message || "Invalid coupon");
     } catch { setError("Could not apply coupon."); }
     finally   { setLoading(false); }
@@ -188,9 +191,9 @@ function OrderSummary({
       <div className="bg-white rounded-2xl border border-[#e8e0d5] p-5">
         <h3 className="text-[14px] font-bold text-[#1a1a1a] mb-4 flex items-center gap-2">
           <Package size={16} className="text-[#c0555a]" />
-          Order summary ({items.length} items)
+          Order summary ({items.length} {items.length === 1 ? "item" : "items"})
         </h3>
-        <div className="flex flex-col gap-3 max-h-[300px] overflow-y-auto pr-1" style={{ scrollbarWidth: "none" }}>
+        <div className="flex flex-col gap-3 max-h-[35vh] sm:max-h-[300px] overflow-y-auto pr-1" style={{ scrollbarWidth: "none" }}>
           {items.map((item) => (
             <div key={item.id} className="flex gap-3">
               <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-[#f8f5f0] flex-shrink-0 border border-[#e8e0d5]">
@@ -207,7 +210,13 @@ function OrderSummary({
                 {item.customization && (
                   <p className="text-[11px] text-[#aaa] mt-0.5 truncate">
                     {Object.entries(item.customization)
-                      .filter(([k,v]) => v && !["photoUrl","giftWrap","greetingCard"].includes(k))
+                      .filter(([k,v]) => {
+                        const excluded = ["photoUrl","giftWrap","greetingCard","photo_upload","preview_png"];
+                        if (excluded.includes(k)) return false;
+                        if (!v) return false;
+                        if (typeof v === "string" && v.startsWith("data:")) return false;
+                        return true;
+                      })
                       .map(([,v]) => v).join(" · ")}
                   </p>
                 )}
@@ -227,7 +236,7 @@ function OrderSummary({
               <span className="text-[13px] font-bold text-green-700">{coupon.code}</span>
               <span className="text-[12px] text-green-600">applied</span>
             </div>
-            <button onClick={onRemoveCoupon}><X size={14} className="text-[#aaa] hover:text-red-500" /></button>
+            <button onClick={onRemoveCoupon} aria-label="Close"><X size={14} className="text-[#aaa] hover:text-red-500" /></button>
           </div>
         ) : (
           <div className="flex flex-col gap-2">
@@ -241,12 +250,17 @@ function OrderSummary({
                   className="w-full pl-8 pr-3 py-2.5 border border-[#e8e0d5] rounded-xl text-[13px] outline-none focus:border-[#c0555a] bg-white transition-colors"
                 />
               </div>
-              <button onClick={apply} disabled={loading || !code.trim()}
+              <button onClick={() => apply()} disabled={loading || !code.trim()}
                 className="px-4 py-2.5 bg-[#c0555a] text-white text-[12px] font-bold rounded-xl hover:bg-[#a84449] disabled:opacity-50 transition-colors">
                 {loading ? <Loader2 size={13} className="animate-spin" /> : "Apply"}
               </button>
             </div>
             {error && <p className="text-[11px] text-red-500">{error}</p>}
+            <AvailableCoupons
+              subtotal={subtotal}
+              onApply={(c) => apply(c)}
+              className="mt-2"
+            />
           </div>
         )}
       </div>
@@ -302,16 +316,19 @@ function OrderSummary({
 export default function CheckoutClient() {
   const { data: session }  = useSession();
   const router             = useRouter();
-  const { items, subtotal, itemCount, cartId, clearCart } = useCartStore();
+  const {
+    items, subtotal, itemCount, cartId, clearCart,
+    appliedCoupon: coupon, setAppliedCoupon: setCoupon,
+  } = useCartStore();
 
   const [step,      setStep]      = useState<1|2|3>(1);
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [selAddrId, setSelAddrId] = useState<number | null>(null);
   const [showForm,  setShowForm]  = useState(false);
+  const [saveAddr,  setSaveAddr]  = useState(true);
   const [formData,  setFormData]  = useState<FormData>({ name: "", phone: "", street: "", city: "", state: "", pincode: "" });
   const [formErrs,  setFormErrs]  = useState<Partial<FormData>>({});
   const [payMethod, setPayMethod] = useState<"online"|"cod">("online");
-  const [coupon,    setCoupon]    = useState<{ code: string; discount: number; id?: number } | null>(null);
   const [placing,   setPlacing]   = useState(false);
   const [error,     setError]     = useState("");
 
@@ -362,7 +379,7 @@ export default function CheckoutClient() {
     if (!formData.street.trim())                        errs.street  = "Street address is required";
     if (!formData.city.trim())                          errs.city    = "City is required";
     if (!formData.state.trim())                         errs.state   = "State is required";
-    if (!/^\d{6}$/.test(formData.pincode))              errs.pincode = "Enter a valid 6-digit pincode";
+    if (!isValidPincode(formData.pincode))               errs.pincode = "Enter a valid 6-digit pincode";
     setFormErrs(errs);
     return Object.keys(errs).length === 0;
   };
@@ -375,9 +392,33 @@ export default function CheckoutClient() {
     return formData;
   };
 
-  const handleStep1 = () => {
+  const handleStep1 = async () => {
     if (showForm || !selAddrId) {
       if (!validateForm()) return;
+      // Save address if logged in and checkbox checked
+      if (saveAddr && session) {
+        try {
+          const res = await fetch("/api/auth/addresses", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name:      formData.name,
+              phone:     formData.phone,
+              street:    formData.street,
+              city:      formData.city,
+              state:     formData.state,
+              pincode:   formData.pincode,
+              isDefault: addresses.length === 0,
+            }),
+          });
+          const saved = await res.json();
+          if (saved?.id) {
+            setAddresses(prev => [...prev, saved]);
+            setSelAddrId(saved.id);
+            setShowForm(false);
+          }
+        } catch {}
+      }
     }
     setStep(2);
   };
@@ -405,8 +446,14 @@ export default function CheckoutClient() {
         body: JSON.stringify({
           items: items.map(i => ({
             productId:     i.productId,
+            variantId:     i.variantId ?? null,
             quantity:      i.quantity,
-            price:         i.product.price,
+            // A selected variant's own price governs this item — sending
+            // the base product's price here regardless used to mean any
+            // variant with its own price was silently charged the wrong
+            // amount (and would actually get rejected by the server's
+            // price-integrity check once that's compared correctly).
+            price:         i.variant?.price ?? i.product.price,
             customization: i.customization,
           })),
           totalAmount:     finalTotal,
@@ -495,7 +542,11 @@ export default function CheckoutClient() {
 
         <StepBar step={step} />
 
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8 items-start">
+        {/* xl instead of lg — an iPad Pro in portrait (1024px) was matching
+            lg and getting squeezed into a two-column layout meant for wide
+            desktop screens, with a sticky order summary pinned beside a
+            cramped form column instead of stacking naturally. */}
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-8 items-start">
 
           {/* ── LEFT ── */}
           <div className="flex flex-col gap-5">
@@ -531,23 +582,10 @@ export default function CheckoutClient() {
                     {/* Save address for logged in users */}
                     {session && (
                       <label className="flex items-center gap-2 mt-4 cursor-pointer">
-                        <input type="checkbox" className="w-4 h-4 accent-[#c0555a]" defaultChecked />
+                        <input type="checkbox" className="w-4 h-4 accent-[#c0555a]" checked={saveAddr} onChange={e => setSaveAddr(e.target.checked)} />
                         <span className="text-[13px] text-[#555]">Save this address for future orders</span>
                       </label>
                     )}
-                  </div>
-                )}
-
-                {/* Guest prompt */}
-                {!session && (
-                  <div className="mt-5 p-4 bg-[#f3efe8] rounded-2xl border border-[#e8e0d5]">
-                    <p className="text-[13px] text-[#555]">
-                      Have an account?{" "}
-                      <Link href="/login?callbackUrl=/checkout" className="text-[#c0555a] font-semibold hover:underline">
-                        Log in
-                      </Link>{" "}
-                      to use saved addresses and track orders
-                    </p>
                   </div>
                 )}
 
@@ -656,7 +694,7 @@ export default function CheckoutClient() {
           </div>
 
           {/* ── RIGHT — order summary ── */}
-          <div className="lg:sticky lg:top-6">
+          <div className="xl:sticky xl:top-6">
             <OrderSummary
               items={items}
               subtotal={subtotal}

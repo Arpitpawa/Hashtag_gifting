@@ -1,15 +1,18 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import ThemedSelect from "@/components/shared/ThemedSelect";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
+import HoverImage from "@/components/shared/HoverImage";
 import Image from "next/image";
 import {
-  SlidersHorizontal, X, Heart, ChevronDown,
-  Search, Grid3X3, Grid2X2, Loader2
+  SlidersHorizontal, X, Heart,
+  Search, Grid3X3, Grid2X2, Loader2, Gift, Pencil,
 } from "lucide-react";
 import { useWishlistStore } from "@/lib/store/wishlistStore";
 import { formatPrice } from "@/lib/store/cartStore";
+import ColorSwatchDots, { type SwatchVariant } from "./ColorSwatchDots";
 
 // ── TYPES ──
 interface Product {
@@ -23,6 +26,7 @@ interface Product {
   stock:        number;
   customizable: boolean;
   category:     { id: number; name: string; slug: string } | null;
+  variants?:    SwatchVariant[];
 }
 
 interface Category {
@@ -182,7 +186,7 @@ export default function ShopClient() {
                 e.preventDefault();
                 updateUrl({ search: searchInput });
               }}
-              className="flex items-center gap-2 flex-1 max-w-sm"
+              className="flex items-center gap-2 flex-1 min-w-[150px] max-w-sm"
             >
               <div className="relative flex-1">
                 <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#aaa]" />
@@ -191,7 +195,7 @@ export default function ShopClient() {
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
                   placeholder="Search gifts..."
-                  className="w-full pl-9 pr-4 py-2 border border-[#e8e0d5] rounded-full text-[13px] outline-none focus:border-[#c0555a] transition-colors"
+                  className="w-full min-w-0 pl-9 pr-4 py-2 border border-[#e8e0d5] rounded-full text-[13px] outline-none focus:border-[#c0555a] transition-colors"
                 />
                 {searchInput && (
                   <button
@@ -206,17 +210,8 @@ export default function ShopClient() {
             </form>
 
             {/* SORT */}
-            <div className="relative ml-auto">
-              <select
-                value={sort}
-                onChange={(e) => updateUrl({ sort: e.target.value })}
-                className="appearance-none pl-4 pr-8 py-2 border border-[#e8e0d5] rounded-full text-[13px] outline-none focus:border-[#c0555a] cursor-pointer bg-white"
-              >
-                {SORT_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
-              <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#aaa] pointer-events-none" />
+            <div className="ml-auto">
+              <ThemedSelect value={sort} onChange={(v) => updateUrl({ sort: v })} options={SORT_OPTIONS} ariaLabel="Sort products" />
             </div>
 
             {/* GRID TOGGLE */}
@@ -241,10 +236,27 @@ export default function ShopClient() {
       <div className="max-w-[1450px] mx-auto px-4 md:px-6 lg:px-10 py-8">
         <div className="flex gap-8">
 
-          {/* ── SIDEBAR FILTERS ── */}
+          {/* ── SIDEBAR FILTERS ──
+              Used to be a plain inline w-[240px] column with no mobile
+              variant — opening "Filters" on a phone squeezed the product
+              grid into whatever was left (as little as ~70-100px). Below
+              `lg` this now renders as a fixed slide-in drawer with a
+              backdrop; at `lg`+ it's the original static sidebar. */}
           {showFilters && (
-            <aside className="w-[240px] flex-shrink-0">
-              <div className="sticky top-[70px] flex flex-col gap-6">
+            <>
+              <div
+                className="fixed inset-0 bg-black/40 z-40 lg:hidden"
+                onClick={() => setShowFilters(false)}
+              />
+              <aside className="fixed inset-y-0 left-0 z-50 w-[85vw] max-w-[320px] bg-white overflow-y-auto lg:static lg:z-auto lg:w-[240px] lg:max-w-none lg:bg-transparent lg:flex-shrink-0 lg:overflow-visible">
+                {/* Mobile-only drawer header */}
+                <div className="flex items-center justify-between px-5 py-4 border-b border-[#e8e0d5] lg:hidden">
+                  <span className="text-[14px] font-bold text-[#1a1a1a]">Filters</span>
+                  <button onClick={() => setShowFilters(false)} className="p-2 -mr-2 text-[#555]">
+                    <X size={18} />
+                  </button>
+                </div>
+              <div className="p-5 lg:p-0 lg:sticky lg:top-[70px] flex flex-col gap-6">
 
                 {/* CLEAR ALL */}
                 {hasActiveFilters && (
@@ -356,7 +368,8 @@ export default function ShopClient() {
                   </div>
                 </div>
               </div>
-            </aside>
+              </aside>
+            </>
           )}
 
           {/* ── MAIN CONTENT ── */}
@@ -432,8 +445,8 @@ export default function ShopClient() {
             {/* EMPTY STATE */}
             {!loading && products.length === 0 && (
               <div className="flex flex-col items-center justify-center py-20 text-center">
-                <div className="w-20 h-20 bg-[#f3efe8] rounded-full flex items-center justify-center mb-4 text-3xl">
-                  🎁
+                <div className="w-20 h-20 bg-[#f3efe8] rounded-full flex items-center justify-center mb-4">
+                  <Gift size={32} className="text-[#c0555a]" />
                 </div>
                 <h3 className="text-[18px] font-bold text-[#1a1a1a] mb-2">
                   No gifts found
@@ -519,13 +532,13 @@ function ProductCard({
 
         {/* IMAGE */}
         <div className="relative overflow-hidden rounded-2xl bg-[#f5f0ea] aspect-square mb-3">
-          <Image
-            src={hovered && product.images[1] ? product.images[1] : product.images[0]}
-            alt={product.name}
-            fill
-            className="object-cover transition-all duration-700 group-hover:scale-105"
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-          />
+          {(product.images?.[0] || product.images?.[1]) ? (
+            <HoverImage images={product.images} alt={product.name} sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw" />
+          ) : (
+            <div className="w-full h-full bg-[#e8e0d5] flex items-center justify-center">
+              <span className="text-[#b0a898] text-[12px]">No image</span>
+            </div>
+          )}
 
           {/* BADGE */}
           {product.badge && (
@@ -536,8 +549,8 @@ function ProductCard({
 
           {/* CUSTOMIZABLE BADGE */}
           {product.customizable && (
-            <span className="absolute top-3 right-10 bg-[#1a1a1a] text-white text-[10px] font-bold px-2 py-1 rounded-full">
-              ✏️ Custom
+            <span className="absolute bottom-3 left-3 flex items-center gap-1 bg-[#1a1a1a] text-white text-[10px] font-bold px-2 py-1 rounded-full">
+              <Pencil size={9} /> Custom
             </span>
           )}
 
@@ -550,7 +563,12 @@ function ProductCard({
             </div>
           )}
         </div>
+      </Link>
 
+      {/* COLOR SWATCHES — sits between image and info, own click handling */}
+      <ColorSwatchDots variants={product.variants || []} productSlug={product.slug} className="mb-1.5" />
+
+      <Link href={`/product/${product.slug}`} className="block">
         {/* INFO */}
         <div>
           <h3 className="text-[13px] md:text-[14px] font-medium text-[#1a1a1a] mb-1 group-hover:text-[#c0555a] transition-colors line-clamp-2 capitalize">
@@ -559,7 +577,7 @@ function ProductCard({
           {product.category && (
             <p className="text-[11px] text-[#aaa] mb-1">{product.category.name}</p>
           )}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-x-2 gap-y-0.5 flex-wrap">
             <span className="text-[14px] font-bold text-[#1a1a1a]">
               {formatPrice(product.price)}
             </span>
@@ -580,7 +598,7 @@ function ProductCard({
       {/* WISHLIST */}
       <button
         onClick={(e) => { e.preventDefault(); onWishlistToggle(); }}
-        className="absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110 z-10"
+        className="absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 hover:scale-110 z-10"
       >
         <Heart
           size={14}

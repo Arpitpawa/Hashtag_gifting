@@ -70,8 +70,12 @@ const GoogleIcon = ({ size = 14 }: { size?: number }) => (
 );
 
 export default function Testimonials() {
+  // pb reduced (not py) — this section's own bottom padding was stacking
+  // with InstagramReels' top padding right after it, making the gap between
+  // "View all Google reviews" and "As seen on instagram" much bigger than
+  // the section's other margins.
   return (
-    <section className="py-16 md:py-20 relative overflow-hidden">
+    <section className="pt-16 md:pt-20 pb-8 md:pb-10 relative overflow-hidden">
       <div className="max-w-[1450px] mx-auto px-4 md:px-6 lg:px-10">
 
         {/* Heading */}
@@ -88,21 +92,12 @@ export default function Testimonials() {
         </div>
 
         {/* Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Added an lg:grid-cols-3 step — straight sm→4-col jump at 1024px
+            (iPad Pro width) squeezed h-[200px] images into ~230px-wide
+            cards. */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {testimonials.map((t, i) => (
             <div key={i} className="flex flex-col bg-white rounded-2xl border border-[#e8e0d5] overflow-hidden hover:shadow-md transition-shadow">
-
-              {/* Product image */}
-              <div className="relative">
-                <img src={t.product} alt={t.productName}
-                  className="w-full h-[200px] object-cover" />
-                {/* Product name pill */}
-                <div className="absolute bottom-3 left-3">
-                  <span className="text-[10px] font-semibold bg-white/90 backdrop-blur-sm text-[#1a1a1a] px-2.5 py-1 rounded-full border border-[#e8e0d5]">
-                    {t.productName}
-                  </span>
-                </div>
-              </div>
 
               <div className="p-4 flex flex-col flex-1">
                 {/* Reviewer info */}

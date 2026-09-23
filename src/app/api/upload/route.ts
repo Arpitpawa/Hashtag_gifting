@@ -7,7 +7,7 @@ import { validateImageBuffer } from "@/lib/sanitize";
 
 export const runtime = "nodejs";
 
-const MAX_FILE_SIZE  = 8  * 1024 * 1024; // 8MB
+const MAX_FILE_SIZE  = 50 * 1024 * 1024; // 50MB — raw camera photos
 const ALLOWED_TYPES  = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"];
 const ALLOWED_FOLDERS = ["products", "categories", "hashtag-gifting"];
 

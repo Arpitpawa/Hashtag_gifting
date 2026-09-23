@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import CartPageClient from "@/components/cart/CartPageClient";
 
 export const metadata: Metadata = {
-  title: "Your Cart — Hashtag Gifting",
+  title: "Your Cart",
   description: "Review your cart and proceed to checkout",
 };
 

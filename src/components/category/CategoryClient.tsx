@@ -1,16 +1,19 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import ThemedSelect from "@/components/shared/ThemedSelect";
 import { useRouter, useSearchParams, useParams } from "next/navigation";
 import Link                                  from "next/link";
+import HoverImage from "@/components/shared/HoverImage";
 import Image                                 from "next/image";
 import {
   SlidersHorizontal, X, Heart, ChevronLeft,
   ChevronRight, Sparkles, Search, LayoutGrid,
-  List, Star,
+  List, Star, Gift,
 } from "lucide-react";
 import { useWishlistStore } from "@/lib/store/wishlistStore";
 import { formatPrice }      from "@/lib/store/cartStore";
+import ColorSwatchDots, { type SwatchVariant } from "@/components/shop/ColorSwatchDots";
 
 // ── types ─────────────────────────────────────────────────────────────────────
 interface Product {
@@ -26,6 +29,7 @@ interface Product {
   avgRating:    number;
   reviewCount:  number;
   category:     { id: number; name: string; slug: string } | null;
+  variants?:    SwatchVariant[];
 }
 
 interface Props {
@@ -109,14 +113,7 @@ function ProductCard({
       <Link href={`/product/${product.slug}`} className="block">
         {/* Image */}
         <div className="relative aspect-square rounded-2xl overflow-hidden bg-[#f8f5f0] mb-3">
-          <Image
-            src={product.images[0] || "/placeholder.jpg"}
-            alt={product.name}
-            fill
-            loading="lazy"
-            className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-            sizes="(max-width:768px) 50vw, (max-width:1024px) 33vw, 25vw"
-          />
+          <HoverImage images={product.images} alt={product.name} sizes="(max-width:768px) 50vw, (max-width:1024px) 33vw, 25vw" />
 
           {/* Badges */}
           {product.badge && (
@@ -144,7 +141,12 @@ function ProductCard({
             </div>
           )}
         </div>
+      </Link>
 
+      {/* Color swatches — own click handling, sits between image and info */}
+      <ColorSwatchDots variants={product.variants || []} productSlug={product.slug} className="mb-1.5" />
+
+      <Link href={`/product/${product.slug}`} className="block">
         {/* Info */}
         <p className="text-[13px] font-medium text-[#1a1a1a] capitalize line-clamp-2 leading-snug mb-1.5 group-hover:text-[#c0555a] transition-colors">
           {product.name}
@@ -175,7 +177,7 @@ function ProductCard({
       <button
         onClick={() => toggle(product.id)}
         aria-label={wishlisted ? "Remove from wishlist" : "Save to wishlist"}
-        className="absolute top-2 right-2 w-7 h-7 bg-white rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110 z-10"
+        className="absolute top-2 right-2 w-7 h-7 bg-white rounded-full flex items-center justify-center shadow-md opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 hover:scale-110 z-10"
       >
         <Heart size={13} className={wishlisted ? "fill-[#c0555a] text-[#c0555a]" : "text-[#555]"} />
       </button>
@@ -434,15 +436,7 @@ export default function CategoryClient({
 
             {/* Right side: sort + view toggle */}
             <div className="ml-auto flex items-center gap-3">
-              <select
-                value={sort}
-                onChange={(e) => updateUrl({ sort: e.target.value })}
-                className="text-[12px] border border-[#e8e0d5] rounded-full px-4 py-2 outline-none bg-white text-[#555] focus:border-[#c0555a] cursor-pointer"
-              >
-                {SORT_OPTIONS.map((o) => (
-                  <option key={o.value} value={o.value}>{o.label}</option>
-                ))}
-              </select>
+              <ThemedSelect value={sort} onChange={(v) => updateUrl({ sort: v })} options={SORT_OPTIONS} ariaLabel="Sort products" />
 
               <div className="flex items-center gap-1">
                 <button
@@ -524,7 +518,7 @@ export default function CategoryClient({
           </div>
         ) : products.length === 0 ? (
           <div className="text-center py-24">
-            <div className="text-5xl mb-4">🎁</div>
+            <Gift size={48} className="mx-auto mb-4 text-[#c0555a]" />
             <h2 className="text-[20px] font-bold text-[#1a1a1a] mb-2">No products found</h2>
             <p className="text-[14px] text-[#888] mb-6">Try adjusting your filters or browse all gifts</p>
             <Link href="/shop"

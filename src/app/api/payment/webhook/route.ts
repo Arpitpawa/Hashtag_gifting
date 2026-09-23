@@ -28,7 +28,9 @@ export async function POST(req: NextRequest) {
     .update(rawBody)
     .digest("hex");
 
-  if (expectedSignature !== razorpaySignature) {
+  const sigA = Buffer.from(razorpaySignature);
+  const sigB = Buffer.from(expectedSignature);
+  if (sigA.length !== sigB.length || !crypto.timingSafeEqual(sigA, sigB)) {
     console.warn("WEBHOOK: Invalid signature — possible spoofed request");
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
@@ -79,14 +81,21 @@ export async function POST(req: NextRequest) {
           break;
         }
 
-        // Update order to PAID
-        await prisma.order.update({
-          where: { id: order.id },
+        // Paid amount must match what we charged — never trust "captured" alone.
+        if (typeof payment.amount === "number" && payment.amount !== order.totalAmount) {
+          console.error(`WEBHOOK: AMOUNT MISMATCH order #${order.id}: expected ${order.totalAmount}, got ${payment.amount} — NOT marking PAID`);
+          break;
+        }
+
+        // Atomic claim: only the first of (verify route, webhook) flips it.
+        const claimed = await prisma.order.updateMany({
+          where: { id: order.id, paymentStatus: { not: "PAID" } },
           data: {
             paymentStatus:     "PAID",
             razorpayPaymentId: paymentId,
           },
         });
+        if (claimed.count === 0) break;
 
         console.log(`WEBHOOK: Order #${order.id} marked PAID via webhook`);
 
@@ -99,7 +108,7 @@ export async function POST(req: NextRequest) {
             html:    orderConfirmedTemplate(
               addressSnap?.name || order.user.name || "Customer",
               order.id,
-              order.items.map(i => ({
+              order.items.map((i: any) => ({
                 name:     i.product.name,
                 quantity: i.quantity,
                 price:    i.price,
@@ -108,6 +117,8 @@ export async function POST(req: NextRequest) {
               addressSnap
                 ? `${addressSnap.street}, ${addressSnap.city}`
                 : "Jaipur",
+              order.paymentMethod,
+              order.createdAt
             ),
           });
         }
@@ -116,47 +127,13 @@ export async function POST(req: NextRequest) {
 
       // ── PAYMENT FAILED ────────────────────────────────────────────────────
       case "payment.failed": {
-        const payment       = event.payload.payment.entity;
-        const razorpayOrderId = payment.order_id;
-
-        if (!razorpayOrderId) break;
-
-        const order = await prisma.order.findFirst({
-          where: { razorpayOrderId },
-        });
-
-        if (!order || order.paymentStatus === "PAID") break;
-
-        // Mark as FAILED and restore stock
-        await prisma.$transaction(async (tx) => {
-          await tx.order.update({
-            where: { id: order.id },
-            data:  { paymentStatus: "FAILED" },
-          });
-
-          // Restore stock for all items
-          const items = await tx.orderItem.findMany({
-            where: { orderId: order.id },
-            select: { productId: true, quantity: true },
-          });
-
-          for (const item of items) {
-            await tx.product.update({
-              where: { id: item.productId },
-              data:  { stock: { increment: item.quantity } },
-            });
-          }
-
-          // Rollback coupon usage if any
-          if (order.couponId) {
-            await tx.coupon.update({
-              where: { id: order.couponId },
-              data:  { usedCount: { decrement: 1 } },
-            });
-          }
-        });
-
-        console.log(`WEBHOOK: Order #${order.id} marked FAILED — stock restored`);
+        // A failed ATTEMPT is not a failed ORDER: Razorpay lets the customer
+        // retry on the same order, and a later payment.captured would then
+        // mark it PAID. Restoring stock here caused overselling (stock came
+        // back, then the retry succeeded without re-taking it). Unpaid orders
+        // are cleaned up by the abandoned-order job instead — just log this.
+        const payment = event.payload.payment.entity;
+        console.log(`WEBHOOK: payment attempt failed for razorpay order ${payment.order_id} (${payment.error_description || "no reason"})`);
         break;
       }
 
@@ -175,8 +152,13 @@ export async function POST(req: NextRequest) {
 
         if (!order || order.paymentStatus === "PAID") break;
 
-        await prisma.order.update({
-          where: { id: order.id },
+        if (typeof payment?.amount === "number" && payment.amount !== order.totalAmount) {
+          console.error(`WEBHOOK: AMOUNT MISMATCH order #${order.id} (order.paid): expected ${order.totalAmount}, got ${payment.amount}`);
+          break;
+        }
+
+        await prisma.order.updateMany({
+          where: { id: order.id, paymentStatus: { not: "PAID" } },
           data: {
             paymentStatus:     "PAID",
             razorpayPaymentId: paymentId || null,

@@ -63,7 +63,7 @@ function PreviewPopup({
             <p className="text-[14px] font-bold text-[#1a1a1a]">Your personalised preview</p>
           </div>
           <button onClick={onClose}
-            className="w-8 h-8 rounded-full bg-[#f3efe8] flex items-center justify-center hover:bg-[#e8e0d5] transition-colors">
+            className="w-8 h-8 rounded-full bg-[#f3efe8] flex items-center justify-center hover:bg-[#e8e0d5] transition-colors" aria-label="Close">
             <X size={15} />
           </button>
         </div>
@@ -370,7 +370,7 @@ export default function ProductCustomizer({
               : added       ? "bg-green-500 text-white"
               : "bg-[#c0555a] text-white hover:bg-[#a84449]"
             }`}
-          >
+           aria-label="Open cart">
             {adding        ? <><Loader2     size={17} className="animate-spin" /> Adding...</>
             : added        ? <><CheckCircle size={17} /> Added to cart!</>
             : isOutOfStock ? "Out of stock"
@@ -379,8 +379,8 @@ export default function ProductCustomizer({
 
           {/* Reassurance */}
           <div className="grid grid-cols-2 gap-1.5">
-            {["✓ Preview matches final product","✓ Premium quality print","✓ Photo kept private & secure","✓ Crafted within 24–48 hours"]
-              .map((t, i) => <p key={i} className="text-[11px] text-[#888]">{t}</p>)}
+            {["Preview matches final product","Premium quality print","Photo kept private & secure","Crafted within 24–48 hours"]
+              .map((t, i) => <p key={i} className="flex items-center gap-1 text-[11px] text-[#888]"><CheckCircle size={10} className="flex-shrink-0" /> {t}</p>)}
           </div>
         </div>
       </div>

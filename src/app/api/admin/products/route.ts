@@ -3,28 +3,31 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import slugify from "slugify";
+import { invalidateCache } from "@/lib/cache";
 
-// ── ADMIN CHECK HELPER ──
 async function checkAdmin() {
   const session = await getServerSession(authOptions);
-  if (!session?.user || (session.user as any).role !== "ADMIN") {
-    return null;
-  }
+  if (!session?.user || (session.user as any).role !== "ADMIN") return null;
   return session;
 }
 
-// ── GET ALL PRODUCTS (admin — includes drafts) ──
-export async function GET() {
+// ── GET ALL PRODUCTS ── (?trash=1 lists only trashed items)
+export async function GET(req: Request) {
   const session = await checkAdmin();
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
+    const { searchParams } = new URL(req.url);
+    const trash = searchParams.get("trash") === "1";
+
     const products = await prisma.product.findMany({
-      orderBy: { createdAt: "desc" },
+      where:   trash ? { deletedAt: { not: null } } : { deletedAt: null },
+      orderBy: trash ? { deletedAt: "desc" } : { createdAt: "desc" },
       include: {
         category: { select: { id: true, name: true, slug: true } },
+        productCategories: {
+          include: { category: { select: { id: true, name: true, slug: true } } },
+        },
         _count: { select: { orderItems: true, reviews: true } },
       },
     });
@@ -39,35 +42,22 @@ export async function GET() {
 // ── CREATE PRODUCT ──
 export async function POST(req: Request) {
   const session = await checkAdmin();
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
     const body = await req.json();
 
     const {
-      name,
-      description,
-      price,          // send in rupees — we convert to paise
-      comparePrice,
-      images,         // array of Cloudinary URLs
-      categoryId,
-      stock,
-      badge,
-      customizable,
-      customizationFields,
-      specifications,
-      tags,
-      status,
+      name, sku, description, detailsDescription, price, comparePrice,
+      images, categoryId, categoryIds,   // categoryIds = array for multi-cat
+      stock, badge, customizable, fastDelivery,
+      customizationFields, specifications,
+      previewTemplate, previewZones, availableFonts,
+      tags, status, variants,
     } = body;
 
-    // Validate required fields
     if (!name || !price) {
-      return NextResponse.json(
-        { error: "Name and price are required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Name and price are required" }, { status: 400 });
     }
 
     // Generate unique slug
@@ -75,29 +65,65 @@ export async function POST(req: Request) {
     const existing = await prisma.product.findUnique({ where: { slug } });
     if (existing) slug = `${slug}-${Date.now()}`;
 
+    // Primary category: first of categoryIds, or legacy categoryId
+    const allCatIds: number[] = categoryIds?.length
+      ? categoryIds.map(Number)
+      : categoryId ? [Number(categoryId)] : [];
+
+    const primaryCatId = allCatIds[0] ?? null;
+
     const product = await prisma.product.create({
       data: {
-        name,
-        slug,
-        description: description || null,
-        price:        Math.round(Number(price) * 100),        // rupees → paise
-        comparePrice: comparePrice ? Math.round(Number(comparePrice) * 100) : null,
-        images:       images || [],
-        categoryId:   categoryId ? Number(categoryId) : null,
-        stock:        Number(stock) || 0,
-        badge:        badge || null,
-        customizable: Boolean(customizable),
+        name, slug,
+        sku:                 sku?.trim() || null,
+        description:         description || null,
+        detailsDescription:  detailsDescription || null,
+        price:               Math.round(Number(price) * 100),
+        comparePrice:        comparePrice ? Math.round(Number(comparePrice) * 100) : null,
+        images:              images || [],
+        categoryId:          primaryCatId,
+        stock:               Number(stock) || 0,
+        badge:               badge || null,
+        customizable:        Boolean(customizable),
+        fastDelivery:        Boolean(fastDelivery),
         customizationFields: customizationFields || null,
-        specifications:      specifications      || null,
-        tags:         tags || [],
-        status:       status || "ACTIVE",
+        specifications:      specifications || null,
+        previewTemplate:     previewTemplate || null,
+        previewZones:        previewZones || null,
+        availableFonts:      availableFonts || [],
+        tags:                tags || [],
+        status:              status || "ACTIVE",
+        // Create all multi-category join rows
+        productCategories: allCatIds.length > 0 ? {
+          create: allCatIds.map((cid) => ({ categoryId: cid })),
+        } : undefined,
+        // Create variants defined at product-creation time — previously this
+        // was silently dropped since only the edit/PUT route persisted them.
+        variants: Array.isArray(variants) && variants.length > 0 ? {
+          create: variants.map((v: any, i: number) => ({
+            groupName:    v.groupName,
+            optionName:   v.optionName,
+            price:        v.price != null ? Math.round(Number(v.price) * 100) : null,
+            comparePrice: v.comparePrice ? Math.round(Number(v.comparePrice) * 100) : null,
+            stock:        Number(v.stock) || 0,
+            images:       Array.isArray(v.images) ? v.images : [],
+            sku:          v.sku || null,
+            sortOrder:    i,
+            isDefault:    v.isDefault || false,
+          })),
+        } : undefined,
       },
     });
 
+    if (allCatIds.length > 0) invalidateCache("categories"); // new product's categories should reflect in counts right away
+
     return NextResponse.json({ success: true, product }, { status: 201 });
 
-  } catch (err) {
+  } catch (err: any) {
     console.error("PRODUCT CREATE ERROR:", err);
+    if (err?.code === "P2002" && err?.meta?.target?.includes?.("sku")) {
+      return NextResponse.json({ error: "That SKU is already used by another product" }, { status: 409 });
+    }
     return NextResponse.json({ error: "Failed to create product" }, { status: 500 });
   }
 }
