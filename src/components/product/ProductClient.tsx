@@ -97,6 +97,26 @@ export default function ProductClient({ product, initialColor }: { product: Prod
     return product.comparePrice;
   }, [activeVariant, product.comparePrice]);
 
+  // The parent product's own name still carries its original color suffix
+  // (e.g. "Personalised Passport Cover – Navy") since merging other colors
+  // into variants doesn't rename the base product. Swap that suffix for
+  // whichever color is currently selected, so the heading, breadcrumb, tab
+  // title and share sheet always match what's actually on screen instead
+  // of staying stuck on the parent's own color — see e.g. #121.
+  const nameStem = useMemo(
+    () => product.name.replace(/\s[\u2013-]\s[^\u2013-]+$/, "").trim(),
+    [product.name]
+  );
+  const displayName = useMemo(() => {
+    const colorGroupName = Object.keys(variantGroups).find((g) => g.toLowerCase() === "color");
+    const colorVariant = colorGroupName ? selectedVariants[colorGroupName] : null;
+    return colorVariant ? `${nameStem} \u2013 ${colorVariant.optionName}` : product.name;
+  }, [nameStem, variantGroups, selectedVariants, product.name]);
+
+  useEffect(() => {
+    document.title = `${displayName} \u2014 Hashtag Gifting`;
+  }, [displayName]);
+
   // Effective stock — use variant stock if variants exist
   const effectiveStock = useMemo(() => {
     if (!hasVariants) return product.stock;
@@ -211,7 +231,7 @@ export default function ProductClient({ product, initialColor }: { product: Prod
 
   const handleShare = async () => {
     try {
-      if (navigator.share) await navigator.share({ title: product.name, url: window.location.href });
+      if (navigator.share) await navigator.share({ title: displayName, url: window.location.href });
       else await navigator.clipboard.writeText(window.location.href);
     } catch {}
   };
@@ -222,9 +242,10 @@ export default function ProductClient({ product, initialColor }: { product: Prod
 
   const recentlyViewed = getOthers(product.id);
 
-  // Build a product-like object with variant prices for ProductInfo
+  // Build a product-like object with variant price + name for ProductInfo
   const productWithVariantPrice = {
     ...product,
+    name:         displayName,
     price:        displayPrice,
     comparePrice: displayComparePrice,
     stock:        effectiveStock,
@@ -233,10 +254,10 @@ export default function ProductClient({ product, initialColor }: { product: Prod
   return (
     <div className="min-h-screen bg-[#f3efe8]">
 
-      <ProductPurchasedPopup images={images} productName={product.name} />
+      <ProductPurchasedPopup images={images} productName={displayName} />
       <ProductStickyCart
         images={images}
-        productName={product.name}
+        productName={displayName}
         price={displayPrice}
         adding={adding}
         added={added}
@@ -250,7 +271,7 @@ export default function ProductClient({ product, initialColor }: { product: Prod
         images={images}
         activeImg={activeImg}
         setActiveImg={setActiveImg}
-        productName={product.name}
+        productName={displayName}
       />
 
       <div className="max-w-[1450px] mx-auto px-4 md:px-6 lg:px-10 py-8">
@@ -269,7 +290,7 @@ export default function ProductClient({ product, initialColor }: { product: Prod
             </>
           )}
           <span>/</span>
-          <span className="text-[#1a1a1a] font-medium truncate max-w-[200px]">{product.name}</span>
+          <span className="text-[#1a1a1a] font-medium truncate max-w-[200px]">{displayName}</span>
         </nav>
 
         {/* Same class of bug as the Hero fix: lg (1024px) fires on an iPad
@@ -283,7 +304,7 @@ export default function ProductClient({ product, initialColor }: { product: Prod
           {/* LEFT — Gallery */}
           <ProductGallery
             images={images}
-            productName={product.name}
+            productName={displayName}
             badge={product.badge}
             activeImg={activeImg}
             setActiveImg={setActiveImg}
@@ -399,7 +420,7 @@ export default function ProductClient({ product, initialColor }: { product: Prod
         <LivePreviewModal
           open={livePreview}
           onClose={() => setLivePreview(false)}
-          productName={product.name}
+          productName={displayName}
           productPrice={displayPrice}
           productImages={product.images || []}
           customFields={product.customizationFields || []}
