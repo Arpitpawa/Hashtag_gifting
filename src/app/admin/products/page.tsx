@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import AdminSelect from "@/components/admin/AdminSelect";
 import Image from "next/image";
 import { expandToColorTiles } from "@/components/shop/ColorSwatchDots";
 import {
   Search, Plus, Edit2, Trash2, Loader2, X, Eye, EyeOff,
   SlidersHorizontal, Square, CheckSquare, MinusSquare,
-  Trash, RotateCcw, XCircle, Layers,
+  Trash, RotateCcw, XCircle, Layers, GitBranch, CornerDownRight,
 } from "lucide-react";
 
 function formatPrice(p: number) { return `Rs. ${(p/100).toLocaleString("en-IN")}`; }
@@ -104,6 +104,27 @@ export default function AdminProducts() {
   // product `id`, so its checkbox/edit/delete/status actions all correctly act
   // on the one underlying product no matter which color tile triggered them.
   const tiles = useMemo(() => expandToColorTiles(filtered), [filtered]);
+
+  // Walk the flat tile list once and mark, per tile, whether it's the first
+  // color tile of its product ("family") plus that family's name and color
+  // count — used to render one family-header + indented children instead of
+  // N look-alike standalone rows, so admin can tell at a glance which tiles
+  // are variants of the same product vs genuinely separate products.
+  const familyRows = useMemo(() => {
+    const counts = new Map<number, number>();
+    tiles.forEach(t => counts.set(t.id, (counts.get(t.id) || 0) + 1));
+    const seen = new Set<number>();
+    return tiles.map(t => {
+      const isFirstOfFamily = !!t.colorParam && !seen.has(t.id);
+      if (t.colorParam) seen.add(t.id);
+      return {
+        tile:           t,
+        isFirstOfFamily,
+        familySize:     counts.get(t.id) || 1,
+        familyName:     t.colorParam ? t.name.replace(/\s[–-]\s[^–-]+$/, "").trim() : t.name,
+      };
+    });
+  }, [tiles]);
 
   const hasActiveFilters = !!(categoryId || minPrice || maxPrice || stockFilter !== "all" || (view === "active" && statusFilter !== "all"));
 
@@ -499,9 +520,17 @@ export default function AdminProducts() {
               : <Square size={16} />}
             Select all shown
           </button>
-          {tiles.map(p => (
-            <div key={p.tileKey}
-              className={`bg-white rounded-2xl border p-3 ${
+          {familyRows.map(({ tile: p, isFirstOfFamily, familySize, familyName }) => (
+            <Fragment key={p.tileKey}>
+              {isFirstOfFamily && (
+                <div className="flex items-center gap-1.5 px-2 pt-1.5 text-[11px] font-bold text-indigo-500">
+                  <GitBranch size={12} />
+                  <span className="capitalize truncate">{familyName}</span>
+                  <span className="font-normal text-indigo-400 flex-shrink-0">— {familySize} colors</span>
+                </div>
+              )}
+            <div
+              className={`bg-white rounded-2xl border p-3 ${p.colorParam ? "ml-3 border-l-2" : ""} ${
                 selected.has(p.id) ? "border-[#c0555a] bg-[#fdf3f0]"
                 : p.colorParam ? "border-indigo-200 bg-indigo-50/40"
                 : "border-[#e8e8e8]"
@@ -528,7 +557,7 @@ export default function AdminProducts() {
                     <p className="text-[11px] text-[#999] truncate">{p.category?.name || "—"}</p>
                     {p.colorParam && (
                       <span className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-indigo-100 text-indigo-600">
-                        <Layers size={9} /> {p.colorParam}
+                        <CornerDownRight size={9} /> {p.colorParam}
                       </span>
                     )}
                   </div>
@@ -583,6 +612,7 @@ export default function AdminProducts() {
                 </div>
               </div>
             </div>
+            </Fragment>
           ))}
         </div>
 
@@ -606,8 +636,20 @@ export default function AdminProducts() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#f5f5f5]">
-              {tiles.map(p => (
-                <tr key={p.tileKey} className={`hover:bg-[#fafafa] transition-colors ${
+              {familyRows.map(({ tile: p, isFirstOfFamily, familySize, familyName }) => (
+                <Fragment key={p.tileKey}>
+                {isFirstOfFamily && (
+                  <tr className="bg-indigo-50/60 shadow-[inset_3px_0_0_0_#a5b4fc]">
+                    <td colSpan={8} className="px-4 py-1.5">
+                      <div className="flex items-center gap-1.5 text-[11px] font-bold text-indigo-500">
+                        <GitBranch size={12} />
+                        <span className="capitalize">{familyName}</span>
+                        <span className="font-normal text-indigo-400">— {familySize} colors</span>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+                <tr className={`hover:bg-[#fafafa] transition-colors ${
                   selected.has(p.id) ? "bg-[#fdf3f0]" : p.colorParam ? "bg-indigo-50/40" : ""
                 } ${p.colorParam ? "shadow-[inset_3px_0_0_0_#a5b4fc]" : ""}`}>
                   <td className="px-4 py-3">
@@ -618,7 +660,7 @@ export default function AdminProducts() {
                     </button>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
+                    <div className={`flex items-center gap-3 ${p.colorParam ? "pl-4 border-l-2 border-indigo-200" : ""}`}>
                       <a href={`/product/${p.slug}`} target="_blank" rel="noopener noreferrer" title="View on storefront">
                         {p.images?.[0] ? (
                           <div className="relative w-10 h-10 rounded-xl overflow-hidden bg-[#f5f5f5] flex-shrink-0 border border-[#e8e8e8] hover:border-[#c0555a] transition-colors">
@@ -634,7 +676,7 @@ export default function AdminProducts() {
                           <p className="text-[11px] text-[#aaa]">{p.slug}</p>
                           {p.colorParam && (
                             <span className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-indigo-100 text-indigo-600">
-                              <Layers size={9} /> {p.colorParam}
+                              <CornerDownRight size={9} /> {p.colorParam}
                             </span>
                           )}
                         </div>
@@ -703,6 +745,7 @@ export default function AdminProducts() {
                     </div>
                   </td>
                 </tr>
+                </Fragment>
               ))}
             </tbody>
           </table>
