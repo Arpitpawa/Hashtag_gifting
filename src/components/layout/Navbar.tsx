@@ -332,10 +332,18 @@ export default function Navbar({ initialCategories = [] }: { initialCategories?:
                   <div className="p-5 border-b border-[#e5e5e5]">
                     <div className="flex items-center gap-2.5 leading-none">
                       <Image src="/logo-icon.png" alt="Hashtag Gifting" width={36} height={36} className="w-9 h-9 rounded-full flex-shrink-0" priority />
-                      <span style={{ fontFamily: "var(--font-body), sans-serif" }}
-                        className="text-[7.5px] font-medium text-[#888] uppercase tracking-wide max-w-[80px] leading-[1.3]">
-                        Change the idea of gifting
-                      </span>
+                      <div className="flex flex-col leading-none">
+                        <div className="flex items-baseline gap-[1px]">
+                          <span style={{ fontFamily: "var(--font-dm-serif), serif" }}
+                            className="text-[18px] font-normal text-[#1a1a1a] leading-none">Hashtag</span>
+                          <span style={{ fontFamily: "var(--font-dm-serif), serif" }}
+                            className="text-[18px] font-normal text-[#c0555a] leading-none">Gifting</span>
+                        </div>
+                        <span style={{ fontFamily: "var(--font-body), sans-serif" }}
+                          className="text-[7.5px] font-medium text-[#888] uppercase tracking-wide mt-[3px]">
+                          Change the idea of gifting
+                        </span>
+                      </div>
                     </div>
                   </div>
                   <div className="flex gap-2 px-4 py-3 border-b border-[#ececec]">
@@ -403,6 +411,12 @@ export default function Navbar({ initialCategories = [] }: { initialCategories?:
               <div className="flex items-center gap-1.5 sm:gap-2.5">
                 <Image src="/logo-icon.png" alt="Hashtag Gifting" width={44} height={44}
                   className="w-8 h-8 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-full flex-shrink-0" priority />
+                <div className="flex items-baseline gap-[1px] min-w-0">
+                  <span style={{ fontFamily: "var(--font-dm-serif), serif" }}
+                    className="text-[16px] sm:text-[22px] md:text-[26px] font-normal text-[#1a1a1a] leading-none truncate">Hashtag</span>
+                  <span style={{ fontFamily: "var(--font-dm-serif), serif" }}
+                    className="text-[16px] sm:text-[22px] md:text-[26px] font-normal text-[#c0555a] leading-none truncate">Gifting</span>
+                </div>
               </div>
               {/* Motto — phones: same black uppercase body font as desktop, one line under the logo */}
               <span
