@@ -277,7 +277,7 @@ export default function AdminProducts() {
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8">
+    <div className={`p-4 sm:p-6 lg:p-8 ${selected.size > 0 ? "pb-24" : ""}`}>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-[22px] sm:text-[28px] font-bold text-[#1a1a1a]">Products</h1>
         <a href="/admin/products/new"
@@ -335,9 +335,12 @@ export default function AdminProducts() {
         <p className="text-[13px] text-[#888] flex-shrink-0">{filtered.length} of {products.length} products</p>
       </div>
 
-      {/* Bulk action bar */}
+      {/* Bulk action bar — floats above the list, fixed to the viewport, so it's
+          always in reach without scrolling back up after selecting products
+          further down a long list. Shifted right on desktop to stay centered
+          in the content area next to the 240px sidebar (see admin/layout.tsx). */}
       {selected.size > 0 && (
-        <div className="flex items-center gap-3 bg-[#1a1a1a] text-white rounded-2xl px-5 py-3 mb-3 flex-wrap">
+        <div className="fixed bottom-5 left-1/2 lg:left-[calc(50%+120px)] -translate-x-1/2 z-40 w-[calc(100%-2rem)] sm:w-auto max-w-xl flex items-center gap-3 bg-[#1a1a1a] text-white rounded-2xl px-5 py-3 shadow-2xl flex-wrap">
           <p className="text-[13px] font-semibold flex-1">
             {selected.size} product{selected.size > 1 ? "s" : ""} selected
           </p>
