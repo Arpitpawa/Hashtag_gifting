@@ -119,7 +119,7 @@ export async function GET(req: NextRequest) {
           variants: {
             where:   { groupName: { equals: "Color", mode: "insensitive" } },
             orderBy: { sortOrder: "asc" },
-            select:  { id: true, optionName: true, images: true, stock: true },
+            select:  { id: true, optionName: true, images: true, stock: true, price: true, comparePrice: true },
           },
         },
       }),

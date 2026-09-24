@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { useWishlistStore } from "@/lib/store/wishlistStore";
 import { formatPrice }      from "@/lib/store/cartStore";
-import ColorSwatchDots, { type SwatchVariant } from "@/components/shop/ColorSwatchDots";
+import ColorSwatchDots, { type SwatchVariant, expandToColorTiles } from "@/components/shop/ColorSwatchDots";
 
 // ── types ─────────────────────────────────────────────────────────────────────
 interface Product {
@@ -30,6 +30,7 @@ interface Product {
   reviewCount:  number;
   category:     { id: number; name: string; slug: string } | null;
   variants?:    SwatchVariant[];
+  colorParam?:  string;
 }
 
 interface Props {
@@ -68,11 +69,14 @@ function ProductCard({
   const discount   = product.comparePrice
     ? Math.round(((product.comparePrice - product.price) / product.comparePrice) * 100)
     : 0;
+  const href = product.colorParam
+    ? `/product/${product.slug}?color=${encodeURIComponent(product.colorParam)}`
+    : `/product/${product.slug}`;
 
   if (listView) {
     return (
       <Link
-        href={`/product/${product.slug}`}
+        href={href}
         className="flex items-center gap-4 bg-white border border-[#e8e0d5] rounded-2xl p-4 hover:shadow-md transition-all duration-300 group"
       >
         <div className="relative w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 bg-[#f8f5f0]">
@@ -110,7 +114,7 @@ function ProductCard({
 
   return (
     <div className="group relative">
-      <Link href={`/product/${product.slug}`} className="block">
+      <Link href={href} className="block">
         {/* Image */}
         <div className="relative aspect-square rounded-2xl overflow-hidden bg-[#f8f5f0] mb-3">
           <HoverImage images={product.images} alt={product.name} sizes="(max-width:768px) 50vw, (max-width:1024px) 33vw, 25vw" />
@@ -146,7 +150,7 @@ function ProductCard({
       {/* Color swatches — own click handling, sits between image and info */}
       <ColorSwatchDots variants={product.variants || []} productSlug={product.slug} className="mb-1.5" />
 
-      <Link href={`/product/${product.slug}`} className="block">
+      <Link href={href} className="block">
         {/* Info */}
         <p className="text-[13px] font-medium text-[#1a1a1a] capitalize line-clamp-2 leading-snug mb-1.5 group-hover:text-[#c0555a] transition-colors">
           {product.name}
@@ -531,8 +535,8 @@ export default function CategoryClient({
             ? "flex flex-col gap-3"
             : "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"
           }>
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} listView={listView} />
+            {expandToColorTiles(products).map((tile) => (
+              <ProductCard key={tile.tileKey} product={tile} listView={listView} />
             ))}
           </div>
         )}

@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { useWishlistStore } from "@/lib/store/wishlistStore";
 import { formatPrice }      from "@/lib/store/cartStore";
-import ColorSwatchDots, { type SwatchVariant } from "@/components/shop/ColorSwatchDots";
+import ColorSwatchDots, { type SwatchVariant, expandToColorTiles } from "@/components/shop/ColorSwatchDots";
 
 interface Product {
   id: number; name: string; slug: string;
@@ -22,6 +22,7 @@ interface Product {
   stock: number; customizable: boolean;
   avgRating: number; reviewCount: number;
   variants?: SwatchVariant[];
+  colorParam?: string;
 }
 
 const SORT_OPTIONS = [
@@ -36,10 +37,13 @@ function ProductCard({ product }: { product: Product }) {
   const wishlisted = isWishlisted(product.id);
   const discount   = product.comparePrice
     ? Math.round(((product.comparePrice - product.price) / product.comparePrice) * 100) : 0;
+  const href = product.colorParam
+    ? `/product/${product.slug}?color=${encodeURIComponent(product.colorParam)}`
+    : `/product/${product.slug}`;
 
   return (
     <div className="group relative bg-white border border-[#e8e0d5] rounded-2xl overflow-hidden hover:shadow-md transition-all duration-300">
-      <Link href={`/product/${product.slug}`}>
+      <Link href={href}>
         <div className="relative aspect-square bg-[#f8f5f0] overflow-hidden">
           <HoverImage images={product.images} alt={product.name} sizes="(max-width:768px) 50vw, 25vw" />
           {product.badge && (
@@ -67,7 +71,7 @@ function ProductCard({ product }: { product: Product }) {
       <div className="px-3 pt-2">
         <ColorSwatchDots variants={product.variants || []} productSlug={product.slug} className="mb-1.5" />
       </div>
-      <Link href={`/product/${product.slug}`}>
+      <Link href={href}>
         <div className="px-3 pb-3">
           <p className="text-[13px] font-medium text-[#1a1a1a] capitalize line-clamp-2 leading-snug mb-1.5 group-hover:text-[#c0555a] transition-colors">
             {product.name}
@@ -218,7 +222,7 @@ function SearchContent() {
         ) : (
           <>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-              {products.map(p => <ProductCard key={p.id} product={p} />)}
+              {expandToColorTiles(products).map(t => <ProductCard key={t.tileKey} product={t} />)}
             </div>
 
             {/* Pagination */}

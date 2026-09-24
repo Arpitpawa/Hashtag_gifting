@@ -5,10 +5,71 @@ import { useRouter } from "next/navigation";
 import { getColorHex } from "@/lib/colorMap";
 
 export interface SwatchVariant {
-  id:         number;
-  optionName: string;
-  images:     string[];
-  stock:      number;
+  id:            number;
+  optionName:    string;
+  images:        string[];
+  stock:         number;
+  price?:        number | null;
+  comparePrice?: number | null;
+}
+
+// Minimal shape a product-grid card needs to supply for color-tile expansion.
+// Each of the shop/category/search grids defines its own local `Product`
+// interface with this same shape (plus a few extras) — this is intentionally
+// loose (generic + extends) so every one of them can reuse the same helper
+// without importing a shared Product type.
+export interface ColorTileSource {
+  id:           number;
+  name:         string;
+  slug:         string;
+  price:        number;
+  comparePrice: number | null;
+  images:       string[];
+  stock:        number;
+  variants?:    SwatchVariant[];
+}
+
+// A product with 2+ "Color" variants used to render as ONE grid card with a
+// row of tiny swatch dots underneath — the individual colors were only
+// discoverable by noticing the dots. This expands such a product into one
+// full tile PER color (its own photo, price, stock), so every color is a
+// first-class, directly-clickable tile in the grid — while every tile still
+// carries the full sibling `variants` list, so its own swatch row can jump
+// straight to any other color without a detour back through a "parent" card.
+// Products with 0-1 color variants pass through unchanged (nothing to expand).
+export function expandToColorTiles<T extends ColorTileSource>(
+  products: T[]
+): (T & { tileKey: string; colorParam?: string })[] {
+  const tiles: (T & { tileKey: string; colorParam?: string })[] = [];
+
+  for (const p of products) {
+    const colors = (p.variants || []).filter((v) => v.optionName);
+
+    if (colors.length < 2) {
+      tiles.push({ ...p, tileKey: String(p.id) });
+      continue;
+    }
+
+    // Strip a trailing " – <color>" (en dash or hyphen) so every tile gets
+    // a clean, consistent "<Base name> – <this color>" regardless of which
+    // color the underlying product record happens to be named after.
+    const nameStem = p.name.replace(/\s[–-]\s[^–-]+$/, "").trim();
+
+    for (const v of colors) {
+      tiles.push({
+        ...p,
+        tileKey:      `${p.id}-${v.id}`,
+        name:         `${nameStem} – ${v.optionName}`,
+        price:        v.price ?? p.price,
+        comparePrice: v.comparePrice ?? p.comparePrice,
+        images:       v.images && v.images.length > 0 ? v.images : p.images,
+        stock:        v.stock,
+        colorParam:   v.optionName,
+      });
+    }
+  }
+
+  return tiles;
 }
 
 interface Props {

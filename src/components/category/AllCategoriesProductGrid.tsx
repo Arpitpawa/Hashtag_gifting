@@ -7,7 +7,7 @@ import Image from "next/image";
 import { Heart, Pencil, Loader2, Gift } from "lucide-react";
 import { useWishlistStore } from "@/lib/store/wishlistStore";
 import { formatPrice } from "@/lib/store/cartStore";
-import ColorSwatchDots, { type SwatchVariant } from "@/components/shop/ColorSwatchDots";
+import ColorSwatchDots, { type SwatchVariant, expandToColorTiles } from "@/components/shop/ColorSwatchDots";
 
 interface Product {
   id:           number;
@@ -21,6 +21,7 @@ interface Product {
   customizable: boolean;
   category:     { id: number; name: string; slug: string } | null;
   variants?:    SwatchVariant[];
+  colorParam?:  string;
 }
 
 export default function AllCategoriesProductGrid() {
@@ -85,12 +86,12 @@ export default function AllCategoriesProductGrid() {
       ) : (
         <>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-            {products.map((product) => (
+            {expandToColorTiles(products).map((tile) => (
               <ProductCard
-                key={product.id}
-                product={product}
-                isWishlisted={isWishlisted(product.id)}
-                onWishlistToggle={() => toggle(product.id)}
+                key={tile.tileKey}
+                product={tile}
+                isWishlisted={isWishlisted(tile.id)}
+                onWishlistToggle={() => toggle(tile.id)}
               />
             ))}
           </div>
@@ -109,7 +110,7 @@ export default function AllCategoriesProductGrid() {
                 )}
               </button>
               <p className="text-[12px] text-[#aaa] mt-2">
-                Showing {products.length} of {total} gifts
+                Showing {expandToColorTiles(products).length} gifts so far
               </p>
             </div>
           )}
@@ -127,6 +128,9 @@ function ProductCard({
   const discount = product.comparePrice
     ? Math.round(((product.comparePrice - product.price) / product.comparePrice) * 100)
     : 0;
+  const href = product.colorParam
+    ? `/product/${product.slug}?color=${encodeURIComponent(product.colorParam)}`
+    : `/product/${product.slug}`;
 
   return (
     <div
@@ -134,7 +138,7 @@ function ProductCard({
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      <Link href={`/product/${product.slug}`} className="block">
+      <Link href={href} className="block">
         <div className="relative overflow-hidden rounded-2xl bg-[#f5f0ea] aspect-square mb-3">
           {(product.images?.[0] || product.images?.[1]) ? (
             <HoverImage images={product.images} alt={product.name} sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw" />
@@ -168,7 +172,7 @@ function ProductCard({
 
       <ColorSwatchDots variants={product.variants || []} productSlug={product.slug} className="mb-1.5" />
 
-      <Link href={`/product/${product.slug}`} className="block">
+      <Link href={href} className="block">
         <div>
           <h3 className="text-[13px] md:text-[14px] font-medium text-[#1a1a1a] mb-1 group-hover:text-[#c0555a] transition-colors line-clamp-2 capitalize">
             {product.name}

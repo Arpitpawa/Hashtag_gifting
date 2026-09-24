@@ -6,7 +6,7 @@ import HoverImage from "@/components/shared/HoverImage";
 import Image from "next/image";
 import { Star, Sparkles, Gift, FolderTree, Loader2 } from "lucide-react";
 import { formatPrice } from "@/lib/store/cartStore";
-import ColorSwatchDots, { type SwatchVariant } from "@/components/shop/ColorSwatchDots";
+import ColorSwatchDots, { type SwatchVariant, expandToColorTiles } from "@/components/shop/ColorSwatchDots";
 
 export interface CategoryPick {
   id:         number;
@@ -28,6 +28,7 @@ interface Product {
   stock:        number;
   customizable: boolean;
   variants?:    SwatchVariant[];
+  colorParam?:  string;
 }
 
 const LIMIT = 24;
@@ -174,7 +175,7 @@ export default function AllCategoriesClient({ categories }: { categories: Catego
       {/* ── PRODUCT GRID ── */}
       <div className="mt-10 md:mt-12">
         <p className="text-[13px] text-[#aaa] mb-4">
-          {loading ? "Loading..." : `${total} ${total === 1 ? "product" : "products"}`}
+          {loading ? "Loading..." : `${expandToColorTiles(products).length} ${expandToColorTiles(products).length === 1 ? "product" : "products"}`}
         </p>
 
         {loading ? (
@@ -195,8 +196,8 @@ export default function AllCategoriesClient({ categories }: { categories: Catego
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
+            {expandToColorTiles(products).map((tile) => (
+              <ProductCard key={tile.tileKey} product={tile} />
             ))}
           </div>
         )}
@@ -210,10 +211,13 @@ function ProductCard({ product }: { product: Product }) {
   const discount = product.comparePrice
     ? Math.round(((product.comparePrice - product.price) / product.comparePrice) * 100)
     : 0;
+  const href = product.colorParam
+    ? `/product/${product.slug}?color=${encodeURIComponent(product.colorParam)}`
+    : `/product/${product.slug}`;
 
   return (
     <div className="group relative">
-      <Link href={`/product/${product.slug}`} className="block">
+      <Link href={href} className="block">
         <div className="relative aspect-square rounded-2xl overflow-hidden bg-[#f8f5f0] mb-3">
           <HoverImage images={product.images} alt={product.name} sizes="(max-width:768px) 50vw, (max-width:1024px) 33vw, 25vw" />
           {product.badge && (
@@ -243,7 +247,7 @@ function ProductCard({ product }: { product: Product }) {
 
       <ColorSwatchDots variants={product.variants || []} productSlug={product.slug} className="mb-1.5" />
 
-      <Link href={`/product/${product.slug}`} className="block">
+      <Link href={href} className="block">
         <p className="text-[13px] font-medium text-[#1a1a1a] capitalize line-clamp-2 leading-snug mb-1.5 group-hover:text-[#c0555a] transition-colors">
           {product.name}
         </p>

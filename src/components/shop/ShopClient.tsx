@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { useWishlistStore } from "@/lib/store/wishlistStore";
 import { formatPrice } from "@/lib/store/cartStore";
-import ColorSwatchDots, { type SwatchVariant } from "./ColorSwatchDots";
+import ColorSwatchDots, { type SwatchVariant, expandToColorTiles } from "./ColorSwatchDots";
 
 // ── TYPES ──
 interface Product {
@@ -27,6 +27,7 @@ interface Product {
   customizable: boolean;
   category:     { id: number; name: string; slug: string } | null;
   variants?:    SwatchVariant[];
+  colorParam?:  string;
 }
 
 interface Category {
@@ -379,7 +380,7 @@ export default function ShopClient() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <p className="text-[14px] text-[#1a1a1a] font-medium">
-                  {loading ? "Loading..." : `${total} gift${total !== 1 ? "s" : ""} found`}
+                  {loading ? "Loading..." : `${expandToColorTiles(products).length} gift${expandToColorTiles(products).length !== 1 ? "s" : ""} found`}
                 </p>
                 {categorySlug && (
                   <p className="text-[12px] text-[#aaa] mt-0.5">
@@ -470,12 +471,12 @@ export default function ShopClient() {
                   ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
                   : "grid-cols-2 md:grid-cols-3"
               }`}>
-                {products.map((product) => (
+                {expandToColorTiles(products).map((tile) => (
                   <ProductCard
-                    key={product.id}
-                    product={product}
-                    isWishlisted={isWishlisted(product.id)}
-                    onWishlistToggle={() => toggle(product.id)}
+                    key={tile.tileKey}
+                    product={tile}
+                    isWishlisted={isWishlisted(tile.id)}
+                    onWishlistToggle={() => toggle(tile.id)}
                   />
                 ))}
               </div>
@@ -496,7 +497,7 @@ export default function ShopClient() {
                   )}
                 </button>
                 <p className="text-[12px] text-[#aaa] mt-2">
-                  Showing {products.length} of {total} gifts
+                  Showing {expandToColorTiles(products).length} gifts so far
                 </p>
               </div>
             )}
@@ -521,6 +522,12 @@ function ProductCard({
   const discount = product.comparePrice
     ? Math.round(((product.comparePrice - product.price) / product.comparePrice) * 100)
     : 0;
+  // Color-tile expansion (see ColorSwatchDots.expandToColorTiles) preselects
+  // this tile's own color on the product page via ?color=, so clicking any
+  // tile lands on the right variant straight away instead of the default one.
+  const href = product.colorParam
+    ? `/product/${product.slug}?color=${encodeURIComponent(product.colorParam)}`
+    : `/product/${product.slug}`;
 
   return (
     <div
@@ -528,7 +535,7 @@ function ProductCard({
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      <Link href={`/product/${product.slug}`} className="block">
+      <Link href={href} className="block">
 
         {/* IMAGE */}
         <div className="relative overflow-hidden rounded-2xl bg-[#f5f0ea] aspect-square mb-3">
@@ -568,7 +575,7 @@ function ProductCard({
       {/* COLOR SWATCHES — sits between image and info, own click handling */}
       <ColorSwatchDots variants={product.variants || []} productSlug={product.slug} className="mb-1.5" />
 
-      <Link href={`/product/${product.slug}`} className="block">
+      <Link href={href} className="block">
         {/* INFO */}
         <div>
           <h3 className="text-[13px] md:text-[14px] font-medium text-[#1a1a1a] mb-1 group-hover:text-[#c0555a] transition-colors line-clamp-2 capitalize">
