@@ -36,8 +36,21 @@ export default function ProductGallery({
     setTimeout(() => { setActiveImg(i); setImgLoaded(true); }, 120);
   };
 
-  // Scroll active thumb into view
+  // Scroll active thumb into view -- but NOT on first mount. Effects run
+  // after the initial render too, so without this guard, every fresh
+  // product-page load fired scrollIntoView() for thumbnail 0 right away.
+  // block: "nearest" is supposed to be a no-op when the element is already
+  // visible, but right after navigation (before images/fonts finish
+  // settling layout) the browser can miscalculate that and scroll an
+  // ancestor -- in practice, the whole page -- dropping the visitor
+  // partway down instead of at the top. Only real thumbnail clicks should
+  // scroll anything.
+  const didMountRef = useRef(false);
   useEffect(() => {
+    if (!didMountRef.current) {
+      didMountRef.current = true;
+      return;
+    }
     const container = thumbsRef.current;
     if (!container) return;
     const thumb = container.children[activeImg] as HTMLElement;
