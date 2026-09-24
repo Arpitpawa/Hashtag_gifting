@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link                     from "next/link";
+import { StoreButton }           from "@/components/ui/StoreButton";
 import Image                    from "next/image";
 import {
   User, Package, MapPin, Heart,
@@ -306,19 +307,18 @@ function OrderCard({ order }: { order: Order }) {
 
           {/* Action buttons */}
           <div className="flex gap-2 pt-1 flex-wrap">
-            <Link
-              href={`/track?orderId=${order.id}`}
-              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-[#1a1a1a] text-white text-[12px] font-bold rounded-full hover:bg-[#333] transition-all"
-            >
+            <StoreButton href={`/track?orderId=${order.id}`} variant="dark" size="sm" fullWidth className="flex-1 gap-1.5">
               <Truck size={12} /> Track Order
-            </Link>
-            <a
+            </StoreButton>
+            <StoreButton
               href={`https://wa.me/917665909909?text=Hi! My order ID is %23${order.id}. Can you help me?`}
-              target="_blank" rel="noopener noreferrer"
-              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-[#25D366] text-white text-[12px] font-bold rounded-full hover:bg-[#1da851] transition-all"
+              variant="whatsapp"
+              size="sm"
+              fullWidth
+              className="flex-1 gap-1.5"
             >
               <Phone size={12} /> WhatsApp
-            </a>
+            </StoreButton>
           </div>
         </div>
       )}
@@ -347,9 +347,9 @@ function OrdersTab() {
       <ShoppingBag size={40} className="text-[#e8e0d5] mx-auto mb-4" strokeWidth={1.5} />
       <p className="text-[16px] font-bold text-[#1a1a1a] mb-2">No orders yet</p>
       <p className="text-[13px] text-[#888] mb-5">Your orders will appear here</p>
-      <Link href="/shop" className="inline-flex items-center gap-2 px-6 py-3 bg-[#c0555a] text-white text-[13px] font-bold rounded-full hover:bg-[#a84449] transition-all">
+      <StoreButton href="/shop" variant="solid" size="sm">
         <ShoppingBag size={14} /> Browse gifts
-      </Link>
+      </StoreButton>
     </div>
   );
 
@@ -592,9 +592,9 @@ function WishlistTab() {
       <Heart size={40} className="text-[#e8e0d5] mx-auto mb-4" strokeWidth={1.5} />
       <p className="text-[16px] font-bold text-[#1a1a1a] mb-2">Your wishlist is empty</p>
       <p className="text-[13px] text-[#888] mb-5">Save gifts you love for later</p>
-      <Link href="/shop" className="inline-flex items-center gap-2 px-6 py-3 bg-[#c0555a] text-white text-[13px] font-bold rounded-full hover:bg-[#a84449] transition-all">
+      <StoreButton href="/shop" variant="solid" size="sm">
         Browse gifts
-      </Link>
+      </StoreButton>
     </div>
   );
 

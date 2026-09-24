@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import WishlistButton from "@/components/home/WishlistButton";
 import { ChevronLeft, ChevronRight, Gift } from "lucide-react";
+import { StoreButton } from "@/components/ui/StoreButton";
 import { useRouter } from "next/navigation";
 import { formatPrice } from "@/lib/store/cartStore";
 
@@ -71,10 +72,10 @@ export default function TrendingGifts() {
         {/* ── SLIDER ── */}
         <div className="relative">
 
-          <button onClick={scrollLeft}
-            className="hidden xl:flex absolute -left-5 top-[40%] -translate-y-1/2 z-20 w-11 h-11 bg-white rounded-full shadow-lg items-center justify-center hover:bg-black hover:text-white transition-all duration-300 border border-[#e8e0d5]" aria-label="Previous">
+          <StoreButton variant="icon" onClick={scrollLeft}
+            className="hidden xl:flex absolute -left-6 top-[40%] -translate-y-1/2 z-20" aria-label="Previous">
             <ChevronLeft size={20} strokeWidth={2} />
-          </button>
+          </StoreButton>
 
           <div ref={sliderRef} className="flex gap-5 overflow-x-auto scroll-smooth snap-x snap-mandatory no-scrollbar pb-2 px-1">
             {loading ? (
@@ -142,21 +143,21 @@ export default function TrendingGifts() {
             )}
           </div>
 
-          <button onClick={scrollRight}
-            className="hidden xl:flex absolute -right-5 top-[40%] -translate-y-1/2 z-20 w-11 h-11 bg-white rounded-full shadow-lg items-center justify-center hover:bg-black hover:text-white transition-all duration-300 border border-[#e8e0d5]" aria-label="Next">
+          <StoreButton variant="icon" onClick={scrollRight}
+            className="hidden xl:flex absolute -right-6 top-[40%] -translate-y-1/2 z-20" aria-label="Next">
             <ChevronRight size={20} strokeWidth={2} />
-          </button>
+          </StoreButton>
         </div>
 
         {/* VIEW ALL CTA */}
         <div className="flex justify-center mt-14">
-          <button
+          <StoreButton
+            variant="outline"
             onClick={() => router.push("/shop?sort=newest")}
-            className="px-8 py-4 rounded-full border border-[#c0555a] text-[#c0555a] font-medium whitespace-nowrap hover:bg-[#c0555a] hover:text-white hover:border-[#c0555a] transition-all duration-300 flex items-center gap-3"
           >
             View all trending gifts
             <span className="text-lg">→</span>
-          </button>
+          </StoreButton>
         </div>
 
       </div>

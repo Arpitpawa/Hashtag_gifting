@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ShoppingBag, X, Loader2, Check } from "lucide-react";
+import { StoreButton } from "@/components/ui/StoreButton";
 import CustomizationForm from "./CustomizationForm";
 import { useCartStore } from "@/lib/store/cartStore";
 
@@ -157,23 +158,24 @@ export default function AddToCartButton({
 
             {/* FOOTER */}
             <div className="sticky bottom-0 bg-white border-t border-[#e8e0d5] px-6 py-4 flex gap-3">
-              <button
-                onClick={() => setShowModal(false)}
-                className="flex-1 py-3 border-2 border-[#c0555a] text-[#c0555a] text-[13px] font-semibold rounded-full hover:bg-[#c0555a] hover:text-white transition-all duration-300"
-              >
+              <StoreButton onClick={() => setShowModal(false)} variant="outline" size="sm" fullWidth className="flex-1 py-3">
                 Cancel
-              </button>
-              <button
+              </StoreButton>
+              <StoreButton
                 onClick={handleModalSubmit}
                 disabled={adding}
-                className="flex-1 py-3 bg-[#c0555a] text-white text-[13px] font-semibold rounded-full hover:bg-[#a84449] transition-all duration-300 flex items-center justify-center gap-2"
-               aria-label="Open cart">
+                variant="solid"
+                size="sm"
+                fullWidth
+                className="flex-1 py-3"
+                aria-label="Open cart"
+              >
                 {adding ? (
                   <><Loader2 size={14} className="animate-spin" /> Adding...</>
                 ) : (
                   <><ShoppingBag size={14} /> Add to cart</>
                 )}
-              </button>
+              </StoreButton>
             </div>
           </div>
         </div>

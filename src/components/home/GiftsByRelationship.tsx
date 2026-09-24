@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { StoreButton } from "@/components/ui/StoreButton";
 
 // Labels + link slugs are a curated marketing grouping (not literal
 // top-level admin categories), so they stay hardcoded.
@@ -172,12 +173,13 @@ export default function GiftsByRelationship() {
         <div className="relative">
 
           {/* LEFT ARROW */}
-          <button
+          <StoreButton
+            variant="icon"
             onClick={scrollLeft}
-            className="hidden xl:flex absolute -left-6 top-[40%] -translate-y-1/2 z-20 w-11 h-11 bg-white rounded-full shadow-lg items-center justify-center hover:bg-black hover:text-white transition-all duration-300 border border-[#e8e0d5]"
-           aria-label="Previous">
+            className="hidden xl:flex absolute -left-6 top-[40%] -translate-y-1/2 z-20"
+            aria-label="Previous">
             <ChevronLeft size={20} strokeWidth={2} />
-          </button>
+          </StoreButton>
 
           {/* CARDS */}
           <div
@@ -220,15 +222,16 @@ export default function GiftsByRelationship() {
           </div>
 
           {/* RIGHT ARROW */}
-          <button
+          <StoreButton
+            variant="icon"
             onClick={scrollRight}
             // Nudged further out (-right-6, matching -left-6 above) and the
             // slider now carries xl:pr-14 so the last card has clearance —
             // it no longer sits directly under this button.
-            className="hidden xl:flex absolute -right-6 top-[40%] -translate-y-1/2 z-20 w-11 h-11 bg-white rounded-full shadow-lg items-center justify-center hover:bg-black hover:text-white transition-all duration-300 border border-[#e8e0d5]"
-           aria-label="Next">
+            className="hidden xl:flex absolute -right-6 top-[40%] -translate-y-1/2 z-20"
+            aria-label="Next">
             <ChevronRight size={20} strokeWidth={2} />
-          </button>
+          </StoreButton>
         </div>
 
       </div>

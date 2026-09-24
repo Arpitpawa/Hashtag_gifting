@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { X, Loader2, Check } from "lucide-react";
+import { StoreButton } from "@/components/ui/StoreButton";
 
 interface Charm {
   id: number; name: string; number: number; image: string;
@@ -106,10 +107,9 @@ export default function CharmSelector({ open, onClose, onSelect, selected }: Pro
           <p className="text-[12px] text-[#888]">
             {selected ? `Selected: ${selected.name}` : "No charm selected"}
           </p>
-          <button onClick={onClose}
-            className="px-5 py-2.5 bg-[#1a1a1a] text-white text-[13px] font-bold rounded-full hover:bg-[#333] transition-all">
+          <StoreButton onClick={onClose} variant="dark" size="sm">
             Done
-          </button>
+          </StoreButton>
         </div>
       </div>
     </div>

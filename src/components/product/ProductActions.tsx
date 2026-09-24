@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import {
   Gift, MessageSquare, CheckCircle, Minus, Plus,
@@ -8,6 +7,7 @@ import {
   X, Flame, Zap,
 } from "lucide-react";
 import type { Product } from "@/types/product";
+import { StoreButton } from "@/components/ui/StoreButton";
 
 // ── Notify me component ────────────────────────────────────────────────────────
 export function NotifyMeButton({ productId }: { productId: number }) {
@@ -228,22 +228,19 @@ export default function ProductActions({
         )}
 
         {!isOutOfStock && (
-          <Link
-            href="/checkout"
-            className="w-full flex items-center justify-center gap-2 py-4 rounded-full text-[15px] font-bold border-2 border-[#1a1a1a] text-[#1a1a1a] hover:bg-[#1a1a1a] hover:text-white transition-all duration-300 active:scale-[0.98]"
-          >
+          <StoreButton href="/checkout" variant="dark-outline" size="lg" fullWidth>
             <Zap size={16} /> Buy now
-          </Link>
+          </StoreButton>
         )}
 
-        <a
+        <StoreButton
           href={`https://wa.me/917665909909?text=Hi! I'm interested in ${encodeURIComponent(product.name)}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full text-[14px] font-semibold bg-[#25D366] text-white hover:bg-[#1da851] transition-all duration-300"
+          variant="whatsapp"
+          size="lg"
+          fullWidth
         >
           <Phone size={16} /> Order on WhatsApp
-        </a>
+        </StoreButton>
       </div>
     </div>
   );

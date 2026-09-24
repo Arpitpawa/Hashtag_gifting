@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Home, ShoppingBag, Search, Phone, ArrowRight } from "lucide-react";
+import { StoreButton } from "@/components/ui/StoreButton";
 
 export default function NotFound() {
   const QUICK_LINKS = [
@@ -37,18 +38,12 @@ export default function NotFound() {
 
       {/* Primary CTAs */}
       <div className="flex flex-col sm:flex-row gap-3 mb-12">
-        <Link
-          href="/"
-          className="flex items-center justify-center gap-2 px-7 py-3.5 bg-[#c0555a] text-white text-[14px] font-bold rounded-full hover:bg-[#a84449] transition-all"
-        >
+        <StoreButton href="/" variant="solid" size="md">
           <Home size={16} /> Back to home
-        </Link>
-        <Link
-          href="/shop"
-          className="flex items-center justify-center gap-2 px-7 py-3.5 border-2 border-[#1a1a1a] text-[#1a1a1a] text-[14px] font-bold rounded-full hover:bg-[#1a1a1a] hover:text-white transition-all"
-        >
+        </StoreButton>
+        <StoreButton href="/shop" variant="dark-outline" size="md">
           <ShoppingBag size={16} /> Browse all gifts
-        </Link>
+        </StoreButton>
         <Link
           href="/search"
           className="flex items-center justify-center gap-2 px-7 py-3.5 bg-white border border-[#e8e0d5] text-[#555] text-[14px] font-semibold rounded-full hover:border-[#c0555a] hover:text-[#c0555a] transition-all"

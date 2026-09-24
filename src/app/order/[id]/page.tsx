@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { StoreButton } from "@/components/ui/StoreButton";
 import {
   ArrowLeft, Package, MapPin, CreditCard,
   Truck, CheckCircle, Clock, Gift,
@@ -385,19 +386,18 @@ export default function OrderDetailPage() {
 
         {/* ── Actions ── */}
         <div className="flex flex-col sm:flex-row gap-3">
-          <Link
-            href={`/track?orderId=${order.id}`}
-            className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-[#1a1a1a] text-white text-[13px] font-bold rounded-full hover:bg-[#333] transition-all"
-          >
+          <StoreButton href={`/track?orderId=${order.id}`} variant="dark" size="md" fullWidth className="flex-1">
             <Truck size={15} /> Track this order
-          </Link>
-          <a
+          </StoreButton>
+          <StoreButton
             href={`https://wa.me/917665909909?text=Hi! I need help with order %23${order.id}`}
-            target="_blank" rel="noopener noreferrer"
-            className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-[#25D366] text-white text-[13px] font-bold rounded-full hover:bg-[#1da851] transition-all"
+            variant="whatsapp"
+            size="md"
+            fullWidth
+            className="flex-1"
           >
             <Phone size={15} /> WhatsApp support
-          </a>
+          </StoreButton>
         </div>
 
       </div>

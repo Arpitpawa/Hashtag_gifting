@@ -5,6 +5,7 @@ import {
   Briefcase, Star, Coffee, ArrowRight, CheckCircle,
 } from "lucide-react";
 import { getActiveProductCount, roundDownForMarketing } from "@/lib/productCount";
+import { StoreButton } from "@/components/ui/StoreButton";
 
 export const metadata: Metadata = {
   title:       "Careers — Join Our Team",
@@ -176,17 +177,16 @@ export default async function CareersPage() {
           If you love creativity, care deeply about the work you do and want to be part of something growing — we'd love to meet you.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <a href="#open-roles"
-            className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-[#c0555a] text-white font-bold rounded-full hover:bg-[#a84449] transition-colors text-[14px]"
-          >
+          <StoreButton href="#open-roles" external variant="solid" size="md">
             View open roles <ArrowRight size={15} />
-          </a>
-          <a
+          </StoreButton>
+          <StoreButton
             href="mailto:hashtaggiftsupport@gmail.com?subject=General Application — Hashtag Gifting"
-            className="inline-flex items-center justify-center gap-2 px-7 py-3.5 border-2 border-[#1a1a1a] text-[#1a1a1a] font-bold rounded-full hover:bg-[#1a1a1a] hover:text-white transition-all text-[14px]"
+            variant="dark-outline"
+            size="md"
           >
             Send your CV
-          </a>
+          </StoreButton>
         </div>
       </div>
 

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { Sparkles } from "lucide-react";
+import { StoreButton } from "@/components/ui/StoreButton";
 import { useCartStore }      from "@/lib/store/cartStore";
 import { useRecentlyViewed } from "@/lib/hooks/useRecentlyViewed";
 import type { Product, ProductVariant, VariantGroups } from "@/types/product";
@@ -329,10 +330,9 @@ export default function ProductClient({ product, initialColor }: { product: Prod
                     {selectedCharm ? `Selected: ${selectedCharm.name}` : "Optional — choose a charm for your product"}
                   </p>
                 </div>
-                <button onClick={() => setCharmOpen(true)}
-                  className="flex-shrink-0 px-4 py-2.5 bg-[#1a1a1a] text-white text-[12px] font-bold rounded-full hover:bg-[#333] transition-all">
+                <StoreButton onClick={() => setCharmOpen(true)} variant="dark" size="sm" className="flex-shrink-0">
                   {selectedCharm ? "Change charm" : "Select charm"}
-                </button>
+                </StoreButton>
               </div>
             )}
 

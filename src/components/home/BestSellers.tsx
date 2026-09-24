@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronLeft, ChevronRight, Gift } from "lucide-react";
+import { StoreButton } from "@/components/ui/StoreButton";
 import { useEffect, useRef, useState, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -115,12 +116,13 @@ export default function BestSellers() {
 
         {/* ── PRODUCT SLIDER ── */}
         <div className="relative">
-          <button
+          <StoreButton
+            variant="icon"
             onClick={scrollLeft}
-            className="hidden xl:flex absolute -left-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white rounded-full shadow-lg items-center justify-center hover:bg-black hover:text-white transition-all duration-300 border border-[#e8e0d5]"
-           aria-label="Previous">
+            className="hidden xl:flex absolute -left-6 top-1/2 -translate-y-1/2 z-20"
+            aria-label="Previous">
             <ChevronLeft size={20} strokeWidth={2} />
-          </button>
+          </StoreButton>
 
           <div ref={sliderRef} className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory no-scrollbar pb-2 px-1">
             {loading ? (
@@ -186,21 +188,22 @@ export default function BestSellers() {
             )}
 
             <div className="min-w-[220px] flex items-center justify-center flex-shrink-0 snap-start">
-              <button
+              <StoreButton
+                variant="outline"
                 onClick={() => router.push("/shop?sort=popular")}
-                className="px-8 py-4 rounded-full border border-[#c0555a] text-[#c0555a] font-medium whitespace-nowrap hover:bg-[#c0555a] hover:text-white transition-all duration-300"
               >
                 View all products
-              </button>
+              </StoreButton>
             </div>
           </div>
 
-          <button
+          <StoreButton
+            variant="icon"
             onClick={scrollRight}
-            className="hidden xl:flex absolute -right-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white rounded-full shadow-lg items-center justify-center hover:bg-black hover:text-white transition-all duration-300 border border-[#e8e0d5]"
-           aria-label="Next">
+            className="hidden xl:flex absolute -right-6 top-1/2 -translate-y-1/2 z-20"
+            aria-label="Next">
             <ChevronRight size={20} strokeWidth={2} />
-          </button>
+          </StoreButton>
         </div>
       </div>
     </section>
