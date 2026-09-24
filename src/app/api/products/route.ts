@@ -81,12 +81,15 @@ export async function GET(req: NextRequest) {
       if (maxPrice) where.price.lte = parseInt(maxPrice) * 100;
     }
 
-    // Always sort in-stock first, then apply the chosen sort within each group
+    // Sort by the chosen field first; stock is only a tiebreaker for exact ties
+    // (e.g. two products at the identical price), never the primary key —
+    // sorting on raw stock quantity first clusters products into stock-count
+    // buckets (10/15/20 etc.) and defeats the chosen sort entirely.
     const orderBy: any[] =
-      sort === "price_asc"  ? [{ stock: "desc" }, { price: "asc"  }] :
-      sort === "price_desc" ? [{ stock: "desc" }, { price: "desc" }] :
-      sort === "popular"    ? [{ stock: "desc" }, { createdAt: "desc" }] :
-      [{ stock: "desc" }, { createdAt: "desc" }];
+      sort === "price_asc"  ? [{ price: "asc"  }, { stock: "desc" }] :
+      sort === "price_desc" ? [{ price: "desc" }, { stock: "desc" }] :
+      sort === "popular"    ? [{ createdAt: "desc" }, { stock: "desc" }] :
+      [{ createdAt: "desc" }, { stock: "desc" }];
 
     const [products, total] = await Promise.all([
       prisma.product.findMany({
