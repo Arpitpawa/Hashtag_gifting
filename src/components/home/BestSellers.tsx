@@ -40,15 +40,15 @@ export default function BestSellers() {
   // Not tied to categories: each tab mixes the listed product TYPES (SKU numbers):
   //   Men        = men's wallets (11-14) + men's combos (19)
   //   Women      = women's wallets (08), clutches (09,10), mobile pouch (05), women's combos (16-18)
+  //   Kids       = kids' toys, colouring books, stationery sets (25)
   //   Travel     = passport covers (02,03), travel wallet organiser (04), toiletry bags (07)
   //   Stationery = pens (15), diary combos (01), stationery pouches (06)
-  //   Kids       = kids' toys, colouring books, stationery sets (25)
   const TABS: { key: string; label: string; types: string }[] = [
     { key: "men",        label: "Men",        types: "11,12,13,14,19" },
     { key: "women",      label: "Women",      types: "08,09,10,05,16,17,18" },
+    { key: "kids",       label: "Kids",       types: "25" },
     { key: "travel",     label: "Travel",     types: "02,03,04,07" },
     { key: "stationery", label: "Stationery", types: "15,01,06" },
-    { key: "kids",       label: "Kids",       types: "25" },
   ];
 
   useEffect(() => {

@@ -39,8 +39,12 @@ export async function GET(req: NextRequest) {
       (byType.get(t) ?? byType.set(t, []).get(t)!).push(p);
     }
 
+    // When specific types are requested (e.g. the homepage category tabs), use
+    // that list directly as the order — TYPE_ORDER only covers the original
+    // wallet/pen catalog and would silently drop newer types (kids, etc.).
     const start = wanted.length ? 0 : (seed * 5) % TYPE_ORDER.length;
-    const order = [...TYPE_ORDER.slice(start), ...TYPE_ORDER.slice(0, start)].filter((t) => byType.has(t) && (wanted.length === 0 || wanted.includes(t)));
+    const baseOrder = wanted.length ? wanted : [...TYPE_ORDER.slice(start), ...TYPE_ORDER.slice(0, start)];
+    const order = baseOrder.filter((t) => byType.has(t));
     const out: any[] = [];
     for (let round = 0; out.length < limit && round < 40; round++) {
       for (const t of order) {
