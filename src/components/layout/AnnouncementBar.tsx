@@ -46,9 +46,12 @@ export default function AnnouncementBar({ productCount }: AnnouncementBarProps) 
           {messages.map((msg, i) => (
             <span
               key={i}
-              className="inline-flex items-center gap-2 mx-6 text-[13px] font-medium tracking-wide text-black"
+              className="inline-flex items-center gap-2 mx-6 text-[13px] leading-none font-medium tracking-wide text-black"
             >
-              <Sparkles size={12} className="text-[#c0555a] flex-shrink-0" /> {msg}
+              {/* leading-none on the span removes the text's own line-height
+                  box, which is what was nudging it a px or two below the
+                  icon's true vertical center. */}
+              <Sparkles size={12} className="text-[#c0555a] flex-shrink-0 relative -top-px" /> {msg}
             </span>
           ))}
         </div>
@@ -58,9 +61,9 @@ export default function AnnouncementBar({ productCount }: AnnouncementBarProps) 
           {messages.map((msg, i) => (
             <span
               key={i}
-              className="inline-flex items-center gap-2 mx-6 text-[13px] font-medium tracking-wide text-black"
+              className="inline-flex items-center gap-2 mx-6 text-[13px] leading-none font-medium tracking-wide text-black"
             >
-              <Sparkles size={12} className="text-[#c0555a] flex-shrink-0" /> {msg}
+              <Sparkles size={12} className="text-[#c0555a] flex-shrink-0 relative -top-px" /> {msg}
             </span>
           ))}
         </div>

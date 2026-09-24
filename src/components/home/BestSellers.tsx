@@ -79,7 +79,7 @@ export default function BestSellers() {
 
   return (
     <section className="pt-8 md:pt-0 pb-24 md:pb-28 bg-[#f3efe8]">
-      <div className="max-w-[1450px] mx-auto px-4 md:px-6 lg:px-8">
+      <div className="max-w-[1450px] mx-auto px-4 md:px-6 lg:px-10">
 
         {/* ── HEADING ── */}
         <div className="text-center mb-14 md:mb-16">
@@ -117,9 +117,9 @@ export default function BestSellers() {
         <div className="relative">
           <button
             onClick={scrollLeft}
-            className="hidden xl:flex absolute -left-6 top-1/2 -translate-y-1/2 bg-white shadow-xl hover:bg-black hover:text-white transition-all duration-300 p-3 rounded-full z-20"
+            className="hidden xl:flex absolute -left-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white rounded-full shadow-lg items-center justify-center hover:bg-black hover:text-white transition-all duration-300 border border-[#e8e0d5]"
            aria-label="Previous">
-            <ChevronLeft size={22} />
+            <ChevronLeft size={20} strokeWidth={2} />
           </button>
 
           <div ref={sliderRef} className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory no-scrollbar pb-2 px-1">
@@ -188,18 +188,18 @@ export default function BestSellers() {
             <div className="min-w-[220px] flex items-center justify-center flex-shrink-0 snap-start">
               <button
                 onClick={() => router.push("/shop?sort=popular")}
-                className="px-8 py-4 rounded-full border border-gray-300 text-gray-700 font-medium whitespace-nowrap hover:bg-[#c0555a] hover:text-white hover:border-[#c0555a] transition-all duration-300"
+                className="px-8 py-4 rounded-full border border-[#c0555a] text-[#c0555a] font-medium whitespace-nowrap hover:bg-[#c0555a] hover:text-white transition-all duration-300"
               >
-                View All Products
+                View all products
               </button>
             </div>
           </div>
 
           <button
             onClick={scrollRight}
-            className="hidden xl:flex absolute -right-6 top-1/2 -translate-y-1/2 bg-white shadow-xl hover:bg-black hover:text-white transition-all duration-300 p-3 rounded-full z-20"
+            className="hidden xl:flex absolute -right-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white rounded-full shadow-lg items-center justify-center hover:bg-black hover:text-white transition-all duration-300 border border-[#e8e0d5]"
            aria-label="Next">
-            <ChevronRight size={22} />
+            <ChevronRight size={20} strokeWidth={2} />
           </button>
         </div>
       </div>

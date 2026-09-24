@@ -161,7 +161,7 @@ export default function GiftsByRelationship() {
             className="text-[32px] sm:text-[42px] md:text-[66px] font-normal text-[#1a1a1a]"
             style={{ fontFamily: "'Playfair Display', Georgia, serif", letterSpacing: "0.02em", lineHeight: "1.15" }}
           >
-            GIFTS BY RELATIONSHIP
+            Gifts by relationship
           </h2>
           <p className="text-[#6b6b6b] text-base md:text-lg mt-4 max-w-md mx-auto">
             Perfect picks for every person in your life
@@ -174,7 +174,7 @@ export default function GiftsByRelationship() {
           {/* LEFT ARROW */}
           <button
             onClick={scrollLeft}
-            className="hidden xl:flex absolute -left-5 top-[40%] -translate-y-1/2 z-20 w-11 h-11 bg-white rounded-full shadow-lg items-center justify-center hover:bg-black hover:text-white transition-all duration-300 border border-[#e8e0d5]"
+            className="hidden xl:flex absolute -left-6 top-[40%] -translate-y-1/2 z-20 w-11 h-11 bg-white rounded-full shadow-lg items-center justify-center hover:bg-black hover:text-white transition-all duration-300 border border-[#e8e0d5]"
            aria-label="Previous">
             <ChevronLeft size={20} strokeWidth={2} />
           </button>
@@ -182,7 +182,7 @@ export default function GiftsByRelationship() {
           {/* CARDS */}
           <div
             ref={sliderRef}
-            className="flex gap-6 md:gap-10 overflow-x-auto scroll-smooth snap-x snap-mandatory no-scrollbar pb-4 px-1"
+            className="flex gap-4 md:gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory no-scrollbar pb-4 px-1 xl:pr-14"
           >
             {relationships.map((rel, index) => (
               <Link
@@ -222,7 +222,10 @@ export default function GiftsByRelationship() {
           {/* RIGHT ARROW */}
           <button
             onClick={scrollRight}
-            className="hidden xl:flex absolute -right-5 top-[40%] -translate-y-1/2 z-20 w-11 h-11 bg-white rounded-full shadow-lg items-center justify-center hover:bg-black hover:text-white transition-all duration-300 border border-[#e8e0d5]"
+            // Nudged further out (-right-6, matching -left-6 above) and the
+            // slider now carries xl:pr-14 so the last card has clearance —
+            // it no longer sits directly under this button.
+            className="hidden xl:flex absolute -right-6 top-[40%] -translate-y-1/2 z-20 w-11 h-11 bg-white rounded-full shadow-lg items-center justify-center hover:bg-black hover:text-white transition-all duration-300 border border-[#e8e0d5]"
            aria-label="Next">
             <ChevronRight size={20} strokeWidth={2} />
           </button>

@@ -53,7 +53,7 @@ export default function ShopByCategory() {
       >
         {/* HEADING */}
         <div className="text-center mb-10 md:mb-12">
-          <p className="text-white/50 text-[11px] font-medium uppercase tracking-[4px] mb-3">
+          <p className="text-white/60 text-[12px] font-medium uppercase tracking-[4px] mb-3">
             Something for everyone
           </p>
           <h2
@@ -71,7 +71,7 @@ export default function ShopByCategory() {
               use aspect-square instead of a fixed height, so they scale
               with the column width at every breakpoint instead of getting
               squeezed at in-between widths. */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
             {loading ? (
               Array.from({ length: SKELETON_COUNT }).map((_, i) => (
                 <div key={i} className="bg-white/20 rounded-md overflow-hidden animate-pulse">

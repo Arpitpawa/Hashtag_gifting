@@ -394,17 +394,6 @@ export default function Navbar({ initialCategories = [] }: { initialCategories?:
                 </SheetContent>
               </Sheet>
 
-              {/* Search icon — visible at every size now. It used to be
-                  `hidden lg:flex`, which meant anything below 1024px wide
-                  (every phone and tablet) had no way to open search at all,
-                  since the mobile hamburger menu doesn't have a search
-                  entry either. */}
-              <div className="flex items-center gap-1">
-                <button onClick={() => setSearchOpen(true)} className="p-2.5 hover:bg-gray-100 rounded-full transition-colors">
-                  <Search size={19} strokeWidth={1.5} />
-                </button>
-              </div>
-
               {/* Desktop switcher pills — pushed to xl (1280px) instead of
                   lg (1024px): at exactly 1024px (an iPad Pro in portrait),
                   these pills plus the search icon crowd the same row as the
@@ -461,6 +450,14 @@ export default function Navbar({ initialCategories = [] }: { initialCategories?:
 
             {/* ── RIGHT ── */}
             <div className="flex items-center gap-2 justify-end">
+              {/* Search — grouped here with the other utility icons
+                  (account/wishlist/cart) instead of sitting alone on the
+                  opposite side of the header, so all common utility
+                  actions live in one place. Still visible at every size,
+                  same as before. */}
+              <button onClick={() => setSearchOpen(true)} className="p-2.5 hover:bg-gray-100 rounded-full transition-colors" aria-label="Search">
+                <Search size={19} strokeWidth={1.5} />
+              </button>
               <ProfileDropdown />
               <Link href="/wishlist" className="p-2.5 hover:bg-gray-100 rounded-full transition-colors hidden sm:flex" aria-label="Add to wishlist">
                 <Heart size={19} strokeWidth={1.5} />
@@ -491,7 +488,12 @@ export default function Navbar({ initialCategories = [] }: { initialCategories?:
             already keep this row from overflowing in normal use, so that
             scroll fallback wasn't actually needed to prevent a broken row —
             just letting the dropdowns render unclipped matters more. */}
-        <div className="hidden lg:block border-b border-[#ececec] bg-white" ref={categoryNavRef}>
+        {/* #17: subtle background tint distinguishes this row from the
+            plain-white main navbar row above it, and the links themselves
+            are a touch bigger/bolder — both give this row the visual
+            weight of an actual navigation bar instead of reading as
+            secondary/decorative text. */}
+        <div className="hidden lg:block border-b border-[#ececec] bg-[#faf8f5]" ref={categoryNavRef}>
           <div className="container-custom h-[46px] flex items-center justify-center gap-6 xl:gap-7">
             {visibleNavItems.map((item, navIdx) => {
               const navKey = `${item.slug ?? item.title}-${navIdx}`;
@@ -511,7 +513,7 @@ export default function Navbar({ initialCategories = [] }: { initialCategories?:
                       hover, so tapping needs to open/close this too. */}
                   <button
                     onClick={() => setActiveMenu(activeMenu === item.title ? null : item.title)}
-                    className={`flex items-center gap-1 text-[11px] font-medium tracking-wide transition-all duration-200 pb-0.5 border-b-2 whitespace-nowrap ${activeMenu === item.title ? "text-black border-black" : "text-[#555] border-transparent hover:text-black hover:border-gray-300"}`}>
+                    className={`flex items-center gap-1 text-[12px] font-semibold tracking-wide transition-all duration-200 pb-0.5 border-b-2 whitespace-nowrap ${activeMenu === item.title ? "text-black border-black" : "text-[#444] border-transparent hover:text-black hover:border-gray-300"}`}>
                     {item.title}
                     <ChevronDown size={11} strokeWidth={2} className={`transition-transform duration-200 ${activeMenu === item.title ? "rotate-180" : ""}`} />
                   </button>
@@ -561,7 +563,7 @@ export default function Navbar({ initialCategories = [] }: { initialCategories?:
                 onMouseLeave={() => setActiveMenu(null)}>
                 <button
                   onClick={() => setActiveMenu(activeMenu === "__more__" ? null : "__more__")}
-                  className={`flex items-center gap-1 text-[11px] font-medium tracking-wide transition-all duration-200 pb-0.5 border-b-2 whitespace-nowrap ${activeMenu === "__more__" ? "text-black border-black" : "text-[#555] border-transparent hover:text-black hover:border-gray-300"}`}>
+                  className={`flex items-center gap-1 text-[12px] font-semibold tracking-wide transition-all duration-200 pb-0.5 border-b-2 whitespace-nowrap ${activeMenu === "__more__" ? "text-black border-black" : "text-[#444] border-transparent hover:text-black hover:border-gray-300"}`}>
                   More
                   <ChevronDown size={11} strokeWidth={2} className={`transition-transform duration-200 ${activeMenu === "__more__" ? "rotate-180" : ""}`} />
                 </button>

@@ -130,8 +130,10 @@ export default function InstagramReels() {
                     )}
                   </a>
 
-                  {/* Product info */}
-                  <div className="mt-3 flex flex-col gap-2">
+                  {/* Product info — gap-3 (was gap-2) so the "Shop this"
+                      button gets real breathing room below the price
+                      instead of sitting right under it. */}
+                  <div className="mt-3 flex flex-col gap-3">
                     <p className="text-[13px] font-semibold text-[#1a1a1a] leading-snug line-clamp-1 capitalize">{product.name}</p>
                     <div className="flex items-center gap-2">
                       <span className="text-[14px] font-bold text-[#1a1a1a]">{formatPrice(product.price)}</span>

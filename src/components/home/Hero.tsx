@@ -8,19 +8,19 @@ const slides = [
   {
     id: 1,
     image: "/Personalisedpassportcoverheroimage.png",
-    button: "SHOP PASSPORT COVERS",
+    button: "Shop passport covers",
     link: "/shop?search=passport",
   },
   {
     id: 2,
     image: "/personaliseddiariespensheropng.png",
-    button: "SHOP DIARIES & PENS",
+    button: "Shop diaries & pens",
     link: "/shop?search=diary",
   },
   {
     id: 3,
     image: "/personalisedwalletskeychain.png",
-    button: "SHOP WALLETS & KEYCHAINS",
+    button: "Shop wallets & keychains",
     link: "/shop?search=wallet",
   },
 ];
@@ -142,7 +142,12 @@ export default function HeroSlider() {
               <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12 w-full pb-9 sm:pb-10 lg:pb-14 xl:pb-20 flex justify-end">
                 <Link
                   href={slide.link}
-                  className="inline-block bg-white text-[#c0555a] border border-white px-4 py-2 text-[10px] sm:px-6 sm:py-3 sm:text-[12px] md:px-8 md:py-4 md:text-sm tracking-[1.5px] sm:tracking-[2px] font-semibold hover:bg-[#c0555a] hover:text-white hover:border-[#c0555a] transition-all duration-300"
+                  // Solid fill instead of a white-ghost button: a
+                  // white-on-white-ish outline button sitting over a busy
+                  // photo background reads as low-contrast/low-affordance.
+                  // Filling it with the brand color gives it real visual
+                  // weight against any image behind it.
+                  className="inline-block bg-[#c0555a] text-white border border-[#c0555a] px-4 py-2 text-[11px] sm:px-6 sm:py-3 sm:text-[13px] md:px-8 md:py-4 md:text-sm tracking-[1px] sm:tracking-[1.5px] font-semibold shadow-lg hover:bg-white hover:text-[#c0555a] transition-all duration-300"
                 >
                   {slide.button}
                 </Link>
@@ -151,14 +156,17 @@ export default function HeroSlider() {
           </div>
         ))}
 
-        {/* Dots */}
+        {/* Dots — thicker + a dark ring so they stay visible as
+            interactive elements against any photo behind them, not just
+            the light-colored slides. */}
         <div className="absolute bottom-4 sm:bottom-6 lg:bottom-8 xl:bottom-10 left-1/2 -translate-x-1/2 z-30 flex items-center gap-3">
           {slides.map((_, index) => (
             <button
               key={index}
               onClick={() => goTo(index)}
-              className={`transition-all duration-300 rounded-full ${
-                current === index ? "w-10 h-[3px] bg-[#f4d35e]" : "w-5 h-[3px] bg-white/60"
+              aria-label={`Go to slide ${index + 1}`}
+              className={`transition-all duration-300 rounded-full shadow-[0_0_0_1px_rgba(0,0,0,0.15)] ${
+                current === index ? "w-10 h-[5px] bg-[#f4d35e]" : "w-6 h-[5px] bg-white/80"
               }`}
             />
           ))}

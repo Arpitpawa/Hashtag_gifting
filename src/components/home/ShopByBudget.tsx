@@ -108,7 +108,11 @@ export default function ShopByBudget() {
                 </div>
               </div>
               <div className="bg-white border-t-2 border-[#c0555a] group-hover:bg-[#c0555a] transition-colors duration-300 px-4 py-4 text-center">
-                <p className="text-[#c0555a] group-hover:text-white transition-colors duration-300 text-[14px] md:text-[15px] font-semibold tracking-wide">
+                {/* #27: the price range is the actual navigation criteria
+                    here (the small top-left tag is just flavor text), so it
+                    should out-rank the tag visually — bumped up from 15px
+                    semibold to 16px bold. */}
+                <p className="text-[#c0555a] group-hover:text-white transition-colors duration-300 text-[15px] md:text-[17px] font-bold tracking-wide">
                   {item.label}
                 </p>
               </div>

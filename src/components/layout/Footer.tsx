@@ -198,9 +198,14 @@ export default function Footer() {
           {/* ── LINKS COLUMNS ── */}
           {footerLinks.map((col, i) => (
             <div key={i} className="lg:col-span-1">
-              <h4 className="text-[11px] font-semibold uppercase tracking-[2px] text-white mb-3 md:mb-5">
+              {/* h3, not h4 — the page's section headings are h2, so a
+                  footer nav heading one level down is h3; h4 skipped a
+                  level. Dropped the uppercase transform and bumped 11px to
+                  12px too, since all-caps below the readable-body floor is
+                  the harder-to-scan combination. */}
+              <h3 className="text-[12px] font-semibold tracking-[1px] text-white mb-3 md:mb-5">
                 {col.title}
-              </h4>
+              </h3>
               <ul className="flex flex-col gap-2 md:gap-3">
                 {col.links.map((link, j) => (
                   <li key={j}>
@@ -240,7 +245,7 @@ export default function Footer() {
                 nowrap "Subscribe" button. */}
             <NewsletterForm
               className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto"
-              inputClass="flex-1 md:w-[280px] bg-white/10 border border-white/20 text-white placeholder:text-white/40 text-[13px] px-4 py-3 rounded-xl outline-none focus:border-white transition-colors"
+              inputClass="flex-1 sm:w-[240px] md:w-[280px] bg-white/10 border border-white/20 text-white placeholder:text-white/40 text-[13px] px-4 py-3 rounded-xl outline-none focus:border-white transition-colors"
               buttonClass="bg-white text-[#c0555a] text-[13px] font-semibold px-5 py-3 rounded-xl hover:bg-white/90 transition-colors whitespace-nowrap"
             />
           </div>
