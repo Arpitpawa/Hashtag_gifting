@@ -28,7 +28,13 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       "img-src * data: blob:",
-      "connect-src 'self' https://api.razorpay.com https://www.google-analytics.com https://vitals.vercel-insights.com https://cdn.jsdelivr.net",
+      // data: + blob: added -- the live-preview/photo-crop flow (LivePreviewModal.tsx)
+      // does `fetch(dataUrl)` / `fetch(blobUrl)` to turn a canvas-rendered data URL
+      // into a Blob before uploading it to Cloudinary. connect-src (not img-src) is
+      // what governs fetch()'s own target, so without this that upload was silently
+      // blocked by CSP -- the item still added to cart, but the personalization
+      // preview/cropped photo never made it to the order.
+      "connect-src 'self' data: blob: https://api.razorpay.com https://www.google-analytics.com https://vitals.vercel-insights.com https://cdn.jsdelivr.net",
       "frame-src https://api.razorpay.com https://checkout.razorpay.com",
       "object-src 'none'",
       "base-uri 'self'",
