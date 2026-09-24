@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import AdminSelect from "@/components/admin/AdminSelect";
 import Image from "next/image";
+import { expandToColorTiles } from "@/components/shop/ColorSwatchDots";
 import {
   Search, Plus, Edit2, Trash2, Loader2, X, Eye, EyeOff,
   SlidersHorizontal, Square, CheckSquare, MinusSquare,
@@ -97,6 +98,12 @@ export default function AdminProducts() {
 
     return list;
   }, [products, search, categoryId, minPrice, maxPrice, stockFilter, statusFilter, sortBy, view]);
+
+  // One tile per color for products merged with color variants (a product with
+  // 8 colors shows as 8 tiles here) — every tile still carries the real, shared
+  // product `id`, so its checkbox/edit/delete/status actions all correctly act
+  // on the one underlying product no matter which color tile triggered them.
+  const tiles = useMemo(() => expandToColorTiles(filtered), [filtered]);
 
   const hasActiveFilters = !!(categoryId || minPrice || maxPrice || stockFilter !== "all" || (view === "active" && statusFilter !== "all"));
 
@@ -492,9 +499,13 @@ export default function AdminProducts() {
               : <Square size={16} />}
             Select all shown
           </button>
-          {filtered.map(p => (
-            <div key={p.id}
-              className={`bg-white rounded-2xl border p-3 ${selected.has(p.id) ? "border-[#c0555a] bg-[#fdf3f0]" : "border-[#e8e8e8]"}`}>
+          {tiles.map(p => (
+            <div key={p.tileKey}
+              className={`bg-white rounded-2xl border p-3 ${
+                selected.has(p.id) ? "border-[#c0555a] bg-[#fdf3f0]"
+                : p.colorParam ? "border-indigo-200 bg-indigo-50/40"
+                : "border-[#e8e8e8]"
+              }`}>
               <div className="flex gap-3">
                 <button onClick={() => toggleSelect(p.id)} aria-label="Select product"
                   className="self-start pt-1 text-[#888]">
@@ -513,7 +524,14 @@ export default function AdminProducts() {
                   <a href={`/admin/products/${p.id}/edit`} className="block">
                     <p className="text-[13px] font-semibold text-[#1a1a1a] leading-snug line-clamp-2 capitalize">{p.name}</p>
                   </a>
-                  <p className="text-[11px] text-[#999] mt-0.5 truncate">{p.category?.name || "—"}</p>
+                  <div className="flex items-center gap-1.5 flex-wrap mt-0.5">
+                    <p className="text-[11px] text-[#999] truncate">{p.category?.name || "—"}</p>
+                    {p.colorParam && (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-indigo-100 text-indigo-600">
+                        <Layers size={9} /> {p.colorParam}
+                      </span>
+                    )}
+                  </div>
                   <div className="flex items-baseline gap-2 mt-1">
                     <span className="text-[14px] font-bold text-[#1a1a1a]">{formatPrice(p.price)}</span>
                     {p.comparePrice && <span className="text-[11px] text-[#aaa] line-through">{formatPrice(p.comparePrice)}</span>}
@@ -588,8 +606,10 @@ export default function AdminProducts() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#f5f5f5]">
-              {filtered.map(p => (
-                <tr key={p.id} className={`hover:bg-[#fafafa] transition-colors ${selected.has(p.id) ? "bg-[#fdf3f0]" : ""}`}>
+              {tiles.map(p => (
+                <tr key={p.tileKey} className={`hover:bg-[#fafafa] transition-colors ${
+                  selected.has(p.id) ? "bg-[#fdf3f0]" : p.colorParam ? "bg-indigo-50/40" : ""
+                } ${p.colorParam ? "shadow-[inset_3px_0_0_0_#a5b4fc]" : ""}`}>
                   <td className="px-4 py-3">
                     <button onClick={() => toggleSelect(p.id)} className="flex items-center text-[#888] hover:text-[#c0555a] transition-colors">
                       {selected.has(p.id)
@@ -610,7 +630,14 @@ export default function AdminProducts() {
                       </a>
                       <a href={`/admin/products/${p.id}/edit`} title="Edit product">
                         <p className="font-semibold text-[#1a1a1a] capitalize line-clamp-1 hover:text-[#c0555a] transition-colors">{p.name}</p>
-                        <p className="text-[11px] text-[#aaa]">{p.slug}</p>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <p className="text-[11px] text-[#aaa]">{p.slug}</p>
+                          {p.colorParam && (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-indigo-100 text-indigo-600">
+                              <Layers size={9} /> {p.colorParam}
+                            </span>
+                          )}
+                        </div>
                       </a>
                     </div>
                   </td>

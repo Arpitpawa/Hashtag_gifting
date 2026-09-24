@@ -29,6 +29,11 @@ export async function GET(req: Request) {
           include: { category: { select: { id: true, name: true, slug: true } } },
         },
         _count: { select: { orderItems: true, reviews: true } },
+        variants: {
+          where:   { groupName: { equals: "Color", mode: "insensitive" } },
+          orderBy: { sortOrder: "asc" },
+          select:  { id: true, optionName: true, images: true, stock: true, price: true, comparePrice: true },
+        },
       },
     });
 
