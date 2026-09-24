@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
@@ -329,28 +330,12 @@ export default function Navbar({ initialCategories = [] }: { initialCategories?:
                 <SheetContent side="left" className="w-[300px] bg-[#f7f4ef] p-0">
                   <SheetTitle className="sr-only">Navigation menu</SheetTitle>
                   <div className="p-5 border-b border-[#e5e5e5]">
-                    <div className="flex items-center gap-2 leading-none">
-                      <svg width="28" height="28" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="3" y="16" width="30" height="17" rx="2.5" fill="#f3efe8" stroke="#c0555a" strokeWidth="1"/>
-                        <rect x="1" y="12" width="34" height="6" rx="2" fill="#f3efe8" stroke="#c0555a" strokeWidth="1"/>
-                        <rect x="15.5" y="12" width="5" height="21" fill="#c0555a"/>
-                        <rect x="1" y="14.5" width="34" height="2" fill="#c0555a"/>
-                        <path d="M18 12 C13 6 6 7.5 7.5 12" stroke="#c0555a" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
-                        <path d="M18 12 C23 6 30 7.5 28.5 12" stroke="#c0555a" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
-                        <circle cx="18" cy="12" r="2.2" fill="#c0555a"/>
-                      </svg>
-                      <div className="flex flex-col leading-none">
-                        <div className="flex items-baseline gap-[1px]">
-                          <span style={{ fontFamily: "var(--font-dm-serif), serif" }}
-                            className="text-[20px] font-normal text-[#1a1a1a] leading-none">Hashtag</span>
-                          <span style={{ fontFamily: "var(--font-dm-serif), serif" }}
-                            className="text-[20px] font-normal text-[#c0555a] leading-none">Gifting</span>
-                        </div>
-                        <span style={{ fontFamily: "var(--font-body), sans-serif" }}
-                          className="text-[7.5px] font-medium text-[#888] uppercase tracking-wide mt-[3px]">
-                          Change the idea of gifting
-                        </span>
-                      </div>
+                    <div className="flex items-center gap-2.5 leading-none">
+                      <Image src="/logo-icon.png" alt="Hashtag Gifting" width={36} height={36} className="w-9 h-9 rounded-full flex-shrink-0" priority />
+                      <span style={{ fontFamily: "var(--font-body), sans-serif" }}
+                        className="text-[7.5px] font-medium text-[#888] uppercase tracking-wide max-w-[80px] leading-[1.3]">
+                        Change the idea of gifting
+                      </span>
                     </div>
                   </div>
                   <div className="flex gap-2 px-4 py-3 border-b border-[#ececec]">
@@ -416,21 +401,8 @@ export default function Navbar({ initialCategories = [] }: { initialCategories?:
                 not essential, and were the widest part of this block. */}
             <Link href="/" className="flex flex-col sm:flex-row items-center gap-[5px] sm:gap-2.5 leading-none select-none absolute left-1/2 -translate-x-1/2 max-w-[62vw] sm:max-w-none">
               <div className="flex items-center gap-1.5 sm:gap-2.5">
-                <svg width="34" height="34" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 sm:w-[34px] sm:h-[34px] flex-shrink-0">
-                <rect x="3" y="16" width="30" height="17" rx="2.5" fill="#f3efe8" stroke="#c0555a" strokeWidth="1"/>
-                <rect x="1" y="12" width="34" height="6" rx="2" fill="#f3efe8" stroke="#c0555a" strokeWidth="1"/>
-                <rect x="15.5" y="12" width="5" height="21" fill="#c0555a"/>
-                <rect x="1" y="14.5" width="34" height="2" fill="#c0555a"/>
-                <path d="M18 12 C13 6 6 7.5 7.5 12" stroke="#c0555a" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
-                <path d="M18 12 C23 6 30 7.5 28.5 12" stroke="#c0555a" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
-                <circle cx="18" cy="12" r="2.2" fill="#c0555a"/>
-              </svg>
-                <div className="flex items-baseline gap-[1px] min-w-0">
-                  <span style={{ fontFamily: "var(--font-dm-serif), serif" }}
-                    className="text-[16px] sm:text-[22px] md:text-[26px] font-normal text-[#1a1a1a] leading-none truncate">Hashtag</span>
-                  <span style={{ fontFamily: "var(--font-dm-serif), serif" }}
-                    className="text-[16px] sm:text-[22px] md:text-[26px] font-normal text-[#c0555a] leading-none truncate">Gifting</span>
-                </div>
+                <Image src="/logo-icon.png" alt="Hashtag Gifting" width={44} height={44}
+                  className="w-8 h-8 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-full flex-shrink-0" priority />
               </div>
               {/* Motto — phones: same black uppercase body font as desktop, one line under the logo */}
               <span
