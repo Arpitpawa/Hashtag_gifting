@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import {
-  Gift, MessageSquare, CheckCircle, Minus, Plus,
+  Gift, CheckCircle, Minus, Plus,
   Phone, Loader2, ShoppingBag, Clock, Bell, Mail,
   X, Flame, Zap,
 } from "lucide-react";
@@ -80,8 +80,6 @@ interface Props {
   setQuantity:     (q: number) => void;
   giftWrap:        boolean;
   setGiftWrap:     (v: boolean) => void;
-  greetingCard:    boolean;
-  setGreetingCard: (v: boolean) => void;
   adding:          boolean;
   added:           boolean;
   isOutOfStock:    boolean;
@@ -91,7 +89,7 @@ interface Props {
 
 export default function ProductActions({
   product, quantity, setQuantity,
-  giftWrap, setGiftWrap, greetingCard, setGreetingCard,
+  giftWrap, setGiftWrap,
   adding, added, isOutOfStock, onAddToCart, countdown,
 }: Props) {
   const addOns = [
@@ -100,16 +98,8 @@ export default function ProductActions({
       onChange: setGiftWrap,
       icon:     <Gift size={14} />,
       title:    "Premium gift wrapping",
-      sub:      "Beautiful box + ribbon + message card",
+      sub:      "Beautiful box + ribbon",
       price:    "+Rs. 99",
-    },
-    {
-      checked:  greetingCard,
-      onChange: setGreetingCard,
-      icon:     <MessageSquare size={14} />,
-      title:    "Personalised greeting card",
-      sub:      "Handwritten note with your message",
-      price:    "+Rs. 49",
     },
   ];
 

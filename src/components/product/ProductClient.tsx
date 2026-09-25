@@ -151,7 +151,6 @@ export default function ProductClient({ product, initialColor }: { product: Prod
   // ── Cart flow ──
   const [quantity,     setQuantity]     = useState(1);
   const [giftWrap,     setGiftWrap]     = useState(false);
-  const [greetingCard, setGreetingCard] = useState(false);
   const [adding,       setAdding]       = useState(false);
   const [added,        setAdded]        = useState(false);
   const [variantError, setVariantError] = useState("");
@@ -385,8 +384,6 @@ export default function ProductClient({ product, initialColor }: { product: Prod
                 setQuantity={setQuantity}
                 giftWrap={giftWrap}
                 setGiftWrap={setGiftWrap}
-                greetingCard={greetingCard}
-                setGreetingCard={setGreetingCard}
                 adding={adding}
                 added={added}
                 isOutOfStock={isOutOfStock}
