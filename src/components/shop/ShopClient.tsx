@@ -450,10 +450,10 @@ export default function ShopClient() {
                   <Gift size={32} className="text-[#c0555a]" />
                 </div>
                 <h3 className="text-[18px] font-bold text-[#1a1a1a] mb-2">
-                  No gifts found
+                  We&apos;re working on more gifts for you
                 </h3>
                 <p className="text-[14px] text-[#6b6b6b] mb-6 max-w-sm">
-                  Try adjusting your filters or search for something else
+                  Nothing matches this exact combo yet — new gifts are added all the time. Try different filters, or clear them to see everything
                 </p>
                 <button
                   onClick={clearFilters}

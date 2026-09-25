@@ -523,8 +523,8 @@ export default function CategoryClient({
         ) : products.length === 0 ? (
           <div className="text-center py-24">
             <Gift size={48} className="mx-auto mb-4 text-[#c0555a]" />
-            <h2 className="text-[20px] font-bold text-[#1a1a1a] mb-2">No products found</h2>
-            <p className="text-[14px] text-[#888] mb-6">Try adjusting your filters or browse all gifts</p>
+            <h2 className="text-[20px] font-bold text-[#1a1a1a] mb-2">We&apos;re working on more gifts for you</h2>
+            <p className="text-[14px] text-[#888] mb-6">Nothing matches this exact combo yet — try adjusting your filters, or browse everything we&apos;ve got</p>
             <Link href="/shop"
               className="inline-flex items-center gap-2 px-6 py-3 bg-[#c0555a] text-white font-semibold rounded-full hover:bg-[#a84449] transition-colors">
               Browse all gifts →

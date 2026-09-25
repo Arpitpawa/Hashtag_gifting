@@ -185,7 +185,7 @@ export default function BestSellers() {
               })
             ) : (
               <div className="w-full text-center py-20 text-gray-400 text-base">
-                No products found in this category.
+                We&apos;re working on adding gifts here — check back soon!
               </div>
             )}
 

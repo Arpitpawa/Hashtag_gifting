@@ -213,8 +213,8 @@ function SearchContent() {
           </div>
         ) : products.length === 0 ? (
           <div className="text-center py-20">
-            <p className="text-[18px] font-bold text-[#1a1a1a] mb-2">No results found</p>
-            <p className="text-[14px] text-[#888] mb-6">Try a different search term or browse our categories</p>
+            <p className="text-[18px] font-bold text-[#1a1a1a] mb-2">We&apos;re working on more gifts for you</p>
+            <p className="text-[14px] text-[#888] mb-6">Nothing matches that search yet — try different words, or browse everything we&apos;ve got</p>
             <Link href="/shop" className="inline-flex items-center gap-2 px-6 py-3 bg-[#c0555a] text-white font-bold rounded-full hover:bg-[#a84449] transition-colors">
               Browse all gifts
             </Link>
