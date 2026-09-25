@@ -471,10 +471,11 @@ export default function ShopClient() {
                   ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
                   : "grid-cols-2 md:grid-cols-3"
               }`}>
-                {expandToColorTiles(products).map((tile) => (
+                {expandToColorTiles(products).map((tile, i) => (
                   <ProductCard
                     key={tile.tileKey}
                     product={tile}
+                    index={i}
                     isWishlisted={isWishlisted(tile.id)}
                     onWishlistToggle={() => toggle(tile.id)}
                   />
@@ -511,10 +512,12 @@ export default function ShopClient() {
 // ── PRODUCT CARD ──
 function ProductCard({
   product,
+  index = 99,
   isWishlisted,
   onWishlistToggle,
 }: {
   product:          Product;
+  index?:           number;
   isWishlisted:     boolean;
   onWishlistToggle: () => void;
 }) {
@@ -540,7 +543,7 @@ function ProductCard({
         {/* IMAGE */}
         <div className="relative overflow-hidden rounded-2xl bg-[#f5f0ea] aspect-square mb-3">
           {(product.images?.[0] || product.images?.[1]) ? (
-            <HoverImage images={product.images} alt={product.name} sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw" />
+            <HoverImage images={product.images} alt={product.name} sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw" priority={index === 0} lazy={index > 3} />
           ) : (
             <div className="w-full h-full bg-[#e8e0d5] flex items-center justify-center">
               <span className="text-[#b0a898] text-[12px]">No image</span>

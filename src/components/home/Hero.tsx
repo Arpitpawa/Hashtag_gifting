@@ -28,12 +28,29 @@ const slides = [
 export default function HeroSlider() {
   const [current, setCurrent] = useState(0);
 
-  // Slides only join the DOM once they've actually been shown. All 3 sit
+  // Slides join the DOM ahead of when they're actually shown, not exactly
+  // when — always the current slide PLUS the one coming up next. All 3 sit
   // "absolute inset-0" (i.e. inside the viewport, just opacity: 0), so
-  // rendering them all up front meant the browser fetched all 3 full-bleed
-  // hero images immediately — tripling the payload on the page's LCP
-  // element for visitors who often never even see slide 2 or 3.
-  const [mounted, setMounted] = useState<Set<number>>(() => new Set([0]));
+  // mounting all 3 up front (an earlier version of this) meant the browser
+  // fetched all 3 full-bleed hero images immediately, tripling the payload
+  // competing with the page's real LCP element. But mounting a slide only
+  // at the exact moment autoplay switches to it (a later version) was
+  // worse: that slide's <img> didn't even start its network request until
+  // the rotation fired, so on anything slower than a fast connection the
+  // hero box would rotate to a blank slide and sit there mid-fetch — and
+  // if THAT half-loaded slide happened to still be painting when Lighthouse
+  // (or a real slow session) measured page load, it became the page's LCP
+  // element with a multi-second "resource load delay", which is exactly
+  // what was making mobile Lighthouse runs show a ~10s LCP on this page.
+  // Mounting current+1 always gives the next slide the full 5s autoplay
+  // interval to fetch in the background (low priority, invisible at
+  // opacity 0) before it's ever asked to actually display.
+  const [mounted, setMounted] = useState<Set<number>>(() => new Set([0, 1 % slides.length]));
+
+  const mountThrough = (index: number) => {
+    const after = (index + 1) % slides.length;
+    setMounted((m) => (m.has(index) && m.has(after) ? m : new Set(m).add(index).add(after)));
+  };
 
   // Kept in a ref (not a plain setInterval in useEffect) so a manual
   // navigation — swipe or dot tap — can restart the 5s countdown instead of
@@ -46,7 +63,7 @@ export default function HeroSlider() {
     intervalRef.current = setInterval(() => {
       setCurrent((prev) => {
         const next = (prev + 1) % slides.length;
-        setMounted((m) => (m.has(next) ? m : new Set(m).add(next)));
+        mountThrough(next);
         return next;
       });
     }, 5000);
@@ -60,7 +77,7 @@ export default function HeroSlider() {
   const goTo = (index: number) => {
     const wrapped = (index + slides.length) % slides.length;
     setCurrent(wrapped);
-    setMounted((m) => (m.has(wrapped) ? m : new Set(m).add(wrapped)));
+    mountThrough(wrapped);
     startAutoplay();
   };
 
@@ -124,7 +141,14 @@ export default function HeroSlider() {
               alt="Hashtag Gifting"
               fill
               priority={index === 0}
-              fetchPriority={index === 0 ? "high" : "auto"}
+              fetchPriority={index === 0 ? "high" : "low"}
+              // Every mounted slide is either on screen now (index 0 on
+              // first paint) or about to be within one autoplay interval —
+              // never "maybe visible eventually", which is what
+              // loading="lazy" is for. Fetching it immediately (just at
+              // low priority once it's not index 0) is what actually gets
+              // it ready in time; lazy here was the bug.
+              loading={index === 0 ? undefined : "eager"}
               sizes="100vw"
               className="object-contain xl:object-cover"
             />

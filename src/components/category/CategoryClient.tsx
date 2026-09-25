@@ -62,8 +62,8 @@ const LIMIT = 20;
 
 // ── product card ──────────────────────────────────────────────────────────────
 function ProductCard({
-  product, listView,
-}: { product: Product; listView: boolean }) {
+  product, listView, index = 99,
+}: { product: Product; listView: boolean; index?: number }) {
   const { toggle, isWishlisted } = useWishlistStore();
   const wishlisted = isWishlisted(product.id);
   const discount   = product.comparePrice
@@ -117,7 +117,7 @@ function ProductCard({
       <Link href={href} className="block">
         {/* Image */}
         <div className="relative aspect-square rounded-2xl overflow-hidden bg-[#f8f5f0] mb-3">
-          <HoverImage images={product.images} alt={product.name} sizes="(max-width:768px) 50vw, (max-width:1024px) 33vw, 25vw" />
+          <HoverImage images={product.images} alt={product.name} sizes="(max-width:768px) 50vw, (max-width:1024px) 33vw, 25vw" priority={index === 0} lazy={index > 3} />
 
           {/* Badges */}
           {product.badge && (
@@ -535,8 +535,8 @@ export default function CategoryClient({
             ? "flex flex-col gap-3"
             : "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"
           }>
-            {expandToColorTiles(products).map((tile) => (
-              <ProductCard key={tile.tileKey} product={tile} listView={listView} />
+            {expandToColorTiles(products).map((tile, i) => (
+              <ProductCard key={tile.tileKey} product={tile} listView={listView} index={i} />
             ))}
           </div>
         )}

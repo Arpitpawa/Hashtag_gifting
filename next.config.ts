@@ -22,7 +22,19 @@ const nextConfig: NextConfig = {
     // Limit image sizes that can be generated
     deviceSizes:    [640, 750, 828, 1080, 1200, 1920],
     imageSizes:     [16, 32, 48, 64, 96, 128, 256, 384],
-    minimumCacheTTL: 60,
+    // Was 60 (seconds) — every optimized image variant got evicted from
+    // Vercel's image cache a minute after being generated, so almost every
+    // real visitor was paying the ~100-300ms re-optimization cost on every
+    // single product/hero image, on every page, all day, instead of ever
+    // getting a cached hit. Source images live on Cloudinary behind their
+    // own unique URLs (a changed photo gets a new URL, not the same one
+    // mutated in place), so nothing here goes stale from caching this long
+    // — bumped to a year to match the static-asset Cache-Control below.
+    minimumCacheTTL: 31536000,
+    // AVIF first (smaller than WebP at the same quality when the visitor's
+    // browser supports it — most do now), WebP as the fallback Next was
+    // already serving.
+    formats: ["image/avif", "image/webp"],
   },
 
   // ── API body size limit ─────────────────────────────────────────────────────

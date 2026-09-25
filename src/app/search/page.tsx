@@ -32,7 +32,7 @@ const SORT_OPTIONS = [
   { label: "Most popular",       value: "popular"    },
 ];
 
-function ProductCard({ product }: { product: Product }) {
+function ProductCard({ product, index = 99 }: { product: Product; index?: number }) {
   const { toggle, isWishlisted } = useWishlistStore();
   const wishlisted = isWishlisted(product.id);
   const discount   = product.comparePrice
@@ -45,7 +45,7 @@ function ProductCard({ product }: { product: Product }) {
     <div className="group relative bg-white border border-[#e8e0d5] rounded-2xl overflow-hidden hover:shadow-md transition-all duration-300">
       <Link href={href}>
         <div className="relative aspect-square bg-[#f8f5f0] overflow-hidden">
-          <HoverImage images={product.images} alt={product.name} sizes="(max-width:768px) 50vw, 25vw" />
+          <HoverImage images={product.images} alt={product.name} sizes="(max-width:768px) 50vw, 25vw" priority={index === 0} lazy={index > 3} />
           {product.badge && (
             <span className="absolute top-2 left-2 bg-[#c0555a] text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
               {product.badge}
@@ -222,7 +222,7 @@ function SearchContent() {
         ) : (
           <>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-              {expandToColorTiles(products).map(t => <ProductCard key={t.tileKey} product={t} />)}
+              {expandToColorTiles(products).map((t, i) => <ProductCard key={t.tileKey} product={t} index={i} />)}
             </div>
 
             {/* Pagination */}

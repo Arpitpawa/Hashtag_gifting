@@ -196,8 +196,8 @@ export default function AllCategoriesClient({ categories }: { categories: Catego
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-            {expandToColorTiles(products).map((tile) => (
-              <ProductCard key={tile.tileKey} product={tile} />
+            {expandToColorTiles(products).map((tile, i) => (
+              <ProductCard key={tile.tileKey} product={tile} index={i} />
             ))}
           </div>
         )}
@@ -207,7 +207,7 @@ export default function AllCategoriesClient({ categories }: { categories: Catego
 }
 
 // ── product card ──────────────────────────────────────────────────────────────
-function ProductCard({ product }: { product: Product }) {
+function ProductCard({ product, index = 99 }: { product: Product; index?: number }) {
   const discount = product.comparePrice
     ? Math.round(((product.comparePrice - product.price) / product.comparePrice) * 100)
     : 0;
@@ -219,7 +219,7 @@ function ProductCard({ product }: { product: Product }) {
     <div className="group relative">
       <Link href={href} className="block">
         <div className="relative aspect-square rounded-2xl overflow-hidden bg-[#f8f5f0] mb-3">
-          <HoverImage images={product.images} alt={product.name} sizes="(max-width:768px) 50vw, (max-width:1024px) 33vw, 25vw" />
+          <HoverImage images={product.images} alt={product.name} sizes="(max-width:768px) 50vw, (max-width:1024px) 33vw, 25vw" priority={index === 0} lazy={index > 3} />
           {product.badge && (
             <span className="absolute top-2 left-2 bg-[#c0555a] text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm z-10">
               {product.badge}
