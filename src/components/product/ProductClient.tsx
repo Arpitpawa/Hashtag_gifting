@@ -422,7 +422,7 @@ export default function ProductClient({ product, initialColor }: { product: Prod
           onClose={() => setLivePreview(false)}
           productName={displayName}
           productPrice={displayPrice}
-          productImages={product.images || []}
+          productImages={images}
           customFields={product.customizationFields || []}
           previewZones={product.previewZones || null}
           previewTemplate={product.previewTemplate || null}
