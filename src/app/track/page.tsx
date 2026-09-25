@@ -65,7 +65,7 @@ function formatDateTime(dateStr: string) {
 }
 
 function formatPrice(paise: number) {
-  return `Rs. ${(paise / 100).toLocaleString("en-IN")}`;
+  return `Rs. ${Math.round(paise / 100).toLocaleString("en-IN")}`;
 }
 
 // Estimated delivery = order date + 3-5 days

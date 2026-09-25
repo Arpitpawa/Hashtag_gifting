@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Search, Mail, Phone, ShoppingBag, Loader2 } from "lucide-react";
 
-function formatPrice(p: number) { return `Rs. ${(p/100).toLocaleString("en-IN")}`; }
+function formatPrice(p: number) { return `Rs. ${Math.round(p/100).toLocaleString("en-IN")}`; }
 
 export default function AdminCustomers() {
   const [customers, setCustomers] = useState<any[]>([]);

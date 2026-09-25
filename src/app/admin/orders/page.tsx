@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { Suspense } from "react";
 
-function formatPrice(p: number) { return `Rs. ${(p/100).toLocaleString("en-IN")}`; }
+function formatPrice(p: number) { return `Rs. ${Math.round(p/100).toLocaleString("en-IN")}`; }
 
 const STATUS_COLOR: Record<string,string> = {
   PAID:       "bg-green-100 text-green-700",

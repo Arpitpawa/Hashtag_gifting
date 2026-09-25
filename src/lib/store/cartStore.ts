@@ -229,5 +229,5 @@ export const useCartStore = create<CartState>()(
 
 // ── HELPER: format price paise → rupees ──
 export const formatPrice = (paise: number): string => {
-  return `Rs. ${(paise / 100).toLocaleString("en-IN")}`;
+  return `Rs. ${Math.round(paise / 100).toLocaleString("en-IN")}`;
 };

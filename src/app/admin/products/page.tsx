@@ -10,7 +10,7 @@ import {
   Trash, RotateCcw, XCircle, Layers, GitBranch, CornerDownRight,
 } from "lucide-react";
 
-function formatPrice(p: number) { return `Rs. ${(p/100).toLocaleString("en-IN")}`; }
+function formatPrice(p: number) { return `Rs. ${Math.round(p/100).toLocaleString("en-IN")}`; }
 
 const SORT_OPTIONS = [
   { label: "Newest first",     value: "newest" },

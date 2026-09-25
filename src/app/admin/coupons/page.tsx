@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 
 function formatPrice(p: number) {
-  return `Rs. ${(p / 100).toLocaleString("en-IN")}`;
+  return `Rs. ${Math.round(p / 100).toLocaleString("en-IN")}`;
 }
 
 const EMPTY_FORM = {

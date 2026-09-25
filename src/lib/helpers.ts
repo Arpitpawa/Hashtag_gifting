@@ -6,7 +6,7 @@ export const paiseToRupees = (paise: number): number =>
   Math.round(paise) / 100;
 
 export const formatPrice = (paise: number): string =>
-  `Rs. ${(paise / 100).toLocaleString("en-IN")}`;
+  `Rs. ${Math.round(paise / 100).toLocaleString("en-IN")}`;
 
 // ── VALIDATION HELPERS ──
 export const isValidEmail = (email: string): boolean =>
