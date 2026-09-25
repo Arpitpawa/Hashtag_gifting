@@ -43,7 +43,8 @@ export async function GET(req: NextRequest) {
     // ── Build WHERE ──
     const where: any = { status: "ACTIVE" };
 
-    if (badge)        where.badge        = badge;
+    const saleFilter = badge === "Sale";
+    if (badge && !saleFilter) where.badge = badge;
     if (customizable) where.customizable = true;
     if (fastDelivery) where.fastDelivery = true;
 
@@ -91,40 +92,61 @@ export async function GET(req: NextRequest) {
       sort === "popular"    ? [{ createdAt: "desc" }, { stock: "desc" }] :
       [{ createdAt: "desc" }, { stock: "desc" }];
 
-    const [products, total] = await Promise.all([
-      prisma.product.findMany({
-        where,
+    // "Sale" isn't a manually-tagged badge like the others — it means
+    // "currently discounted" (comparePrice > price). Prisma can't compare
+    // two columns of the same row in a `where` filter, so for this one case
+    // we fetch the (small) matching catalog, filter/sort/paginate in JS.
+    const productSelect = {
+      id:           true,
+      name:         true,
+      slug:         true,
+      price:        true,
+      comparePrice: true,
+      images:       true,
+      badge:        true,
+      stock:        true,
+      customizable: true,
+      category: {
+        select: { id: true, name: true, slug: true },
+      },
+      productCategories: {
+        select: { category: { select: { id: true, name: true, slug: true } } },
+      },
+      // Lean — just enough to render color swatch dots on the card.
+      // Only the "Color" group is useful here; Size/Material etc. would
+      // need their own text, which doesn't fit a small dot row.
+      variants: {
+        where:   { groupName: { equals: "Color", mode: "insensitive" } },
+        orderBy: { sortOrder: "asc" },
+        select:  { id: true, optionName: true, images: true, stock: true, price: true, comparePrice: true },
+      },
+    } as const;
+
+    let products: any[];
+    let total: number;
+
+    if (saleFilter) {
+      const onSaleWhere = { ...where, comparePrice: { not: null } };
+      const candidates = await prisma.product.findMany({
+        where:   onSaleWhere,
         orderBy,
-        skip,
-        take: limit2,
-        select: {
-          id:           true,
-          name:         true,
-          slug:         true,
-          price:        true,
-          comparePrice: true,
-          images:       true,
-          badge:        true,
-          stock:        true,
-          customizable: true,
-          category: {
-            select: { id: true, name: true, slug: true },
-          },
-          productCategories: {
-            select: { category: { select: { id: true, name: true, slug: true } } },
-          },
-          // Lean — just enough to render color swatch dots on the card.
-          // Only the "Color" group is useful here; Size/Material etc. would
-          // need their own text, which doesn't fit a small dot row.
-          variants: {
-            where:   { groupName: { equals: "Color", mode: "insensitive" } },
-            orderBy: { sortOrder: "asc" },
-            select:  { id: true, optionName: true, images: true, stock: true, price: true, comparePrice: true },
-          },
-        },
-      }),
-      prisma.product.count({ where }),
-    ]);
+        select:  productSelect,
+      });
+      const onSale = candidates.filter((p: any) => p.comparePrice && p.comparePrice > p.price);
+      total    = onSale.length;
+      products = onSale.slice(skip, skip + limit2);
+    } else {
+      [products, total] = await Promise.all([
+        prisma.product.findMany({
+          where,
+          orderBy,
+          skip,
+          take: limit2,
+          select: productSelect,
+        }),
+        prisma.product.count({ where }),
+      ]);
+    }
 
     const optimizedProducts = products.map((p: any) => ({
       ...p,
