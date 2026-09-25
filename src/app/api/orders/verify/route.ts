@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import crypto from "crypto";
 import { sendEmail } from "@/lib/email";
 import { orderConfirmedTemplate } from "@/lib/emailTemplates";
+import { notifyAdminNewOrder } from "@/lib/adminNotify";
 
 export async function POST(req: Request) {
   try {
@@ -137,6 +138,16 @@ export async function POST(req: Request) {
         console.warn("Payment confirmation email failed (non-critical):", emailErr);
       }
     }
+
+    // ── NOTIFY ADMIN (non-critical) ──
+    await notifyAdminNewOrder({
+      orderId:       order.id,
+      customerName:  addressSnap?.name || order.user?.name || "Customer",
+      items:         order.items.map((i: any) => ({ name: i.product.name, quantity: i.quantity })),
+      totalAmount:   order.totalAmount,
+      paymentMethod: order.paymentMethod,
+      giftNote:      order.giftNote,
+    });
 
     return NextResponse.json({
       success: true,

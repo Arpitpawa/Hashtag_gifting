@@ -13,7 +13,7 @@ function getResend(): Resend {
 }
 
 interface SendEmailParams {
-  to:      string;
+  to:      string | string[]; // array = same email to multiple recipients (e.g. every admin)
   subject: string;
   html:    string;
 }

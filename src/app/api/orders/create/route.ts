@@ -6,6 +6,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import Razorpay from "razorpay";
 import { sendEmail } from "@/lib/email";
 import { orderConfirmedTemplate } from "@/lib/emailTemplates";
+import { notifyAdminNewOrder } from "@/lib/adminNotify";
 import { rateLimit } from "@/lib/rateLimit";
 import { sanitizeObject, sanitizeCustomizationObject } from "@/lib/sanitize";
 import { isValidPhone, isValidPincode } from "@/lib/helpers";
@@ -781,6 +782,16 @@ export async function POST(req: NextRequest) {
         console.warn("Order confirmation email failed (non-critical):", emailErr);
       }
     }
+
+    // ── NOTIFY ADMIN (non-critical) ──
+    await notifyAdminNewOrder({
+      orderId:       order.id,
+      customerName:  addressSnapshot.name,
+      items:         order.items.map((i: any) => ({ name: i.product.name, quantity: i.quantity })),
+      totalAmount:   finalTotal,
+      paymentMethod: order.paymentMethod,
+      giftNote:      order.giftNote,
+    });
 
     return NextResponse.json({
       success: true,

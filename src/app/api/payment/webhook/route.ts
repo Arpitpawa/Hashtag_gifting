@@ -4,6 +4,7 @@ import prisma             from "@/lib/prisma";
 import crypto             from "crypto";
 import { sendEmail }      from "@/lib/email";
 import { orderConfirmedTemplate } from "@/lib/emailTemplates";
+import { notifyAdminNewOrder } from "@/lib/adminNotify";
 
 // ── Razorpay sends raw body — we MUST read it as text first ──────────────────
 export async function POST(req: NextRequest) {
@@ -123,6 +124,16 @@ export async function POST(req: NextRequest) {
             ),
           });
         }
+
+        // Notify admin (non-critical — notifyAdminNewOrder swallows its own errors)
+        await notifyAdminNewOrder({
+          orderId:       order.id,
+          customerName:  addressSnap?.name || order.user?.name || "Customer",
+          items:         order.items.map((i: any) => ({ name: i.product.name, quantity: i.quantity })),
+          totalAmount:   order.totalAmount,
+          paymentMethod: order.paymentMethod,
+          giftNote:      order.giftNote,
+        });
         break;
       }
 

@@ -144,6 +144,68 @@ export function orderConfirmedTemplate(
   `;
 }
 
+// ── ADMIN ALERT — sent to every ADMIN-role account the moment a real order
+// lands (COD placed, or online payment confirmed), so the business owner
+// finds out even if nobody's looking at the admin panel right now. This is
+// deliberately short and skimmable from a phone lock-screen preview, unlike
+// the customer-facing confirmation email above.
+export function adminNewOrderTemplate(
+  orderId: number,
+  customerName: string,
+  items: Array<{ name: string; quantity: number }>,
+  total: number,
+  paymentMethod: string | null,
+  giftNote?: string | null,
+): string {
+  const baseUrl = process.env.NEXTAUTH_URL || "";
+  const paymentLabel = paymentMethod === "cod" ? "Cash on Delivery" : "Paid Online";
+
+  const itemsLine = items
+    .map((i) => `${esc(i.name)}${i.quantity > 1 ? ` ×${i.quantity}` : ""}`)
+    .join(", ");
+
+  return `
+    <!DOCTYPE html>
+    <html>
+    <body style="margin:0; padding:0; background:#f3efe8; font-family: Arial, sans-serif;">
+      <div style="max-width: 480px; margin: 32px auto; background: white; border-radius: 16px; overflow: hidden;">
+
+        <div style="background: #1a1a1a; padding: 20px 24px; text-align: center;">
+          <p style="margin: 0; color: white; font-size: 15px; font-weight: bold;">
+            🔔 New order on Hashtag Gifting
+          </p>
+        </div>
+
+        <div style="padding: 24px;">
+          <p style="margin: 0 0 4px; color: #1a1a1a; font-size: 20px; font-weight: bold;">
+            Order #${orderId} — Rs. ${(total / 100).toLocaleString("en-IN")}
+          </p>
+          <p style="margin: 0 0 16px; color: #888; font-size: 13px;">
+            ${esc(customerName)} · ${paymentLabel}
+          </p>
+
+          <div style="background: #f3efe8; border-radius: 12px; padding: 14px 16px; margin-bottom: ${giftNote ? "12px" : "20px"};">
+            <p style="margin: 0; color: #555; font-size: 13px; line-height: 1.5;">${itemsLine}</p>
+          </div>
+
+          ${giftNote ? `
+          <div style="background: #fdf6f0; border: 1px dashed #e0b8ac; border-radius: 12px; padding: 14px 16px; margin-bottom: 20px;">
+            <p style="margin: 0 0 4px; color: #c0555a; font-weight: bold; font-size: 11px; text-transform: uppercase;">🎁 Gift note</p>
+            <p style="margin: 0; color: #1a1a1a; font-size: 13px; font-style: italic;">"${esc(giftNote)}"</p>
+          </div>
+          ` : ""}
+
+          <a href="${baseUrl}/admin/orders"
+             style="display: block; text-align: center; background: #c0555a; color: white; padding: 13px; border-radius: 50px; text-decoration: none; font-weight: bold; font-size: 14px;">
+            View in admin panel
+          </a>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+}
+
 export function orderShippedTemplate(
   name: string,
   orderId: number,
