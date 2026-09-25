@@ -266,7 +266,22 @@ export default function CartDrawer({ open, onClose }: Props) {
                       {item.customization && (
                         <p className="text-[11px] text-[#888] mt-0.5 truncate">
                           {Object.entries(item.customization)
-                            .filter(([k, v]) => v && !["photoUrl","giftWrap","greetingCard"].includes(k))
+                            .filter(([k, v]) => {
+                              // Kept in sync with the equivalent exclusion lists
+                              // in the cart page, checkout, and order pages —
+                              // this was previously missing photo_upload/
+                              // preview_png (huge base64 image data would print
+                              // straight into this text) and variantSelections
+                              // (an array of objects, not text at all).
+                              const excluded = [
+                                "photoUrl", "giftWrap", "greetingCard", "photo_upload", "preview_png",
+                                "variantSelections", "isHamper", "hamperRef", "role",
+                              ];
+                              if (!v || excluded.includes(k)) return false;
+                              if (typeof v === "string" && v.startsWith("data:")) return false;
+                              if (typeof v === "object") return false;
+                              return true;
+                            })
                             .map(([, v]) => v).join(" · ")}
                         </p>
                       )}

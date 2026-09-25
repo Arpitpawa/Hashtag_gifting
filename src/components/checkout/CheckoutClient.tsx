@@ -211,10 +211,16 @@ function OrderSummary({
                   <p className="text-[11px] text-[#aaa] mt-0.5 truncate">
                     {Object.entries(item.customization)
                       .filter(([k,v]) => {
-                        const excluded = ["photoUrl","giftWrap","greetingCard","photo_upload","preview_png"];
+                        // Kept in sync with the equivalent exclusion lists in
+                        // the cart page and admin/customer order detail pages.
+                        const excluded = [
+                          "photoUrl", "giftWrap", "greetingCard", "photo_upload", "preview_png",
+                          "variantSelections", "isHamper", "hamperRef", "role",
+                        ];
                         if (excluded.includes(k)) return false;
                         if (!v) return false;
                         if (typeof v === "string" && v.startsWith("data:")) return false;
+                        if (typeof v === "object") return false;
                         return true;
                       })
                       .map(([,v]) => v).join(" · ")}

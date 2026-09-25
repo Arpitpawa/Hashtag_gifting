@@ -279,15 +279,29 @@ export default function CartPageClient() {
                           <div className="mt-1.5 flex flex-wrap gap-1.5">
                             {Object.entries(item.customization)
                               .filter(([k, v]) => {
-                                const excluded = ["photoUrl","giftWrap","greetingCard","photo_upload","preview_png"];
+                                // Keys that get their own dedicated UI (the "Custom
+                                // photo" badge below) or aren't meant to be shown
+                                // as a plain text tag at all — kept in sync with
+                                // the equivalent lists in the admin/customer order
+                                // detail pages (SPECIAL_KEYS there).
+                                const excluded = [
+                                  "photoUrl", "giftWrap", "greetingCard", "photo_upload", "preview_png",
+                                  "variantSelections", "isHamper", "hamperRef", "role",
+                                ];
                                 if (excluded.includes(k)) return false;
                                 if (!v) return false;
                                 if (typeof v === "string" && v.startsWith("data:")) return false;
+                                // Anything non-primitive (e.g. variantSelections'
+                                // array of {groupName, optionName, ...} objects)
+                                // can't be rendered as plain text — this crashed
+                                // the whole cart page (React error #31) whenever
+                                // a variant-selected product was in the cart.
+                                if (typeof v === "object") return false;
                                 return true;
                               })
                               .map(([k, v]) => (
                                 <span key={k} className="text-[11px] bg-[#f3efe8] text-[#555] border border-[#e8e0d5] px-2 py-0.5 rounded-full capitalize">
-                                  {v as string}
+                                  {String(v)}
                                 </span>
                               ))}
                             {(item.customization.photoUrl || item.customization.photo_upload) && (
