@@ -314,9 +314,24 @@ export default function Navbar({ initialCategories = [] }: { initialCategories?:
     <>
       <header className="bg-white relative z-50">
 
-        {/* ── MAIN NAVBAR ROW ── */}
+        {/* ── MAIN NAVBAR ROW ──
+            Grid, not flex+absolute-center. The logo used to be
+            `absolute left-1/2 -translate-x-1/2` on this whole row, which
+            centers it on the ROW's true midpoint — not on the actual free
+            space between the left and right content. On mobile the left
+            side is just the hamburger (~40px) while the right side is
+            search + account + cart (~120px+), so the row's true center
+            sits well to the right of where the left/right content leaves
+            room, and the logo's right edge ran into the search icon. A
+            3-column grid gives the logo its own track sized to whatever
+            space is actually left over after the two side groups — it
+            centers inside that track, so it can't collide with either
+            side at any screen width or icon count, without hand-tuning
+            max-widths per breakpoint (which is what every earlier comment
+            in this file was already trying, and re-broke at the next
+            screen size). */}
         <div className="border-b border-[#ececec]">
-          <div className="container-custom h-[75px] flex items-center justify-between">
+          <div className="container-custom h-[75px] grid grid-cols-[auto_1fr_auto] items-center gap-2">
 
             {/* ── LEFT ── */}
             <div className="flex items-center gap-3">
@@ -402,13 +417,19 @@ export default function Navbar({ initialCategories = [] }: { initialCategories?:
             </div>
 
             {/* ── CENTER — LOGO ──
-                Absolutely centered regardless of what's in the left/right
-                flex groups, so on narrow phones it can collide with them.
-                Fix: shrink the wordmark on the smallest screens and drop the
-                divider + tagline below `sm` (640px) — they're decorative,
-                not essential, and were the widest part of this block. */}
-            <Link href="/" className="flex flex-col sm:flex-row items-center gap-[5px] sm:gap-2.5 leading-none select-none absolute left-1/2 -translate-x-1/2 max-w-[62vw] sm:max-w-none">
-              <div className="flex items-center gap-1.5 sm:gap-2.5">
+                Lives in its own grid column now (see the row's comment
+                above) instead of being absolutely centered on the whole
+                row, so it gets exactly the leftover space between the
+                left and right groups — never less, never overlapping
+                them. `min-w-0` lets this column actually shrink below the
+                logo's natural content width on the narrowest phones
+                (a grid cell's default min-width is its content's, which
+                would otherwise force the column wider than the space
+                available and push it back into collision); the existing
+                `truncate` on the wordmark spans then does its job if a
+                screen is ever tight enough to need it. */}
+            <Link href="/" className="min-w-0 flex flex-col sm:flex-row items-center justify-center gap-[5px] sm:gap-2.5 leading-none select-none mx-auto">
+              <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0">
                 <Image src="/logo-icon.png" alt="Hashtag Gifting" width={44} height={44}
                   className="w-8 h-8 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-full flex-shrink-0" priority />
                 <div className="flex items-baseline gap-[1px] min-w-0">
