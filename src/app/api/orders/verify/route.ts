@@ -129,7 +129,8 @@ export async function POST(req: Request) {
             order.totalAmount,
             displayAddr,
             order.paymentMethod,
-            order.createdAt
+            order.createdAt,
+            order.giftNote
           ),
         });
       } catch (emailErr) {

@@ -357,6 +357,18 @@ export default function OrderDetailPage() {
           </div>
         )}
 
+        {/* ── Gift note ── */}
+        {order.giftNote && (
+          <div className="bg-[#fdf6f0] rounded-2xl border border-dashed border-[#e0b8ac] p-5 mb-4 shadow-sm">
+            <p className="text-[12px] font-bold text-[#c0555a] uppercase tracking-widest mb-2 flex items-center gap-2">
+              <Gift size={12} /> Your gift note
+            </p>
+            <p className="text-[14px] text-[#1a1a1a] italic leading-relaxed">
+              &ldquo;{order.giftNote}&rdquo;
+            </p>
+          </div>
+        )}
+
         {/* ── Payment info ── */}
         <div className="bg-white rounded-2xl border border-[#e8e0d5] p-5 mb-4 shadow-sm">
           <p className="text-[12px] font-bold text-[#888] uppercase tracking-widest mb-3 flex items-center gap-2">

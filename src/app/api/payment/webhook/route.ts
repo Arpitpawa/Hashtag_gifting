@@ -118,7 +118,8 @@ export async function POST(req: NextRequest) {
                 ? `${addressSnap.street}, ${addressSnap.city}`
                 : "Jaipur",
               order.paymentMethod,
-              order.createdAt
+              order.createdAt,
+              order.giftNote
             ),
           });
         }

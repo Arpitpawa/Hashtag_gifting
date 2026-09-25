@@ -6,7 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import {
   ArrowLeft, Loader2, Phone, MapPin, Package,
-  User, CreditCard, Truck, Sparkles, Palette, Download,
+  User, CreditCard, Truck, Sparkles, Palette, Download, Gift,
 } from "lucide-react";
 
 function formatPrice(p: number) { return `Rs. ${Math.round(p / 100).toLocaleString("en-IN")}`; }
@@ -267,6 +267,17 @@ export default function AdminOrderDetailPage() {
                 className="mt-4 w-full flex items-center justify-center gap-2 py-2.5 bg-[#25D366] text-white text-[13px] font-semibold rounded-full hover:bg-[#1da851] transition-colors">
                 <Phone size={14} /> Notify on WhatsApp
               </a>
+            </div>
+          )}
+
+          {order.giftNote && (
+            <div className="bg-[#fdf6f0] rounded-2xl border border-dashed border-[#e0b8ac] p-5">
+              <p className="text-[11px] font-bold text-[#c0555a] uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <Gift size={12} /> Gift note
+              </p>
+              <p className="text-[13px] text-[#1a1a1a] italic leading-relaxed">
+                &ldquo;{order.giftNote}&rdquo;
+              </p>
             </div>
           )}
 

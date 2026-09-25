@@ -10,7 +10,7 @@ import {
   ShieldCheck, ChevronRight, Loader2,
   CheckCircle, Tag, X, Package,
   Phone, User, Home, Building,
-  ArrowLeft, BadgeCheck, Edit2,
+  ArrowLeft, BadgeCheck, Edit2, Gift,
 } from "lucide-react";
 import { useCartStore, formatPrice } from "@/lib/store/cartStore";
 import { isValidPincode } from "@/lib/helpers";
@@ -331,6 +331,8 @@ export default function CheckoutClient() {
   const [payMethod, setPayMethod] = useState<"online"|"cod">("online");
   const [placing,   setPlacing]   = useState(false);
   const [error,     setError]     = useState("");
+  const [giftNote,  setGiftNote]  = useState("");
+  const GIFT_NOTE_MAX = 300;
 
   const discount   = coupon?.discount ?? 0;
   const freeShip   = Math.max(0, subtotal - discount) >= 99900;
@@ -463,6 +465,7 @@ export default function CheckoutClient() {
           couponCode:      coupon?.code  || null,
           couponId:        coupon?.id    || null,
           couponDiscount:  coupon?.discount || null,
+          giftNote:        giftNote.trim() || null,
           cartId,
         }),
       });
@@ -589,8 +592,26 @@ export default function CheckoutClient() {
                   </div>
                 )}
 
+                {/* Gift note — always visible, order-level (not tied to the
+                    address), so it survives whether the customer picks a
+                    saved address or fills the form. */}
+                <div className="mt-6 pt-5 border-t border-[#f0ece6]">
+                  <label className="text-[14px] font-bold text-[#1a1a1a] mb-2 flex items-center gap-2">
+                    <Gift size={16} className="text-[#c0555a]" /> Add a gift note <span className="text-[12px] font-normal text-[#aaa]">(optional)</span>
+                  </label>
+                  <textarea
+                    value={giftNote}
+                    onChange={e => setGiftNote(e.target.value.slice(0, GIFT_NOTE_MAX))}
+                    placeholder="Write a little something for the person receiving this gift..."
+                    rows={3}
+                    maxLength={GIFT_NOTE_MAX}
+                    className="w-full border border-[#e8e0d5] rounded-xl px-4 py-3 text-[13px] text-[#1a1a1a] outline-none focus:border-[#c0555a] resize-none placeholder:text-[#bbb]"
+                  />
+                  <p className="text-[11px] text-[#aaa] text-right mt-1">{giftNote.length}/{GIFT_NOTE_MAX}</p>
+                </div>
+
                 <button onClick={handleStep1}
-                  className="w-full mt-6 flex items-center justify-center gap-2 py-4 bg-[#c0555a] text-white text-[15px] font-bold rounded-full hover:bg-[#a84449] transition-all">
+                  className="w-full mt-2 flex items-center justify-center gap-2 py-4 bg-[#c0555a] text-white text-[15px] font-bold rounded-full hover:bg-[#a84449] transition-all">
                   Continue to payment <ChevronRight size={18} />
                 </button>
               </div>

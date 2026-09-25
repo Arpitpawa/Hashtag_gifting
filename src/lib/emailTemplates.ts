@@ -11,6 +11,7 @@ export function orderConfirmedTemplate(
   address: string,
   paymentMethod: string | null,
   orderDate: Date,
+  giftNote?: string | null,
 ): string {
   const baseUrl = process.env.NEXTAUTH_URL || "";
 
@@ -84,6 +85,18 @@ export function orderConfirmedTemplate(
               </tr>
             </table>
           </div>
+
+          ${giftNote ? `
+          <!-- GIFT NOTE -->
+          <div style="background: #fdf6f0; border: 1px dashed #e0b8ac; border-radius: 12px; padding: 16px; margin: 0 0 24px;">
+            <p style="margin: 0 0 6px; color: #c0555a; font-weight: bold; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">
+              🎁 Your gift note
+            </p>
+            <p style="margin: 0; color: #1a1a1a; font-size: 14px; font-style: italic; line-height: 1.5;">
+              "${esc(giftNote)}"
+            </p>
+          </div>
+          ` : ""}
 
           <!-- ITEMS TABLE -->
           <table style="width: 100%; border-collapse: collapse;">

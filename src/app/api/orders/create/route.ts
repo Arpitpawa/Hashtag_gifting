@@ -67,8 +67,18 @@ export async function POST(req: NextRequest) {
       couponId,
       // couponDiscount is intentionally NOT read from the client — it's
       // recomputed server-side from the coupon's real type/value below.
+      giftNote,
       cartId,
     } = body;
+
+    // ── VALIDATE / NORMALIZE GIFT NOTE ──
+    // Free-text, order-level, entirely optional. sanitizeObject() above
+    // already stripped HTML/script and hard-truncated it at 10,000 chars —
+    // just trim and re-cap to the UI's own 300-char limit so a direct API
+    // call can't stuff something huge into the confirmation email / admin view.
+    const safeGiftNote = typeof giftNote === "string" && giftNote.trim()
+      ? giftNote.trim().slice(0, 300)
+      : null;
 
     // sanitizeObject() strips any "data:" substring and truncates strings at
     // 10,000 chars — both fatal to base64 photo uploads / the generated
@@ -487,6 +497,7 @@ export async function POST(req: NextRequest) {
               couponCode:     couponCode ? String(couponCode) : null,
               couponId:       couponId   ? Number(couponId)   : null,
               couponDiscount: verifiedDiscount || null,
+              giftNote:       safeGiftNote,
 
               items: {
                 create: items.map((item: any) => {
@@ -761,7 +772,8 @@ export async function POST(req: NextRequest) {
             finalTotal,
             `${addressSnapshot.street}, ${addressSnapshot.city}, ${addressSnapshot.state} - ${addressSnapshot.pincode}`,
             order.paymentMethod,
-            order.createdAt
+            order.createdAt,
+            order.giftNote
           ),
         });
       } catch (emailErr) {
