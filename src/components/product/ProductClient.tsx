@@ -25,6 +25,7 @@ import ProductPurchasedPopup  from "./ProductPurchasedPopup";
 import SimilarProducts        from "./SimilarProducts";
 import RecentlyViewed         from "./RecentlyViewed";
 import ProductVariantSelector from "./ProductVariantSelector";
+import GiftNoteField           from "@/components/shared/GiftNoteField";
 
 // ── Group flat variant array into { Color: [...], Size: [...] } ──
 function groupVariants(variants: ProductVariant[]): VariantGroups {
@@ -341,6 +342,11 @@ export default function ProductClient({ product, initialColor }: { product: Prod
 
             {/* 4. Freebie bar */}
             <ProductFreebieBar currentProductPrice={displayPrice} />
+
+            {/* 4b. Gift note — one note for the whole order (not just this
+                product), shared with the cart/checkout pages via the cart
+                store, so it's ready to go by the time they check out. */}
+            <GiftNoteField />
 
             {/* 5a. Charm selector */}
             {product.hasCharm && (

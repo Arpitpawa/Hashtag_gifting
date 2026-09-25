@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useCartStore, formatPrice } from "@/lib/store/cartStore";
 import AvailableCoupons from "@/components/shared/AvailableCoupons";
+import GiftNoteField from "@/components/shared/GiftNoteField";
 
 // ── Freebie bar ───────────────────────────────────────────────────────────────
 const TIERS = [
@@ -349,6 +350,10 @@ export default function CartPageClient() {
                 })
               )}
             </div>
+
+            {/* Gift note — one note for the whole order, shared with the
+                product page and checkout via the cart store. */}
+            {items.length > 0 && <GiftNoteField />}
 
             {/* Coupon */}
             <div className="bg-white rounded-2xl border border-[#e8e0d5] p-5">

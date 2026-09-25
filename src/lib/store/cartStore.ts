@@ -45,6 +45,12 @@ interface AppliedCoupon {
   id:       number;
 }
 
+// Order-level (not per-item) note the customer can leave for the gift's
+// recipient — one shared value the whole session, so it's set once (on the
+// product page, the cart page, or checkout — wherever's convenient) and
+// carries through to wherever else it's shown, right up to order placement.
+export const GIFT_NOTE_MAX_LEN = 300;
+
 interface CartState {
   cartId:    number | null;
   items:     CartItem[];
@@ -52,6 +58,7 @@ interface CartState {
   subtotal:  number; // paise
   isLoading: boolean;
   appliedCoupon: AppliedCoupon | null;
+  giftNote:  string;
 
   // Actions
   fetchCart:    ()                                                    => Promise<void>;
@@ -62,6 +69,7 @@ interface CartState {
   mergeGuestCart: ()                                                  => Promise<void>;
   setCartId:    (id: number)                                         => void;
   setAppliedCoupon: (coupon: AppliedCoupon | null)                   => void;
+  setGiftNote:  (note: string)                                       => void;
 }
 
 export const useCartStore = create<CartState>()(
@@ -73,9 +81,11 @@ export const useCartStore = create<CartState>()(
       subtotal:  0,
       isLoading: false,
       appliedCoupon: null,
+      giftNote:  "",
 
       setCartId: (id) => set({ cartId: id }),
       setAppliedCoupon: (coupon) => set({ appliedCoupon: coupon }),
+      setGiftNote: (note) => set({ giftNote: note.slice(0, GIFT_NOTE_MAX_LEN) }),
 
       // ── FETCH CART ──
       fetchCart: async () => {
@@ -194,7 +204,7 @@ export const useCartStore = create<CartState>()(
           body:    JSON.stringify({ cartId }),
         });
 
-        set({ items: [], itemCount: 0, subtotal: 0, appliedCoupon: null });
+        set({ items: [], itemCount: 0, subtotal: 0, appliedCoupon: null, giftNote: "" });
       },
 
       // ── MERGE GUEST CART ON LOGIN ──
@@ -221,8 +231,11 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name:    "hashtag-cart",
-      // Persist cartId + applied coupon — items are always refetched fresh from DB
-      partialize: (state) => ({ cartId: state.cartId, appliedCoupon: state.appliedCoupon }),
+      // Persist cartId + applied coupon + gift note — items are always
+      // refetched fresh from DB. The gift note is deliberately persisted
+      // client-side only (it's just a draft until the order's actually
+      // placed) rather than saved to the server cart — same as the coupon.
+      partialize: (state) => ({ cartId: state.cartId, appliedCoupon: state.appliedCoupon, giftNote: state.giftNote }),
     }
   )
 );

@@ -10,11 +10,12 @@ import {
   ShieldCheck, ChevronRight, Loader2,
   CheckCircle, Tag, X, Package,
   Phone, User, Home, Building,
-  ArrowLeft, BadgeCheck, Edit2, Gift,
+  ArrowLeft, BadgeCheck, Edit2,
 } from "lucide-react";
 import { useCartStore, formatPrice } from "@/lib/store/cartStore";
 import { isValidPincode } from "@/lib/helpers";
 import AvailableCoupons from "@/components/shared/AvailableCoupons";
+import GiftNoteField from "@/components/shared/GiftNoteField";
 
 // ── types ─────────────────────────────────────────────────────────────────────
 interface Address {
@@ -323,7 +324,7 @@ export default function CheckoutClient() {
   const { data: session }  = useSession();
   const router             = useRouter();
   const {
-    items, subtotal, itemCount, cartId, clearCart,
+    items, subtotal, itemCount, cartId, clearCart, giftNote,
     appliedCoupon: coupon, setAppliedCoupon: setCoupon,
   } = useCartStore();
 
@@ -337,8 +338,6 @@ export default function CheckoutClient() {
   const [payMethod, setPayMethod] = useState<"online"|"cod">("online");
   const [placing,   setPlacing]   = useState(false);
   const [error,     setError]     = useState("");
-  const [giftNote,  setGiftNote]  = useState("");
-  const GIFT_NOTE_MAX = 300;
 
   const discount   = coupon?.discount ?? 0;
   const freeShip   = Math.max(0, subtotal - discount) >= 99900;
@@ -598,22 +597,13 @@ export default function CheckoutClient() {
                   </div>
                 )}
 
-                {/* Gift note — always visible, order-level (not tied to the
-                    address), so it survives whether the customer picks a
-                    saved address or fills the form. */}
+                {/* Gift note — order-level (not tied to the address), shared
+                    with the product/cart pages via the cart store, so it
+                    survives whether the customer picks a saved address or
+                    fills the form, and whatever they wrote earlier is
+                    already here. */}
                 <div className="mt-6 pt-5 border-t border-[#f0ece6]">
-                  <label className="text-[14px] font-bold text-[#1a1a1a] mb-2 flex items-center gap-2">
-                    <Gift size={16} className="text-[#c0555a]" /> Add a gift note <span className="text-[12px] font-normal text-[#aaa]">(optional)</span>
-                  </label>
-                  <textarea
-                    value={giftNote}
-                    onChange={e => setGiftNote(e.target.value.slice(0, GIFT_NOTE_MAX))}
-                    placeholder="Write a little something for the person receiving this gift..."
-                    rows={3}
-                    maxLength={GIFT_NOTE_MAX}
-                    className="w-full border border-[#e8e0d5] rounded-xl px-4 py-3 text-[13px] text-[#1a1a1a] outline-none focus:border-[#c0555a] resize-none placeholder:text-[#bbb]"
-                  />
-                  <p className="text-[11px] text-[#aaa] text-right mt-1">{giftNote.length}/{GIFT_NOTE_MAX}</p>
+                  <GiftNoteField bordered={false} />
                 </div>
 
                 <button onClick={handleStep1}
