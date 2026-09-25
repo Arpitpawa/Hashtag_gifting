@@ -1,6 +1,18 @@
 "use client";
 
-export default function GlobalError({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
+import { useEffect } from "react";
+import * as Sentry from "@sentry/nextjs";
+
+export default function GlobalError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+  // This is the last line of defense — any render error that escapes every
+  // nested error boundary ends up here. Reporting it is what actually makes
+  // error monitoring useful instead of just a nicer-looking crash screen: a
+  // no-op if SENTRY DSN isn't configured yet, so this is safe to ship ahead
+  // of Arpit setting up the Sentry account.
+  useEffect(() => {
+    Sentry.captureException(error);
+  }, [error]);
+
   return (
     <html lang="en">
       <body style={{ fontFamily: "system-ui, sans-serif", textAlign: "center", padding: "20vh 24px", background: "#f3efe8", color: "#1a1a1a" }}>

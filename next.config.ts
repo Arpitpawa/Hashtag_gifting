@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs/config";
 
 const nextConfig: NextConfig = {
 
@@ -92,4 +93,31 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+// Error/perf capture (instrumentation.ts, sentry.*.config.ts,
+// instrumentation-client.ts) already works with just NEXT_PUBLIC_SENTRY_DSN
+// set — none of that needs this wrapper. This wrapper only adds source-map
+// upload at build time, so a crash report shows your real file/line instead
+// of minified gibberish. It needs a Sentry auth token to actually upload
+// anything, so it's gated behind SENTRY_ORG/SENTRY_PROJECT being set —
+// without them this just exports the plain config, unchanged, so the build
+// never breaks for not having a Sentry account configured yet.
+export default process.env.SENTRY_ORG && process.env.SENTRY_PROJECT
+  ? withSentryConfig(nextConfig, {
+      org:     process.env.SENTRY_ORG,
+      project: process.env.SENTRY_PROJECT,
+      // No token yet? The plugin just skips the upload and warns instead of
+      // failing the build — safe either way.
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+      // Only print Sentry's own build-time logging in CI, not on every
+      // local `npm run build`.
+      silent: !process.env.CI,
+      // Quietly proxies Sentry's own SDK requests through your own domain
+      // so ad-blockers that block sentry.io don't silently drop error
+      // reports from real customers.
+      tunnelRoute: "/monitoring-tunnel",
+      // Strips the SDK's own debug-logging code out of the shipped bundle
+      // (debug is off in the init() calls above anyway) — a little extra
+      // off the client bundle for free.
+      bundleSizeOptimizations: { excludeDebugStatements: true },
+    })
+  : nextConfig;
