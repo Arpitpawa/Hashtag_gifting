@@ -375,21 +375,22 @@ export default function LivePreviewModal({
 
             {textFields.map((field, i) => {
               const val = values[field.label] || "";
+              const fieldId = `personalize-field-${i}`;
               return (
                 <div key={i}>
                   <div className="flex items-center justify-between mb-2">
-                    <label className="text-[13px] font-bold text-[#1a1a1a]">
+                    <label htmlFor={fieldId} className="text-[13px] font-bold text-[#1a1a1a]">
                       {field.label} {field.required && <span className="text-[#c0555a]">*</span>}
                     </label>
                     {field.maxLength && <span className="text-[11px] text-[#aaa]">{val.length}/{field.maxLength}</span>}
                   </div>
                   {field.type === "textarea" ? (
-                    <textarea rows={3} value={val}
+                    <textarea id={fieldId} rows={3} value={val}
                       onChange={e => updateValue(field.label, e.target.value.slice(0, field.maxLength || 500))}
                       placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
                       className="w-full border-2 border-[#e8e0d5] focus:border-[#c0555a] rounded-xl px-4 py-3 text-[14px] outline-none transition-colors resize-none" />
                   ) : (
-                    <input type="text" value={val}
+                    <input id={fieldId} type="text" value={val}
                       onChange={e => updateValue(field.label, e.target.value.slice(0, field.maxLength || 100))}
                       placeholder={field.placeholder || "e.g. Rahul"}
                       className="w-full border-2 border-[#e8e0d5] focus:border-[#c0555a] rounded-xl px-4 py-3 text-[14px] outline-none transition-colors" />

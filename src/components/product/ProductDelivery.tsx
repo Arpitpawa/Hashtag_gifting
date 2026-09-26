@@ -48,6 +48,7 @@ export default function ProductDelivery() {
             }}
             onKeyDown={(e) => e.key === "Enter" && checkPincode()}
             placeholder="Enter Pincode"
+            aria-label="Delivery pincode"
             className="w-full border border-[#e8e0d5] rounded-xl pl-8 pr-4 py-2.5 text-[13px] outline-none focus:border-[#c0555a] transition-colors bg-white"
           />
         </div>
