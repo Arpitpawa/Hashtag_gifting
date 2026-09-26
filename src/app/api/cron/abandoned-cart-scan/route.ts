@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import prisma from "@/lib/prisma";
-import { buildAbandonedCartMessage, sendWhatsAppMessage } from "@/lib/whatsapp";
+import { buildAbandonedCartMessage, sendWhatsAppMessage, isOptedOutOfPromotions } from "@/lib/whatsapp";
 
 /**
  * Finds carts that have sat untouched past ABANDONED_CART_DELAY_MINUTES,
@@ -16,6 +16,11 @@ import { buildAbandonedCartMessage, sendWhatsAppMessage } from "@/lib/whatsapp";
  * reach until checkout, at which point the cart is already cleared (see
  * orders/create/route.ts), so this only ever catches "added to cart, never
  * even started checkout."
+ *
+ * A phone that's opted out (WhatsAppOptOut — see src/lib/whatsapp.ts) never
+ * even gets an alert row created, so it can't show up on the Abandoned
+ * Carts admin page to be manually messaged either — not just a skipped
+ * automatic send.
  *
  * Run every ~15-30 min from the same cron job / uptime service already
  * pinging /api/cron/expire-orders:
@@ -72,12 +77,19 @@ export async function GET(req: Request) {
   let skippedNoPhone = 0;
   let skippedTooRecent = 0;
   let skippedAlreadyAlerted = 0;
+  let skippedOptedOut = 0;
 
   for (const cart of candidateCarts) {
     const lastActivity = cart.items[0]?.createdAt ?? cart.createdAt;
     if (lastActivity > thresholdDate) { skippedTooRecent++; continue; }
 
     if (!cart.user?.phone) { skippedNoPhone++; continue; }
+
+    // A customer who replied STOP (or an admin who manually flagged them)
+    // never even gets an alert row created — not just a skipped send. This
+    // is what actually keeps them off the Abandoned Carts admin page too,
+    // so nobody accidentally messages them by hand via the wa.me link either.
+    if (await isOptedOutOfPromotions(cart.user.phone)) { skippedOptedOut++; continue; }
 
     // Skip if we've already alerted for this exact batch of items (no new
     // item added since) — re-abandoning after adding something new will
@@ -120,7 +132,7 @@ export async function GET(req: Request) {
     });
     alertsCreated++;
 
-    const result = await sendWhatsAppMessage({ to: cart.user.phone, message: messageText });
+    const result = await sendWhatsAppMessage({ to: cart.user.phone, message: messageText, category: "promotional" });
     if (result.sent) {
       await prisma.abandonedCartAlert.update({
         where: { id: alert.id },
@@ -135,5 +147,6 @@ export async function GET(req: Request) {
     skippedNoPhone,
     skippedTooRecent,
     skippedAlreadyAlerted,
+    skippedOptedOut,
   });
 }

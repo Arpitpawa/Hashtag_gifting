@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { MessageCircle, Check, Clock, ShoppingCart } from "lucide-react";
+import { MessageCircle, Check, Clock, ShoppingCart, VolumeX, Volume2 } from "lucide-react";
 import { formatPrice } from "@/lib/helpers";
 
 interface Alert {
@@ -21,6 +21,13 @@ interface Alert {
   chatLink:          string;
 }
 
+interface OptOut {
+  id:        number;
+  phone:     string;
+  reason:    string;
+  createdAt: string;
+}
+
 function timeAgo(dateStr: string) {
   const ms = Date.now() - new Date(dateStr).getTime();
   const hrs = Math.floor(ms / 3_600_000);
@@ -31,22 +38,51 @@ function timeAgo(dateStr: string) {
 
 export default function AbandonedCartsAdmin() {
   const [alerts,  setAlerts]  = useState<Alert[]>([]);
+  const [optOuts, setOptOuts] = useState<OptOut[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter,  setFilter]  = useState<"READY" | "SENT">("READY");
-  const [acting,  setActing]  = useState<number | null>(null);
+  const [acting,  setActing]  = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
-    const res  = await fetch(`/api/admin/abandoned-carts?status=${filter}`);
-    const data = await res.json();
-    setAlerts(data.alerts || []);
+    const [alertsRes, optOutsRes] = await Promise.all([
+      fetch(`/api/admin/abandoned-carts?status=${filter}`),
+      fetch(`/api/admin/whatsapp-optout`),
+    ]);
+    const alertsData  = await alertsRes.json();
+    const optOutsData = await optOutsRes.json();
+    setAlerts(alertsData.alerts || []);
+    setOptOuts(optOutsData.optOuts || []);
     setLoading(false);
   };
   useEffect(() => { load(); }, [filter]);
 
   const markSent = async (id: number) => {
-    setActing(id);
+    setActing(`sent-${id}`);
     await fetch(`/api/admin/abandoned-carts/${id}/mark-sent`, { method: "POST" });
+    setActing(null);
+    load();
+  };
+
+  // Stops future PROMOTIONAL messages (abandoned-cart reminders) to this
+  // number — never affects order-status messages. Use when a customer asks
+  // to stop some other way (a call, a reply on your own WhatsApp when
+  // sending the free wa.me link by hand) since there's no live inbound
+  // webhook yet without a WhatsApp API provider.
+  const muteNumber = async (phone: string) => {
+    setActing(`mute-${phone}`);
+    await fetch(`/api/admin/whatsapp-optout`, {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify({ phone }),
+    });
+    setActing(null);
+    load();
+  };
+
+  const unmuteNumber = async (phone: string) => {
+    setActing(`unmute-${phone}`);
+    await fetch(`/api/admin/whatsapp-optout?phone=${encodeURIComponent(phone)}`, { method: "DELETE" });
     setActing(null);
     load();
   };
@@ -57,7 +93,9 @@ export default function AbandonedCartsAdmin() {
       <p className="text-[13px] text-[#888] mb-6 max-w-2xl">
         Customers who added something to cart and didn&apos;t come back. No WhatsApp API is
         connected yet, so nothing sends automatically — click &quot;Chat on WhatsApp&quot; to open
-        a pre-filled message and send it yourself, then mark it as sent.
+        a pre-filled message and send it yourself, then mark it as sent. If a customer asks to
+        stop getting these, hit &quot;Mute&quot; — it only stops promotional messages like this
+        one, never their order updates.
       </p>
 
       <div className="flex gap-2 mb-5">
@@ -120,15 +158,56 @@ export default function AbandonedCartsAdmin() {
                 {a.status === "READY" && (
                   <button
                     onClick={() => markSent(a.id)}
-                    disabled={acting === a.id}
+                    disabled={acting === `sent-${a.id}`}
                     className="flex items-center justify-center gap-1.5 px-4 py-2 border border-[#e8e8e8] text-[#555] text-[12px] font-bold rounded-xl hover:border-[#c0555a] hover:text-[#c0555a] transition-colors disabled:opacity-50 whitespace-nowrap"
                   >
                     <Check size={14} /> Mark as sent
                   </button>
                 )}
+                <button
+                  onClick={() => muteNumber(a.phone)}
+                  disabled={acting === `mute-${a.phone}`}
+                  title="Stop promotional WhatsApp messages to this number (order updates are unaffected)"
+                  className="flex items-center justify-center gap-1.5 px-4 py-2 border border-[#e8e8e8] text-[#999] text-[12px] font-bold rounded-xl hover:border-red-300 hover:text-red-500 transition-colors disabled:opacity-50 whitespace-nowrap"
+                >
+                  <VolumeX size={14} /> Mute
+                </button>
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {optOuts.length > 0 && (
+        <div className="mt-10">
+          <h2 className="text-[16px] font-bold text-[#1a1a1a] mb-1">Muted numbers</h2>
+          <p className="text-[12px] text-[#888] mb-4 max-w-2xl">
+            These numbers won&apos;t get abandoned-cart reminders or any other promotional
+            WhatsApp message. Their order confirmations, shipping and delivery updates still go
+            through as normal — muting only affects marketing-style messages.
+          </p>
+          <div className="flex flex-col gap-2">
+            {optOuts.map((o) => (
+              <div
+                key={o.id}
+                className="bg-white border border-[#e8e8e8] rounded-xl px-4 py-3 flex items-center justify-between gap-3"
+              >
+                <div>
+                  <span className="text-[13px] font-semibold text-[#1a1a1a]">+91 {o.phone}</span>
+                  <span className="text-[11px] text-[#aaa] ml-2">
+                    {o.reason === "customer_reply" ? "replied STOP" : "muted manually"} · {timeAgo(o.createdAt)}
+                  </span>
+                </div>
+                <button
+                  onClick={() => unmuteNumber(o.phone)}
+                  disabled={acting === `unmute-${o.phone}`}
+                  className="flex items-center gap-1.5 px-3 py-1.5 border border-[#e8e8e8] text-[#555] text-[12px] font-semibold rounded-lg hover:border-[#c0555a] hover:text-[#c0555a] transition-colors disabled:opacity-50 whitespace-nowrap"
+                >
+                  <Volume2 size={13} /> Unmute
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

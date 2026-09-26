@@ -154,6 +154,7 @@ export async function POST(req: Request) {
             paymentMethod: order.paymentMethod || "online",
             orderUrl:      `${process.env.NEXTAUTH_URL || ""}/order/${order.id}`,
           }),
+          category: "transactional",
         });
       } catch (waErr) {
         console.warn("Payment confirmation WhatsApp failed (non-critical):", waErr);

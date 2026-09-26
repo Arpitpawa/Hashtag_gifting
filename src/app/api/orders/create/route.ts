@@ -798,6 +798,7 @@ export async function POST(req: NextRequest) {
           paymentMethod: order.paymentMethod,
           orderUrl:      `${process.env.NEXTAUTH_URL || ""}/order/${order.id}`,
         }),
+        category: "transactional",
       });
     } catch (waErr) {
       console.warn("Order confirmation WhatsApp failed (non-critical):", waErr);

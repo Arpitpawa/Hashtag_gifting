@@ -37,6 +37,71 @@
 // the message ("GET EXTRA 7% OFF — use code X"), matching the reference
 // "Confetti"-style template Arpit shared. Leave it unset for a plain
 // reminder with no discount.
+//
+// ── Opt-out (STOP) handling ─────────────────────────────────────────────
+// Every abandoned-cart reminder ends with "Reply STOP if you wish to opt
+// out" (standard WhatsApp marketing-template practice, and Meta requires
+// honoring it). sendWhatsAppMessage() below takes a required `category`:
+// "promotional" (abandoned-cart reminders) checks the WhatsAppOptOut table
+// first and silently skips anyone who's opted out; "transactional" (order
+// confirmed/shipped/out for delivery/delivered/cancelled) NEVER checks it —
+// those are the customer's own order info, not marketing, and keep sending
+// regardless, same as Amazon/Flipkart still SMS you delivery updates even
+// if you've opted out of their promos.
+//
+// A number gets INTO that table two ways: (1) automatically, once a real
+// WhatsApp provider is wired up and its inbound webhook points at
+// /api/webhooks/whatsapp-inbound (already built — see that file), which
+// catches a customer's STOP reply the moment it arrives; (2) right now,
+// today, before any provider exists — an admin can manually mark a number
+// opted out from the Abandoned Carts admin page (POST
+// /api/admin/whatsapp-optout) if a customer asks to stop some other way
+// (calls, replies on the admin's own WhatsApp when sending the free wa.me
+// link by hand, etc). Either way, the abandoned-cart cron also skips
+// creating an alert at all for an opted-out number, so it never even shows
+// up for an admin to manually message again.
+
+import prisma from "@/lib/prisma";
+
+/**
+ * Normalizes any phone input (with/without +91, spaces, dashes) down to a
+ * bare 10-digit string — the convention every phone field in this codebase
+ * already uses (User.phone, AbandonedCartAlert.phone, addressSnapshot.phone).
+ * Used everywhere a phone is looked up or stored here so "+919876543210",
+ * "9876543210" and "91 98765 43210" all match the same opt-out record.
+ */
+export function normalizePhone(phone: string): string {
+  return (phone || "").replace(/\D/g, "").slice(-10);
+}
+
+/** True if this phone has opted out of PROMOTIONAL WhatsApp messages. */
+export async function isOptedOutOfPromotions(phone: string): Promise<boolean> {
+  const normalized = normalizePhone(phone);
+  if (!normalized) return false;
+  const row = await prisma.whatsAppOptOut.findUnique({ where: { phone: normalized } });
+  return !!row;
+}
+
+/** Records an opt-out. Safe to call repeatedly — upserts, never duplicates. */
+export async function recordWhatsAppOptOut(
+  phone: string,
+  reason: "customer_reply" | "manual" = "customer_reply"
+): Promise<void> {
+  const normalized = normalizePhone(phone);
+  if (!normalized) return;
+  await prisma.whatsAppOptOut.upsert({
+    where:  { phone: normalized },
+    update: {},
+    create: { phone: normalized, reason },
+  });
+}
+
+/** Removes an opt-out (admin "Unmute"). */
+export async function removeWhatsAppOptOut(phone: string): Promise<void> {
+  const normalized = normalizePhone(phone);
+  if (!normalized) return;
+  await prisma.whatsAppOptOut.deleteMany({ where: { phone: normalized } });
+}
 
 interface AbandonedCartCoupon {
   code:  string;
@@ -114,7 +179,7 @@ export function buildAbandonedCartMessage({
  * 10-digit Indian number (the format stored on User.phone site-wide).
  */
 export function buildWhatsAppClickToChatLink(phone: string, message: string): string {
-  const digitsOnly = phone.replace(/\D/g, "");
+  const digitsOnly = normalizePhone(phone);
   return `https://wa.me/91${digitsOnly}?text=${encodeURIComponent(message)}`;
 }
 
@@ -212,6 +277,16 @@ interface SendWhatsAppParams {
   to:       string; // bare 10-digit Indian number
   message:  string;
   imageUrl?: string;
+  /**
+   * "transactional" — order confirmed/shipped/out for delivery/delivered/
+   * cancelled. Always sends, never checks the opt-out list.
+   * "promotional" — abandoned-cart reminders (and any future marketing
+   * message). Checked against WhatsAppOptOut first; silently skipped for
+   * anyone who's opted out.
+   * Required deliberately — every call site has to pick one on purpose
+   * rather than accidentally defaulting to whichever behavior is less safe.
+   */
+  category: "transactional" | "promotional";
 }
 
 /**
@@ -223,7 +298,13 @@ interface SendWhatsAppParams {
 export async function sendWhatsAppMessage({
   to,
   message,
+  category,
 }: SendWhatsAppParams): Promise<{ sent: boolean; reason?: string }> {
+  if (category === "promotional" && (await isOptedOutOfPromotions(to))) {
+    console.warn(`WhatsApp send skipped (opted out of promotional messages) — would have messaged +91${to}`);
+    return { sent: false, reason: "opted_out" };
+  }
+
   if (!process.env.WHATSAPP_API_PROVIDER) {
     console.warn(`WhatsApp send skipped (no provider configured) — would message +91${to}: "${message}"`);
     return { sent: false, reason: "no_provider_configured" };

@@ -152,7 +152,7 @@ export async function PATCH(
           } else if (body.deliveryStatus === "CANCELLED") {
             message = buildOrderCancelledMessage({ customerName, orderId: updated.id, orderUrl });
           }
-          if (message) await sendWhatsAppMessage({ to: phone, message });
+          if (message) await sendWhatsAppMessage({ to: phone, message, category: "transactional" });
         } catch (waErr) {
           console.warn("Order status WhatsApp failed (non-critical):", waErr);
         }

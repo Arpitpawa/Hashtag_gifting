@@ -252,6 +252,20 @@ model AbandonedCartAlert {
   @@index([status])
 }
 
+// A phone number that asked to stop receiving PROMOTIONAL WhatsApp messages
+// (replied STOP/UNSUBSCRIBE/etc, or an admin flagged it by hand). Checked
+// before sending anything tagged category:"promotional" in
+// src/lib/whatsapp.ts — currently just the abandoned-cart reminder.
+// Transactional order-status messages (confirmed/shipped/delivered/etc)
+// never check this table and always send regardless — those aren't
+// marketing, they're the customer's own order info.
+model WhatsAppOptOut {
+  id        Int      @id @default(autoincrement())
+  phone     String   @unique // bare 10-digit Indian number, digits only — same convention as AbandonedCartAlert.phone / addressSnapshot.phone
+  reason    String   @default("customer_reply") // "customer_reply" (they sent STOP) | "manual" (admin flagged by hand)
+  createdAt DateTime @default(now())
+}
+
 model Order {
   id                Int            @id @default(autoincrement())
   userId            Int?
