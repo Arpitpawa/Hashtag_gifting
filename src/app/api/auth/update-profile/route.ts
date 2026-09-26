@@ -62,6 +62,13 @@ export async function PUT(req: Request) {
       }
 
       updateData.password = await bcrypt.hash(newPassword, 12);
+      // Signs every other logged-in device out — same field, same mechanism
+      // the forgot-password reset flow already uses (see options.ts's jwt
+      // callback: any session issued before this moment gets invalidated on
+      // its next request). This device's own session goes stale too, which
+      // is why the frontend signs the user out right after a successful
+      // change instead of leaving them looking logged in.
+      updateData.passwordChangedAt = new Date();
     }
 
     const updated = await prisma.user.update({

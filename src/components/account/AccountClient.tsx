@@ -13,6 +13,7 @@ import {
   Phone, Mail, Home, Star, X,
   ShoppingBag, Clock, BadgeCheck,
   CreditCard, Tag, AlertCircle, Truck, Pencil,
+  Lock, Eye, EyeOff,
 } from "lucide-react";
 import { formatPrice } from "@/lib/store/cartStore";
 import { useCartStore } from "@/lib/store/cartStore";
@@ -103,11 +104,23 @@ function ProfileTab({ session }: { session: any }) {
   const [saved,   setSaved]   = useState(false);
   const [error,   setError]   = useState("");
 
+  // ── change password ──
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword,     setNewPassword]     = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showCurrent,     setShowCurrent]     = useState(false);
+  const [showNew,         setShowNew]         = useState(false);
+  const [pwSaving,        setPwSaving]        = useState(false);
+  const [pwError,         setPwError]         = useState("");
+
   const handleSave = async () => {
     setSaving(true); setError(""); setSaved(false);
     try {
+      // The route only exports PUT — this used to send POST, which 405'd
+      // silently (the UI showed "Saving..." then just stopped, no error,
+      // since the response body from a routing 405 isn't JSON).
       const res  = await fetch("/api/auth/update-profile", {
-        method: "POST", headers: { "Content-Type": "application/json" },
+        method: "PUT", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, phone }),
       });
       const data = await res.json();
@@ -115,6 +128,38 @@ function ProfileTab({ session }: { session: any }) {
       setSaved(true); setTimeout(() => setSaved(false), 3000);
     } catch (e: any) { setError(e.message || "Failed to save"); }
     finally { setSaving(false); }
+  };
+
+  const handleChangePassword = async () => {
+    setPwError("");
+
+    if (newPassword.length < 8) {
+      setPwError("New password must be at least 8 characters");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPwError("New passwords don't match");
+      return;
+    }
+
+    setPwSaving(true);
+    try {
+      const res  = await fetch("/api/auth/update-profile", {
+        method: "PUT", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to change password");
+
+      // Changing the password just signed every other device out (see
+      // update-profile/route.ts) — this device's own session is stale too
+      // from this point on, so sign out here rather than leave the UI
+      // looking logged in while the next request silently fails.
+      await signOut({ callbackUrl: "/login?passwordChanged=1" });
+    } catch (e: unknown) {
+      setPwError(e instanceof Error ? e.message : "Failed to change password");
+      setPwSaving(false);
+    }
   };
 
   return (
@@ -156,6 +201,72 @@ function ProfileTab({ session }: { session: any }) {
          : saved  ? <><CheckCircle size={14} /> Saved!</>
          : <><Edit2 size={14} /> Save changes</>}
       </button>
+
+      {/* Change password */}
+      <div className="mt-8 pt-6 border-t border-[#e8e0d5]">
+        <h2 className="text-[18px] font-bold text-[#1a1a1a] mb-1 flex items-center gap-2">
+          <Lock size={18} className="text-[#c0555a]" /> Change password
+        </h2>
+        <p className="text-[12px] text-[#888] mb-5">
+          Changing your password signs you out of every other device you are logged in on.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[12px] font-semibold text-[#555] uppercase tracking-wider">Current password</label>
+            <div className="relative">
+              <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#aaa]" />
+              <input
+                type={showCurrent ? "text" : "password"}
+                value={currentPassword}
+                onChange={e => setCurrentPassword(e.target.value)}
+                className="w-full pl-9 pr-10 py-3 border border-[#e8e0d5] rounded-xl text-[14px] outline-none focus:border-[#c0555a] transition-colors"
+              />
+              <button type="button" onClick={() => setShowCurrent(!showCurrent)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#aaa] hover:text-[#555] transition-colors">
+                {showCurrent ? <EyeOff size={14} /> : <Eye size={14} />}
+              </button>
+            </div>
+          </div>
+          <div />
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[12px] font-semibold text-[#555] uppercase tracking-wider">New password</label>
+            <div className="relative">
+              <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#aaa]" />
+              <input
+                type={showNew ? "text" : "password"}
+                value={newPassword}
+                onChange={e => setNewPassword(e.target.value)}
+                placeholder="At least 8 characters"
+                className="w-full pl-9 pr-10 py-3 border border-[#e8e0d5] rounded-xl text-[14px] outline-none focus:border-[#c0555a] transition-colors"
+              />
+              <button type="button" onClick={() => setShowNew(!showNew)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#aaa] hover:text-[#555] transition-colors">
+                {showNew ? <EyeOff size={14} /> : <Eye size={14} />}
+              </button>
+            </div>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[12px] font-semibold text-[#555] uppercase tracking-wider">Confirm new password</label>
+            <div className="relative">
+              <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#aaa]" />
+              <input
+                type={showNew ? "text" : "password"}
+                value={confirmPassword}
+                onChange={e => setConfirmPassword(e.target.value)}
+                className="w-full pl-9 pr-4 py-3 border border-[#e8e0d5] rounded-xl text-[14px] outline-none focus:border-[#c0555a] transition-colors"
+              />
+            </div>
+          </div>
+        </div>
+        {pwError && <p className="text-[12px] text-red-500 mt-3">{pwError}</p>}
+        <button
+          onClick={handleChangePassword}
+          disabled={pwSaving || !currentPassword || !newPassword || !confirmPassword}
+          className="mt-5 flex items-center gap-2 px-6 py-3 bg-[#c0555a] text-white text-[13px] font-bold rounded-full hover:bg-[#a84449] transition-all disabled:opacity-50"
+        >
+          {pwSaving ? <><Loader2 size={14} className="animate-spin" /> Changing...</> : <><Lock size={14} /> Change password</>}
+        </button>
+      </div>
     </div>
   );
 }

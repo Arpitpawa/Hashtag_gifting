@@ -35,13 +35,16 @@ function LoginForm() {
   const [needsVerify, setNeedsVerify] = useState(false);
   const [resent,      setResent]      = useState(false);
 
-  // Banners coming back from signup / the emailed verification link.
-  const verified   = searchParams.get("verified");
-  const registered = searchParams.get("registered");
+  // Banners coming back from signup / the emailed verification link / a
+  // password change on the account page.
+  const verified        = searchParams.get("verified");
+  const registered      = searchParams.get("registered");
+  const passwordChanged = searchParams.get("passwordChanged");
   const notice =
-    verified === "1"       ? "Email verified — you can log in now." :
-    verified === "invalid" ? "That verification link is invalid or has expired. Log in to get a new one." :
-    registered === "1"     ? "Account created! Check your email and click the verification link, then log in." :
+    verified === "1"        ? "Email verified — you can log in now." :
+    verified === "invalid"  ? "That verification link is invalid or has expired. Log in to get a new one." :
+    registered === "1"      ? "Account created! Check your email and click the verification link, then log in." :
+    passwordChanged === "1" ? "Password changed — you've been signed out everywhere, including this device. Log in again with your new password." :
     "";
 
   const resendVerification = async () => {
