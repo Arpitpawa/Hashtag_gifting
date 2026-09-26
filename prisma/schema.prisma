@@ -3,8 +3,16 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // DATABASE_URL points at Neon's pooled (pgbouncer) endpoint so serverless
+  // function invocations reuse warm connections instead of each one paying
+  // a fresh direct-connection handshake (this was the main cause of slow
+  // product-page loads — see the perf-fix commit for the full story).
+  // directUrl is the unpooled connection, used only by `prisma migrate` —
+  // migrations need a real direct connection, pgbouncer's transaction
+  // pooling mode doesn't support the session-level features migrate uses.
+  directUrl = env("DIRECT_URL")
 }
 
 enum Role {
