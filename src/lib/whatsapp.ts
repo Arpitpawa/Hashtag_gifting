@@ -118,6 +118,96 @@ export function buildWhatsAppClickToChatLink(phone: string, message: string): st
   return `https://wa.me/91${digitsOnly}?text=${encodeURIComponent(message)}`;
 }
 
+// ── Order lifecycle messages ────────────────────────────────────────────
+//
+// The same "every ecom brand does this" flow customers expect by SMS/email
+// already: placed, shipped, out for delivery, delivered, cancelled. These
+// call sendWhatsAppMessage() the same non-blocking way sendEmail() is
+// already called at each of these points in the codebase (orders/create,
+// orders/verify, payment/webhook, admin/orders/[id]) — safe no-op until a
+// provider is configured, same as everything else in this file.
+
+function firstNameOf(name: string): string {
+  return (name || "there").trim().split(/\s+/)[0];
+}
+
+export function buildOrderConfirmedMessage(params: {
+  customerName: string;
+  orderId: number;
+  itemCount: number;
+  total: string; // pre-formatted, e.g. "Rs. 1,278"
+  paymentMethod: string; // "cod" | "online"
+  orderUrl: string;
+}): string {
+  const { customerName, orderId, itemCount, total, paymentMethod, orderUrl } = params;
+  const paidLine = paymentMethod === "cod"
+    ? "Pay cash when it arrives."
+    : "Payment received — thank you!";
+  return [
+    `✅ *Order Confirmed* — Hashtag Gifting`,
+    `Hi ${firstNameOf(customerName)}! Your order #${orderId} (${itemCount} item${itemCount > 1 ? "s" : ""}, ${total}) is confirmed. ${paidLine}`,
+    "",
+    `Track it here: ${orderUrl}`,
+  ].join("\n");
+}
+
+export function buildOrderShippedMessage(params: {
+  customerName: string;
+  orderId: number;
+  trackingId: string;
+  orderUrl: string;
+}): string {
+  const { customerName, orderId, trackingId, orderUrl } = params;
+  return [
+    `📦 *Your order has shipped!*`,
+    `Hi ${firstNameOf(customerName)}! Order #${orderId} is on its way. Tracking ID: *${trackingId}*.`,
+    "",
+    `Track it here: ${orderUrl}`,
+  ].join("\n");
+}
+
+export function buildOrderOutForDeliveryMessage(params: {
+  customerName: string;
+  orderId: number;
+  orderUrl: string;
+}): string {
+  const { customerName, orderId, orderUrl } = params;
+  return [
+    `🚚 *Out for delivery*`,
+    `Hi ${firstNameOf(customerName)}! Order #${orderId} is out for delivery and should reach you today.`,
+    "",
+    `Track it here: ${orderUrl}`,
+  ].join("\n");
+}
+
+export function buildOrderDeliveredMessage(params: {
+  customerName: string;
+  orderId: number;
+  orderUrl: string;
+}): string {
+  const { customerName, orderId, orderUrl } = params;
+  return [
+    `🎁 *Delivered!*`,
+    `Hi ${firstNameOf(customerName)}! Order #${orderId} has been delivered. We hope they loved it 💛`,
+    "",
+    `Need help with anything? ${orderUrl}`,
+  ].join("\n");
+}
+
+export function buildOrderCancelledMessage(params: {
+  customerName: string;
+  orderId: number;
+  orderUrl: string;
+}): string {
+  const { customerName, orderId, orderUrl } = params;
+  return [
+    `Order #${orderId} has been cancelled.`,
+    `Hi ${firstNameOf(customerName)}, your order has been cancelled. Any payment made will be refunded within a few business days.`,
+    "",
+    `Questions? ${orderUrl}`,
+  ].join("\n");
+}
+
 interface SendWhatsAppParams {
   to:       string; // bare 10-digit Indian number
   message:  string;

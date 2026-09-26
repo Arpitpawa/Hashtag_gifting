@@ -9,8 +9,9 @@ import { orderConfirmedTemplate } from "@/lib/emailTemplates";
 import { notifyAdminNewOrder } from "@/lib/adminNotify";
 import { rateLimit } from "@/lib/rateLimit";
 import { sanitizeObject, sanitizeCustomizationObject } from "@/lib/sanitize";
-import { isValidPhone, isValidPincode } from "@/lib/helpers";
+import { isValidPhone, isValidPincode, formatPrice } from "@/lib/helpers";
 import { ownsCart } from "@/lib/cartAuth";
+import { sendWhatsAppMessage, buildOrderConfirmedMessage } from "@/lib/whatsapp";
 
 // Razorpay is instantiated inside the handler to avoid crash on missing keys
 
@@ -781,6 +782,25 @@ export async function POST(req: NextRequest) {
         // Don't fail the order if email fails
         console.warn("Order confirmation email failed (non-critical):", emailErr);
       }
+    }
+
+    // ── SEND CONFIRMATION WHATSAPP (non-critical) ──
+    // addressSnapshot.phone was already required + validated (isValidPhone)
+    // earlier in this route, so it's always present and well-formed here.
+    try {
+      await sendWhatsAppMessage({
+        to: addressSnapshot.phone,
+        message: buildOrderConfirmedMessage({
+          customerName:  addressSnapshot.name,
+          orderId:       order.id,
+          itemCount:     order.items.reduce((sum: number, i: any) => sum + i.quantity, 0),
+          total:         formatPrice(finalTotal),
+          paymentMethod: order.paymentMethod,
+          orderUrl:      `${process.env.NEXTAUTH_URL || ""}/order/${order.id}`,
+        }),
+      });
+    } catch (waErr) {
+      console.warn("Order confirmation WhatsApp failed (non-critical):", waErr);
     }
 
     // ── NOTIFY ADMIN (non-critical) ──

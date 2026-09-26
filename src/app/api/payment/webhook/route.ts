@@ -5,6 +5,8 @@ import crypto             from "crypto";
 import { sendEmail }      from "@/lib/email";
 import { orderConfirmedTemplate } from "@/lib/emailTemplates";
 import { notifyAdminNewOrder } from "@/lib/adminNotify";
+import { sendWhatsAppMessage, buildOrderConfirmedMessage } from "@/lib/whatsapp";
+import { formatPrice } from "@/lib/helpers";
 
 // ── Razorpay sends raw body — we MUST read it as text first ──────────────────
 export async function POST(req: NextRequest) {
@@ -123,6 +125,26 @@ export async function POST(req: NextRequest) {
               order.giftNote
             ),
           });
+        }
+
+        // Send confirmation WhatsApp (non-critical — never let this affect
+        // webhook processing, which Razorpay retries on any non-2xx response)
+        if (addressSnap?.phone) {
+          try {
+            await sendWhatsAppMessage({
+              to: addressSnap.phone,
+              message: buildOrderConfirmedMessage({
+                customerName:  addressSnap?.name || order.user?.name || "Customer",
+                orderId:       order.id,
+                itemCount:     order.items.reduce((sum: number, i: any) => sum + i.quantity, 0),
+                total:         formatPrice(order.totalAmount),
+                paymentMethod: order.paymentMethod || "online",
+                orderUrl:      `${process.env.NEXTAUTH_URL || ""}/order/${order.id}`,
+              }),
+            });
+          } catch (waErr) {
+            console.warn("Payment confirmation WhatsApp failed (non-critical):", waErr);
+          }
         }
 
         // Notify admin (non-critical — notifyAdminNewOrder swallows its own errors)

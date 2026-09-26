@@ -3,6 +3,13 @@ import prisma from "@/lib/prisma";
 import { requireAdmin } from "@/lib/adminAuth";
 import { sendEmail } from "@/lib/email";
 import { orderShippedTemplate } from "@/lib/emailTemplates";
+import {
+  sendWhatsAppMessage,
+  buildOrderShippedMessage,
+  buildOrderOutForDeliveryMessage,
+  buildOrderDeliveredMessage,
+  buildOrderCancelledMessage,
+} from "@/lib/whatsapp";
 
 export async function GET(
   req: Request,
@@ -93,6 +100,10 @@ export async function PATCH(
       include: { user: true },
     });
 
+    // Shared across the email + WhatsApp blocks below, so the Json ->
+    // typed-access cast only happens once.
+    const addressSnap = updated.addressSnapshot as any;
+
     // Send shipped email (non-critical — the status/tracking update above has
     // already been saved by this point, so an email hiccup here must never
     // make this whole request look like it failed. Without this guard, a
@@ -105,7 +116,6 @@ export async function PATCH(
       body.trackingId
     ) {
       try {
-        const addressSnap = updated.addressSnapshot as any;
         await sendEmail({
           to:      updated.user.email,
           subject: `Your order #${updated.id} has been shipped! — Hashtag Gifting`,
@@ -117,6 +127,35 @@ export async function PATCH(
         });
       } catch (emailErr) {
         console.warn("Shipped email failed (non-critical):", emailErr);
+      }
+    }
+
+    // Send status-update WhatsApp messages (non-critical — the status
+    // change above is already saved regardless of whether this succeeds).
+    // Same "every ecom brand does this" lifecycle emails don't cover today
+    // (only SHIPPED gets an email currently) — WhatsApp fills the rest:
+    // OUT_FOR_DELIVERY, DELIVERED and CANCELLED never sent anything before.
+    if (body.deliveryStatus) {
+      const phone       = addressSnap?.phone;
+      const customerName = addressSnap?.name || updated.user?.name || "Customer";
+      const orderUrl    = `${process.env.NEXTAUTH_URL || ""}/order/${updated.id}`;
+
+      if (phone) {
+        try {
+          let message: string | null = null;
+          if (body.deliveryStatus === "SHIPPED" && body.trackingId) {
+            message = buildOrderShippedMessage({ customerName, orderId: updated.id, trackingId: body.trackingId, orderUrl });
+          } else if (body.deliveryStatus === "OUT_FOR_DELIVERY") {
+            message = buildOrderOutForDeliveryMessage({ customerName, orderId: updated.id, orderUrl });
+          } else if (body.deliveryStatus === "DELIVERED") {
+            message = buildOrderDeliveredMessage({ customerName, orderId: updated.id, orderUrl });
+          } else if (body.deliveryStatus === "CANCELLED") {
+            message = buildOrderCancelledMessage({ customerName, orderId: updated.id, orderUrl });
+          }
+          if (message) await sendWhatsAppMessage({ to: phone, message });
+        } catch (waErr) {
+          console.warn("Order status WhatsApp failed (non-critical):", waErr);
+        }
       }
     }
 
