@@ -37,6 +37,17 @@ export async function GET(req: Request) {
 
   const thresholdDate = new Date(Date.now() - DELAY_MINUTES * 60_000);
 
+  // Optional discount hook (see src/lib/whatsapp.ts) — looked up once per
+  // scan run, not per cart. Only used if it's genuinely still valid, same
+  // rules the real checkout coupon check applies.
+  let activeCoupon: { code: string; type: string; value: number } | null = null;
+  if (process.env.ABANDONED_CART_COUPON_CODE) {
+    const c = await prisma.coupon.findUnique({ where: { code: process.env.ABANDONED_CART_COUPON_CODE } });
+    if (c && c.isActive && (!c.expiresAt || c.expiresAt > new Date()) && (!c.usageLimit || c.usedCount < c.usageLimit)) {
+      activeCoupon = { code: c.code, type: c.type, value: c.value };
+    }
+  }
+
   // Cart.updatedAt isn't touched by cart/add or cart/update today, so the
   // real "last activity" signal is the newest CartItem in the cart, not the
   // Cart row itself — hence items ordered newest-first below.
@@ -48,7 +59,10 @@ export async function GET(req: Request) {
     include: {
       user:  { select: { id: true, name: true, phone: true } },
       items: {
-        include: { product: { select: { name: true, images: true, price: true } }, variant: { select: { price: true } } },
+        include: {
+          product: { select: { name: true, images: true, price: true, customizable: true, fastDelivery: true } },
+          variant: { select: { price: true } },
+        },
         orderBy: { createdAt: "desc" },
       },
     },
@@ -86,7 +100,10 @@ export async function GET(req: Request) {
       customerName:     cart.user.name || "",
       itemCount,
       firstProductName: firstItem.product.name,
+      customizable:     firstItem.product.customizable,
+      fastDelivery:     firstItem.product.fastDelivery,
       cartUrl,
+      coupon:           activeCoupon,
     });
 
     const alert = await prisma.abandonedCartAlert.create({

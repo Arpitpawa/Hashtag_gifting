@@ -30,29 +30,81 @@
 //      name/product/link values buildAbandonedCartMessage() already
 //      assembles as the template's variables.
 //   3. Nothing in the cron route or the admin page needs to change.
+//
+// Optional discount hook — set ABANDONED_CART_COUPON_CODE in env to an
+// existing, active coupon's code (created in Admin -> Coupons like any
+// other) and the cron scan will look it up and fold its real discount into
+// the message ("GET EXTRA 7% OFF — use code X"), matching the reference
+// "Confetti"-style template Arpit shared. Leave it unset for a plain
+// reminder with no discount.
 
-interface AbandonedCartMessageInput {
-  customerName: string;
-  itemCount: number;
-  firstProductName: string;
-  cartUrl: string;
+interface AbandonedCartCoupon {
+  code:  string;
+  type:  string; // "PERCENT" | "FIXED"
+  value: number;
 }
 
-/** Plain-text version of the reminder — becomes a WhatsApp template's body once one is approved. */
+interface AbandonedCartMessageInput {
+  customerName:     string;
+  itemCount:        number;
+  firstProductName: string;
+  customizable:     boolean; // does the first item support personalization?
+  fastDelivery:     boolean;
+  cartUrl:          string;
+  coupon?:          AbandonedCartCoupon | null;
+}
+
+/**
+ * Plain-text version of the reminder — becomes a WhatsApp template's body
+ * once one is approved. Modeled on the reference screenshot Arpit sent
+ * (a "Confetti"-style cart-recovery template): discount hook up top,
+ * a warm one-line reassurance, a couple of benefit bullets pulled from the
+ * actual product's own flags (not hardcoded — a non-customizable product
+ * won't falsely claim personalization), a CTA link, and the "Reply STOP"
+ * opt-out line WhatsApp marketing templates are expected to carry.
+ */
 export function buildAbandonedCartMessage({
   customerName,
   itemCount,
   firstProductName,
+  customizable,
+  fastDelivery,
   cartUrl,
+  coupon,
 }: AbandonedCartMessageInput): string {
   const firstName = (customerName || "there").trim().split(/\s+/)[0];
   const itemPhrase =
     itemCount > 1 ? `${itemCount} items, including *${firstProductName}*` : `*${firstProductName}*`;
 
-  return (
-    `Hi ${firstName}! 👋 You left ${itemPhrase} in your Hashtag Gifting cart. ` +
-    `It's still saved and ready — complete your order here: ${cartUrl}`
+  const lines: string[] = [];
+
+  if (coupon) {
+    const discount = coupon.type === "PERCENT" ? `${coupon.value}%` : `Rs. ${coupon.value}`;
+    lines.push(`🎁 *GET EXTRA ${discount} OFF* — use code *${coupon.code}*`, "");
+  }
+
+  lines.push(
+    `Hi ${firstName}! The smallest gestures often mean the most 💛`,
+    `You left ${itemPhrase} in your Hashtag Gifting cart — it's still saved and waiting for you.`,
+    ""
   );
+
+  const benefits: string[] = [];
+  if (customizable) benefits.push("✨ Personalization available — make it yours");
+  if (fastDelivery)  benefits.push("⚡ Fast delivery — there when it matters");
+  if (benefits.length) {
+    lines.push("Why you'll love it:", ...benefits, "");
+  }
+
+  lines.push(
+    coupon
+      ? `Apply *${coupon.code}* at checkout to complete your order: ${cartUrl}`
+      : `Complete your order here: ${cartUrl}`,
+    "",
+    "Reply STOP if you wish to opt out."
+  );
+
+  return lines.join("\n");
 }
 
 /**
