@@ -9,6 +9,7 @@ import {
   Users, Tag, Star, LogOut, Menu, X,
   ChevronRight, Megaphone, TrendingUp,
   LayoutGrid, Boxes, Gem, FolderTree,
+  MessageCircle,
 } from "lucide-react";
 
 const NAV = [
@@ -21,6 +22,7 @@ const NAV = [
   { href: "/admin/charms",      icon: <Gem             size={18} />, label: "Charms"     },
   { href: "/admin/inventory",   icon: <Boxes           size={18} />, label: "Inventory"  },
   { href: "/admin/customers",   icon: <Users           size={18} />, label: "Customers"  },
+  { href: "/admin/abandoned-carts", icon: <MessageCircle size={18} />, label: "Abandoned Carts" },
   { href: "/admin/coupons",     icon: <Tag             size={18} />, label: "Coupons"    },
   { href: "/admin/reviews",     icon: <Star            size={18} />, label: "Reviews"    },
 ];

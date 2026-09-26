@@ -39,6 +39,11 @@ enum ReviewStatus {
   REJECTED
 }
 
+enum AbandonedCartAlertStatus {
+  READY // detected + message text prepared, not sent yet (no WhatsApp API wired up, or auto-send hasn't run)
+  SENT  // sent — either by the auto-send function once a provider is configured, or an admin manually clicked "mark as sent" after using the click-to-chat link
+}
+
 model User {
   id                  Int       @id @default(autoincrement())
   name                String?
@@ -57,11 +62,12 @@ model User {
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
-  orders    Order[]
-  cart      Cart[]
-  wishlist  Wishlist[]
-  addresses Address[]
-  reviews   Review[]
+  orders              Order[]
+  cart                Cart[]
+  wishlist            Wishlist[]
+  addresses           Address[]
+  reviews             Review[]
+  abandonedCartAlerts AbandonedCartAlert[]
 
   @@index([email])
   @@index([role])
@@ -217,6 +223,33 @@ model CartItem {
   @@index([cartId])
   @@index([productId])
   @@index([cartId, productId])
+}
+
+// One row per "abandoned cart" episode the /api/cron/abandoned-cart-scan
+// endpoint detects: a logged-in user's cart sat untouched past the delay
+// threshold with a phone number on file. Snapshots the message content at
+// detection time (product/price could change later; the message shouldn't).
+// createdAt is compared against the cart's latest CartItem.createdAt to
+// decide whether a *new* alert is needed after the customer adds more items
+// following an earlier alert — see the cron route for that logic.
+model AbandonedCartAlert {
+  id                Int                       @id @default(autoincrement())
+  cartId            Int
+  userId            Int
+  user              User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phone             String // snapshot — the number this was (or will be) sent to
+  itemCount         Int
+  subtotal          Int // paise, snapshot at detection time
+  firstProductName  String
+  firstProductImage String?
+  messageText       String                    @db.Text
+  status            AbandonedCartAlertStatus  @default(READY)
+  sentAt            DateTime?
+  createdAt         DateTime                  @default(now())
+
+  @@index([cartId])
+  @@index([userId])
+  @@index([status])
 }
 
 model Order {
