@@ -254,7 +254,11 @@ export default function ProductClient({ product, initialColor }: { product: Prod
   return (
     <div className="min-h-screen bg-[#f3efe8]">
 
-      <ProductPurchasedPopup images={images} productName={displayName} />
+      <ProductPurchasedPopup
+        images={images}
+        productName={displayName}
+        lastPurchasedAt={product.recentPurchases?.lastPurchasedAt ?? null}
+      />
       <ProductStickyCart
         images={images}
         productName={displayName}

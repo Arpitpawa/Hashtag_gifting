@@ -43,6 +43,37 @@ export async function GET(
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
+    // Real social proof -- never fabricated. Only counts orders that
+    // actually went through (excludes FAILED payments and CANCELLED
+    // deliveries), same "real purchase" definition used elsewhere in the
+    // codebase. countLast30Days backs the inline "N bought recently" line;
+    // lastPurchasedAt backs the recently-purchased popup -- both render
+    // nothing on the frontend if there is no real data to show.
+    const since30Days = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const realOrderFilter = {
+      paymentStatus:  { not: "FAILED"    as const },
+      deliveryStatus: { not: "CANCELLED" as const },
+    };
+
+    const [countLast30Days, lastOrderItem] = await Promise.all([
+      prisma.orderItem.count({
+        where: {
+          productId: product.id,
+          order: { ...realOrderFilter, createdAt: { gte: since30Days } },
+        },
+      }),
+      prisma.orderItem.findFirst({
+        where:   { productId: product.id, order: realOrderFilter },
+        orderBy: { order: { createdAt: "desc" } },
+        select:  { order: { select: { createdAt: true } } },
+      }),
+    ]);
+
+    const recentPurchases = {
+      countLast30Days,
+      lastPurchasedAt: lastOrderItem?.order.createdAt ?? null,
+    };
+
     const avgRating =
       product.reviews.length > 0
         ? Math.round(
@@ -57,6 +88,7 @@ export async function GET(
     return NextResponse.json({
       ...publicProduct,
       avgRating,
+      recentPurchases,
       related: [],
     });
 

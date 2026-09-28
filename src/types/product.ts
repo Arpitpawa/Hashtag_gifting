@@ -55,6 +55,12 @@ export interface Product {
   avgRating:           number;
   related:             any[];
   variants:            ProductVariant[];   // ← NEW
+  // Real order-derived numbers -- see /api/products/[slug] for how these
+  // are computed. Never fabricated; null/0 means "nothing to show".
+  recentPurchases?: {
+    countLast30Days: number;
+    lastPurchasedAt: string | null;
+  };
 }
 
 export interface RecentlyViewedProduct {

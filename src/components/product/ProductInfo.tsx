@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { Star, Award, BadgeCheck, Sparkles, Share2, Flame } from "lucide-react";
+import { Star, Award, BadgeCheck, Sparkles, Share2, Flame, TrendingUp, Undo2 } from "lucide-react";
 import { formatPrice } from "@/lib/store/cartStore";
 import type { Product } from "@/types/product";
+import WishlistButton from "@/components/home/WishlistButton";
 
 interface Props {
   product:     Product;
@@ -43,13 +44,16 @@ export default function ProductInfo({ product, onTabChange, onShare }: Props) {
           </Link>
         ) : <span />}
 
-        <button
-          onClick={onShare}
-          className="flex items-center gap-1.5 text-[12px] text-[#888] hover:text-[#c0555a] transition-colors"
-        >
-          <Share2 size={13} />
-          Share
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={onShare}
+            className="flex items-center gap-1.5 text-[12px] text-[#888] hover:text-[#c0555a] transition-colors"
+          >
+            <Share2 size={13} />
+            Share
+          </button>
+          <WishlistButton productId={product.id} />
+        </div>
       </div>
 
       {/* ── ROW 2: Tagline ── */}
@@ -135,6 +139,25 @@ export default function ProductInfo({ product, onTabChange, onShare }: Props) {
           </span>
         )}
       </div>
+
+      {/* ── ROW 7: Real social proof -- only when there is genuinely enough
+           recent order data to be worth mentioning. Never a fabricated
+           number: see recentPurchases on the /api/products/[slug] response. ── */}
+      {(product.recentPurchases?.countLast30Days ?? 0) >= 5 && (
+        <p className="flex items-center gap-1.5 text-[12px] font-semibold text-[#c0555a] -mt-1">
+          <TrendingUp size={13} />
+          {product.recentPurchases!.countLast30Days} people bought this in the last 30 days
+        </p>
+      )}
+
+      {/* ── ROW 8: Return-policy one-liner, right at the decision point
+           instead of buried inside the collapsed Shipping accordion below. ── */}
+      <p className="flex items-center gap-1.5 text-[12px] text-[#888] -mt-1">
+        <Undo2 size={13} className="flex-shrink-0" />
+        {product.customizable
+          ? "This is a personalised item — it can't be returned for change of mind."
+          : "7-day easy returns on this item."}
+      </p>
 
     </div>
   );
