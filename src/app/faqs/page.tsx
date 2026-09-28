@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronDown, MessageCircle, ArrowRight, Search, Gift, Truck, RotateCcw, CreditCard, Sparkles, type LucideIcon } from "lucide-react";
+import { ChevronDown, MessageCircle, ArrowRight, Search, Gift, Truck, RotateCcw, CreditCard, Sparkles, HelpCircle, type LucideIcon } from "lucide-react";
+import PolicyHero from "@/components/legal/PolicyHero";
 import RelatedPolicies from "@/components/legal/RelatedPolicies";
 
 const FAQS: { category: string; icon: LucideIcon; items: { q: string; a: string }[] }[] = [
@@ -102,107 +103,122 @@ export default function FAQsPage() {
   return (
     <div className="min-h-screen bg-[#f3efe8]">
 
-      {/* Hero */}
-      <div className="bg-white border-b border-[#e8e0d5] py-14 text-center px-4">
-        <p className="text-[12px] font-bold text-[#c0555a] uppercase tracking-widest mb-3">Help centre</p>
-        <h1
-          className="text-[36px] md:text-[48px] font-normal text-[#1a1a1a] mb-4"
-          style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
-        >
-          Frequently asked questions
-        </h1>
-        <p className="text-[15px] text-[#888] mb-7 max-w-md mx-auto">
-          Find quick answers to the most common questions about our products and service.
-        </p>
-
-        {/* Search */}
-        <div className="relative max-w-md mx-auto">
+      <PolicyHero icon={HelpCircle} eyebrow="Help centre" title="Frequently asked questions" subtitle="Find quick answers to the most common questions about our products and service.">
+        <div className="relative max-w-md mx-auto mt-5">
           <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#aaa]" />
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search questions…"
-            className="w-full pl-10 pr-4 py-3.5 border border-[#e8e0d5] rounded-full text-[14px] outline-none focus:border-[#c0555a] transition-colors shadow-sm"
+            className="w-full pl-10 pr-4 py-3.5 border border-[#e8e0d5] rounded-full text-[14px] outline-none focus:border-[#c0555a] transition-colors shadow-sm bg-white"
           />
         </div>
-      </div>
+      </PolicyHero>
 
-      <div className="max-w-[800px] mx-auto px-4 md:px-6 py-12">
+      <div className="max-w-[1120px] mx-auto px-4 md:px-6 py-12">
+        <div className="lg:grid lg:grid-cols-[220px_1fr] lg:gap-12 lg:items-start">
 
-        {/* Category pills */}
-        <div className="flex gap-2 overflow-x-auto pb-2 mb-8 scrollbar-hide">
-          {allCategories.map(cat => (
-            <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`flex-shrink-0 px-4 py-2 rounded-full text-[12px] font-semibold border transition-all ${
-                activeCategory === cat
-                  ? "bg-[#1a1a1a] text-white border-[#1a1a1a]"
-                  : "bg-white text-[#555] border-[#e8e0d5] hover:border-[#c0555a] hover:text-[#c0555a]"
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
+          {/* Category nav */}
+          <div>
+            {/* Mobile / tablet: horizontal scrollable pills */}
+            <div className="lg:hidden flex gap-2 overflow-x-auto pb-2 mb-8 scrollbar-hide">
+              {allCategories.map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className={`flex-shrink-0 px-4 py-2 rounded-full text-[12px] font-semibold border transition-all ${
+                    activeCategory === cat
+                      ? "bg-[#1a1a1a] text-white border-[#1a1a1a]"
+                      : "bg-white text-[#555] border-[#e8e0d5] hover:border-[#c0555a] hover:text-[#c0555a]"
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
 
-        {/* FAQ sections */}
-        {filtered.length === 0 ? (
-          <div className="text-center py-16">
-            <p className="text-[16px] font-bold text-[#1a1a1a] mb-2">No results found</p>
-            <p className="text-[13px] text-[#888] mb-5">Try a different search or browse all categories</p>
-            <button onClick={() => { setSearch(""); setActiveCategory("All"); }}
-              className="text-[13px] text-[#c0555a] font-semibold hover:underline">
-              Clear search
-            </button>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-10">
-            {filtered.map(({ category, icon: Icon, items }) => (
-              <div key={category}>
-                <div className="flex items-center gap-2.5 mb-4">
-                  <div className="w-8 h-8 bg-[#c0555a]/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Icon size={16} className="text-[#c0555a]" strokeWidth={1.8} />
-                  </div>
-                  <h2 className="text-[16px] font-bold text-[#1a1a1a]">{category}</h2>
-                  <span className="text-[12px] text-[#aaa] ml-1">({items.length})</span>
-                </div>
-                <div className="flex flex-col gap-2">
-                  {items.map((item, i) => <FAQItem key={i} {...item} />)}
-                </div>
+            {/* Desktop: sticky vertical category list */}
+            <nav className="hidden lg:block sticky top-8 self-start">
+              <p className="text-[11px] font-bold text-[#aaa] uppercase tracking-widest mb-3 px-3">Categories</p>
+              <div className="flex flex-col gap-0.5">
+                {allCategories.map(cat => (
+                  <button
+                    key={cat}
+                    onClick={() => setActiveCategory(cat)}
+                    className={`text-left px-3 py-2 rounded-lg text-[13px] leading-snug border-l-2 transition-colors ${
+                      activeCategory === cat
+                        ? "border-[#c0555a] text-[#c0555a] bg-[#c0555a]/5 font-semibold"
+                        : "border-transparent text-[#777] hover:text-[#1a1a1a] hover:bg-white font-medium"
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
               </div>
-            ))}
+            </nav>
           </div>
-        )}
 
-        {/* Still need help */}
-        <div className="mt-12 bg-[#25D366] rounded-2xl p-8 text-center text-white">
-          <MessageCircle size={28} className="mx-auto mb-3" />
-          <h2 className="text-[20px] font-bold mb-2">Still have questions?</h2>
-          <p className="text-white/80 text-[14px] mb-5">
-            Our team is available 9 AM – 9 PM, 7 days a week. We typically reply within 15 minutes on WhatsApp.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <a
-              href="https://wa.me/917665909909?text=Hi! I have a question about Hashtag Gifting."
-              target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-[#25D366] font-bold rounded-full hover:bg-[#f0fff0] transition-colors text-[13px]"
-            >
-              Chat on WhatsApp
-            </a>
-            <Link
-              href="/contact"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white/20 text-white font-semibold rounded-full hover:bg-white/30 transition-colors text-[13px]"
-            >
-              Send us a message <ArrowRight size={13} />
-            </Link>
+          <div className="max-w-[800px]">
+
+            {/* FAQ sections */}
+            {filtered.length === 0 ? (
+              <div className="text-center py-16">
+                <p className="text-[16px] font-bold text-[#1a1a1a] mb-2">No results found</p>
+                <p className="text-[13px] text-[#888] mb-5">Try a different search or browse all categories</p>
+                <button onClick={() => { setSearch(""); setActiveCategory("All"); }}
+                  className="text-[13px] text-[#c0555a] font-semibold hover:underline">
+                  Clear search
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-10">
+                {filtered.map(({ category, icon: Icon, items }) => (
+                  <div key={category}>
+                    <div className="flex items-center gap-2.5 mb-4">
+                      <div className="w-8 h-8 bg-[#c0555a]/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Icon size={16} className="text-[#c0555a]" strokeWidth={1.8} />
+                      </div>
+                      <h2 className="text-[16px] font-bold text-[#1a1a1a]">{category}</h2>
+                      <span className="text-[12px] text-[#aaa] ml-1">({items.length})</span>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      {items.map((item, i) => <FAQItem key={i} {...item} />)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Still need help */}
+            <div className="mt-12 bg-[#25D366] rounded-2xl p-8 text-center text-white">
+              <MessageCircle size={28} className="mx-auto mb-3" />
+              <h2 className="text-[20px] font-bold mb-2">Still have questions?</h2>
+              <p className="text-white/80 text-[14px] mb-5">
+                Our team is available 9 AM – 9 PM, 7 days a week. We typically reply within 15 minutes on WhatsApp.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <a
+                  href="https://wa.me/917665909909?text=Hi! I have a question about Hashtag Gifting."
+                  target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-[#25D366] font-bold rounded-full hover:bg-[#f0fff0] transition-colors text-[13px]"
+                >
+                  Chat on WhatsApp
+                </a>
+                <Link
+                  href="/contact"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white/20 text-white font-semibold rounded-full hover:bg-white/30 transition-colors text-[13px]"
+                >
+                  Send us a message <ArrowRight size={13} />
+                </Link>
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <RelatedPolicies current="/faqs" />
+            </div>
+
           </div>
         </div>
-
-        <div className="mt-6">
-          <RelatedPolicies current="/faqs" />
-        </div>
-
       </div>
     </div>
   );

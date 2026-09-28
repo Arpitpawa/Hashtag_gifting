@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Truck, Clock, MapPin, Package, Zap, AlertCircle, CheckCircle, Phone } from "lucide-react";
 import { slugify } from "@/lib/slugify";
+import PolicyHero from "@/components/legal/PolicyHero";
 import PolicySectionNav from "@/components/legal/PolicySectionNav";
 import RelatedPolicies from "@/components/legal/RelatedPolicies";
 
@@ -97,86 +98,86 @@ export default function ShippingPolicyPage() {
   return (
     <div className="min-h-screen bg-[#f3efe8]">
 
-      {/* Hero */}
-      <div className="bg-white border-b border-[#e8e0d5] py-14 text-center px-4">
-        <p className="text-[12px] font-bold text-[#c0555a] uppercase tracking-widest mb-3">Delivery information</p>
-        <h1
-          className="text-[36px] md:text-[48px] font-normal text-[#1a1a1a] mb-3"
-          style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
-        >
-          Shipping Policy
-        </h1>
-        <p className="text-[13px] text-[#aaa]">Last updated: January 2025</p>
-      </div>
+      <PolicyHero icon={Truck} eyebrow="Delivery information" title="Shipping Policy" meta="Last updated: January 2025" />
 
-      <div className="max-w-[800px] mx-auto px-4 md:px-6 py-12">
+      <div className="max-w-[1120px] mx-auto px-4 md:px-6 py-12">
+        <div className="lg:grid lg:grid-cols-[220px_1fr] lg:gap-12 lg:items-start">
 
-        <PolicySectionNav sections={SECTIONS.map(({ title }) => ({ id: slugify(title), label: title }))} />
+          <PolicySectionNav sections={SECTIONS.map(({ title }) => ({ id: slugify(title), label: title }))} />
 
-        {/* Highlights */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-10">
-          {HIGHLIGHTS.map(({ icon: Icon, title, desc, color }, i) => (
-            <div key={i} className="bg-white rounded-2xl border border-[#e8e0d5] p-4 text-center">
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-3"
-                style={{ backgroundColor: `${color}15` }}
-              >
-                <Icon size={18} style={{ color }} strokeWidth={1.5} />
-              </div>
-              <p className="text-[13px] font-bold text-[#1a1a1a]">{title}</p>
-              <p className="text-[11px] text-[#888] mt-0.5">{desc}</p>
-            </div>
-          ))}
-        </div>
+          <div className="max-w-[800px]">
 
-        {/* Sections */}
-        <div className="flex flex-col gap-5 mb-10">
-          {SECTIONS.map(({ icon: Icon, title, content }, i) => (
-            <div key={i} id={slugify(title)} className="scroll-mt-24 bg-white rounded-2xl border border-[#e8e0d5] p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-9 h-9 bg-[#c0555a]/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <Icon size={16} className="text-[#c0555a]" />
-                </div>
-                <h2 className="text-[15px] font-bold text-[#1a1a1a]">{title}</h2>
-              </div>
-              <ul className="flex flex-col gap-2.5">
-                {content.map((line, j) => (
-                  <li key={j} className="flex items-start gap-2.5">
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#c0555a] flex-shrink-0 mt-[6px]" />
-                    <p className="text-[13px] text-[#555] leading-relaxed">{line}</p>
-                  </li>
+            {/* Highlights -- one unified strip with internal dividers, not four
+                separate boxes floating with gaps between them. */}
+            <div className="bg-white rounded-2xl border border-[#e8e0d5] shadow-sm mb-10 overflow-hidden">
+              <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-y md:divide-y-0 divide-[#f0ece6]">
+                {HIGHLIGHTS.map(({ icon: Icon, title, desc, color }, i) => (
+                  <div key={i} className="flex items-center gap-3 p-5">
+                    <div
+                      className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+                      style={{ backgroundColor: `${color}15` }}
+                    >
+                      <Icon size={20} style={{ color }} strokeWidth={1.75} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[13px] font-bold text-[#1a1a1a] leading-tight">{title}</p>
+                      <p className="text-[11px] text-[#888] mt-0.5">{desc}</p>
+                    </div>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </div>
-          ))}
-        </div>
 
-        {/* Contact */}
-        <div className="bg-[#f3efe8] border border-[#e8e0d5] rounded-2xl p-6 text-center mb-6">
-          <Phone size={20} className="text-[#c0555a] mx-auto mb-3" />
-          <h3 className="text-[16px] font-bold text-[#1a1a1a] mb-2">Shipping questions?</h3>
-          <p className="text-[13px] text-[#555] mb-4">
-            Our team is available 9 AM – 9 PM, 7 days a week.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <a
-              href="https://wa.me/917665909909?text=Hi! I have a question about shipping."
-              target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#25D366] text-white font-bold rounded-full hover:bg-[#1da851] transition-colors text-[13px]"
-            >
-              WhatsApp us
-            </a>
-            <Link
-              href="/track"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border border-[#e8e0d5] text-[#1a1a1a] font-semibold rounded-full hover:border-[#c0555a] hover:text-[#c0555a] transition-colors text-[13px]"
-            >
-              Track my order
-            </Link>
+            {/* Sections */}
+            <div className="flex flex-col gap-5 mb-10">
+              {SECTIONS.map(({ icon: Icon, title, content }, i) => (
+                <div key={i} id={slugify(title)} className="scroll-mt-24 bg-white rounded-2xl border border-[#e8e0d5] p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-9 h-9 bg-[#c0555a]/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Icon size={16} className="text-[#c0555a]" />
+                    </div>
+                    <h2 className="text-[15px] font-bold text-[#1a1a1a]">{title}</h2>
+                  </div>
+                  <ul className="flex flex-col gap-2.5">
+                    {content.map((line, j) => (
+                      <li key={j} className="flex items-start gap-2.5">
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#c0555a] flex-shrink-0 mt-[6px]" />
+                        <p className="text-[13px] text-[#555] leading-relaxed">{line}</p>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+
+            {/* Contact */}
+            <div className="bg-[#f3efe8] border border-[#e8e0d5] rounded-2xl p-6 text-center mb-6">
+              <Phone size={20} className="text-[#c0555a] mx-auto mb-3" />
+              <h3 className="text-[16px] font-bold text-[#1a1a1a] mb-2">Shipping questions?</h3>
+              <p className="text-[13px] text-[#555] mb-4">
+                Our team is available 9 AM – 9 PM, 7 days a week.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <a
+                  href="https://wa.me/917665909909?text=Hi! I have a question about shipping."
+                  target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#25D366] text-white font-bold rounded-full hover:bg-[#1da851] transition-colors text-[13px]"
+                >
+                  WhatsApp us
+                </a>
+                <Link
+                  href="/track"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border border-[#e8e0d5] text-[#1a1a1a] font-semibold rounded-full hover:border-[#c0555a] hover:text-[#c0555a] transition-colors text-[13px]"
+                >
+                  Track my order
+                </Link>
+              </div>
+            </div>
+
+            <RelatedPolicies current="/shipping-policy" />
+
           </div>
         </div>
-
-        <RelatedPolicies current="/shipping-policy" />
-
       </div>
     </div>
   );

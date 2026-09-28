@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { FileText, ShoppingBag, Palette, Truck, CreditCard, Scale, Mail } from "lucide-react";
 import { slugify } from "@/lib/slugify";
+import PolicyHero from "@/components/legal/PolicyHero";
 import PolicySectionNav from "@/components/legal/PolicySectionNav";
 import RelatedPolicies from "@/components/legal/RelatedPolicies";
 
@@ -98,67 +99,63 @@ export default function TermsPage() {
   return (
     <div className="min-h-screen bg-[#f3efe8]">
 
-      <div className="bg-white border-b border-[#e8e0d5] py-14 text-center px-4">
-        <p className="text-[12px] font-bold text-[#c0555a] uppercase tracking-widest mb-3">Legal</p>
-        <h1
-          className="text-[36px] md:text-[48px] font-normal text-[#1a1a1a] mb-3"
-          style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
-        >
-          Terms & Conditions
-        </h1>
-        <p className="text-[13px] text-[#aaa]">Last updated: January 2025</p>
-      </div>
+      <PolicyHero icon={FileText} eyebrow="Legal" title="Terms & Conditions" meta="Last updated: January 2025" />
 
-      <div className="max-w-[800px] mx-auto px-4 md:px-6 py-12 flex flex-col gap-5">
+      <div className="max-w-[1120px] mx-auto px-4 md:px-6 py-12">
+        <div className="lg:grid lg:grid-cols-[220px_1fr] lg:gap-12 lg:items-start">
 
-        <PolicySectionNav sections={SECTIONS.map(({ title }) => ({ id: slugify(title), label: title }))} />
+          <PolicySectionNav sections={SECTIONS.map(({ title }) => ({ id: slugify(title), label: title }))} />
 
-        {/* Intro */}
-        <div className="bg-white rounded-2xl border border-[#e8e0d5] p-6">
-          <p className="text-[14px] text-[#555] leading-relaxed">
-            These Terms and Conditions govern your use of the Hashtag Gifting website (hashtaggifting.com) and
-            the purchase of our products and services. Please read them carefully before placing an order.
-            By using our website, you agree to these terms in full.
-          </p>
-        </div>
+          <div className="flex flex-col gap-5 max-w-[800px]">
 
-        {SECTIONS.map(({ icon: Icon, title, content }, i) => (
-          <div key={i} id={slugify(title)} className="scroll-mt-24 bg-white rounded-2xl border border-[#e8e0d5] p-6">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-9 h-9 bg-[#c0555a]/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                <Icon size={16} className="text-[#c0555a]" />
-              </div>
-              <h2 className="text-[16px] font-bold text-[#1a1a1a]">{title}</h2>
+            {/* Intro */}
+            <div className="bg-white rounded-2xl border border-[#e8e0d5] p-6">
+              <p className="text-[14px] text-[#555] leading-relaxed">
+                These Terms and Conditions govern your use of the Hashtag Gifting website (hashtaggifting.com) and
+                the purchase of our products and services. Please read them carefully before placing an order.
+                By using our website, you agree to these terms in full.
+              </p>
             </div>
-            <div className="flex flex-col gap-2.5">
-              {content.map((line, j) => (
-                <div key={j} className="flex items-start gap-2.5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-[#c0555a] flex-shrink-0 mt-[6px]" />
-                  <p className="text-[13px] text-[#555] leading-relaxed">{line}</p>
+
+            {SECTIONS.map(({ icon: Icon, title, content }, i) => (
+              <div key={i} id={slugify(title)} className="scroll-mt-24 bg-white rounded-2xl border border-[#e8e0d5] p-6">
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-9 h-9 bg-[#c0555a]/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Icon size={16} className="text-[#c0555a]" />
+                  </div>
+                  <h2 className="text-[16px] font-bold text-[#1a1a1a]">{title}</h2>
                 </div>
-              ))}
+                <div className="flex flex-col gap-2.5">
+                  {content.map((line, j) => (
+                    <div key={j} className="flex items-start gap-2.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#c0555a] flex-shrink-0 mt-[6px]" />
+                      <p className="text-[13px] text-[#555] leading-relaxed">{line}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+
+            {/* Contact */}
+            <div className="bg-[#f3efe8] border border-[#e8e0d5] rounded-2xl p-6 text-center">
+              <Mail size={20} className="text-[#c0555a] mx-auto mb-3" />
+              <h3 className="text-[15px] font-bold text-[#1a1a1a] mb-2">Questions about our terms?</h3>
+              <p className="text-[13px] text-[#555] mb-4">
+                Email us at{" "}
+                <a href="mailto:hashtaggiftsupport@gmail.com" className="text-[#c0555a] font-semibold hover:underline">
+                  hashtaggiftsupport@gmail.com
+                </a>
+                {" "}or WhatsApp us at +91 76659 09909.
+              </p>
+              <p className="text-[11px] text-[#aaa]">
+                Hashtag Gifting, Shop no. 83, Roop Vandana Complex, Arya Samaj Rd, Gurunanakpura, Raja Park, Jaipur, Rajasthan — 302004
+              </p>
             </div>
+
+            <RelatedPolicies current="/terms" />
+
           </div>
-        ))}
-
-        {/* Contact */}
-        <div className="bg-[#f3efe8] border border-[#e8e0d5] rounded-2xl p-6 text-center">
-          <Mail size={20} className="text-[#c0555a] mx-auto mb-3" />
-          <h3 className="text-[15px] font-bold text-[#1a1a1a] mb-2">Questions about our terms?</h3>
-          <p className="text-[13px] text-[#555] mb-4">
-            Email us at{" "}
-            <a href="mailto:hashtaggiftsupport@gmail.com" className="text-[#c0555a] font-semibold hover:underline">
-              hashtaggiftsupport@gmail.com
-            </a>
-            {" "}or WhatsApp us at +91 76659 09909.
-          </p>
-          <p className="text-[11px] text-[#aaa]">
-            Hashtag Gifting, Shop no. 83, Roop Vandana Complex, Arya Samaj Rd, Gurunanakpura, Raja Park, Jaipur, Rajasthan — 302004
-          </p>
         </div>
-
-        <RelatedPolicies current="/terms" />
-
       </div>
     </div>
   );
