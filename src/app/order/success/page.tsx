@@ -11,6 +11,7 @@ import {
   Home,
   ArrowRight,
 } from "lucide-react";
+import OrderReceipt from "@/components/order/OrderReceipt";
 
 function SuccessContent() {
   const searchParams = useSearchParams();
@@ -66,6 +67,8 @@ function SuccessContent() {
             </div>
           ))}
         </div>
+
+        {orderId && <OrderReceipt orderId={orderId} />}
 
         <div className="flex flex-col gap-3">
           <Link
