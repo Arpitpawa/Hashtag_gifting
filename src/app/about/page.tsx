@@ -54,10 +54,10 @@ const VALUES = [
 
 const TEAM = [
   {
-    name:  "Arpit Sharma",
+    name:  "Abhishek Arora",
     role:  "Founder & Creative Director",
     desc:  "Started Hashtag Gifting with a vision to make personalised gifts accessible to everyone in Jaipur and beyond.",
-    initials: "AS",
+    initials: "AA",
   },
   {
     name:  "Design Team",
@@ -140,7 +140,7 @@ export default async function AboutPage() {
             </h2>
             <div className="flex flex-col gap-4 text-[14px] text-[#555] leading-relaxed">
               <p>
-                It all started in 2019 when our founder Arpit couldn't find a gift that felt truly personal.
+                It all started in 2019 when our founder Abhishek couldn't find a gift that felt truly personal.
                 Every store had the same generic mugs, the same mass-produced frames. So he decided to create something different.
               </p>
               <p>
