@@ -11,11 +11,10 @@ interface Props {
   activeImg:      number;
   setActiveImg:   (i: number) => void;
   onOpenLightbox: () => void;
-  onShare:        () => void;
 }
 
 export default function ProductGallery({
-  images, productName, badge, activeImg, setActiveImg, onOpenLightbox, onShare,
+  images, productName, badge, activeImg, setActiveImg, onOpenLightbox,
 }: Props) {
   const [zoomed,     setZoomed]     = useState(false);
   const [zoomPos,    setZoomPos]    = useState({ x: 50, y: 50 });

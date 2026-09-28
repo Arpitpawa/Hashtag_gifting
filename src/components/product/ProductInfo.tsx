@@ -1,18 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { Star, Award, BadgeCheck, Sparkles, Share2, Flame, TrendingUp, Undo2 } from "lucide-react";
+import { Star, Award, BadgeCheck, Sparkles, Flame, TrendingUp, Undo2 } from "lucide-react";
 import { formatPrice } from "@/lib/store/cartStore";
 import type { Product } from "@/types/product";
 import WishlistButton from "@/components/home/WishlistButton";
+import ShareMenu from "@/components/product/ShareMenu";
 
 interface Props {
   product:     Product;
   onTabChange: (tab: "reviews") => void;
-  onShare:     () => void;
 }
 
-export default function ProductInfo({ product, onTabChange, onShare }: Props) {
+export default function ProductInfo({ product, onTabChange }: Props) {
   const discount = product.comparePrice
     ? Math.round(((product.comparePrice - product.price) / product.comparePrice) * 100)
     : 0;
@@ -45,13 +45,7 @@ export default function ProductInfo({ product, onTabChange, onShare }: Props) {
         ) : <span />}
 
         <div className="flex items-center gap-3">
-          <button
-            onClick={onShare}
-            className="flex items-center gap-1.5 text-[12px] text-[#888] hover:text-[#c0555a] transition-colors"
-          >
-            <Share2 size={13} />
-            Share
-          </button>
+          <ShareMenu title={product.name} />
           <WishlistButton productId={product.id} />
         </div>
       </div>

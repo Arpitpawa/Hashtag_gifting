@@ -231,13 +231,6 @@ export default function ProductClient({ product, initialColor }: { product: Prod
     }
   }, [isOutOfStock, hasVariants, selectedVariants, primaryVariantId, product.id, quantity, addToCart]);
 
-  const handleShare = async () => {
-    try {
-      if (navigator.share) await navigator.share({ title: displayName, url: window.location.href });
-      else await navigator.clipboard.writeText(window.location.href);
-    } catch {}
-  };
-
   const handleScrollToReviews = (_tab: "reviews") => {
     reviewsRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -316,7 +309,6 @@ export default function ProductClient({ product, initialColor }: { product: Prod
               activeImg={activeImg}
               setActiveImg={setActiveImg}
               onOpenLightbox={() => setLightbox(true)}
-              onShare={handleShare}
             />
             {product.customizable && (
               <PersonalizationTeaser
@@ -335,7 +327,6 @@ export default function ProductClient({ product, initialColor }: { product: Prod
             <ProductInfo
               product={productWithVariantPrice}
               onTabChange={handleScrollToReviews}
-              onShare={handleShare}
             />
 
             {/* ── 2. VARIANT SELECTOR — right under price/badges, matching reference layout ── */}
