@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Truck, Clock, MapPin, Package, Zap, AlertCircle, CheckCircle, Phone } from "lucide-react";
+import { slugify } from "@/lib/slugify";
+import PolicySectionNav from "@/components/legal/PolicySectionNav";
+import RelatedPolicies from "@/components/legal/RelatedPolicies";
 
 export const metadata: Metadata = {
   title: "Shipping Policy",
@@ -19,7 +22,7 @@ const SECTIONS = [
     icon: Zap,
     title: "3-Hour Express Delivery (Jaipur only)",
     content: [
-      "We offer 3-hour express delivery within Jaipur city limits for select products marked with the ⚡ icon.",
+      "We offer 3-hour express delivery within Jaipur city limits for select products marked with the express icon.",
       "Express orders must be placed before 6:00 PM to ensure delivery on the same day.",
       "Express delivery is available 7 days a week, including Sundays and public holidays.",
       "Express delivery charges may apply depending on your location within Jaipur.",
@@ -108,6 +111,8 @@ export default function ShippingPolicyPage() {
 
       <div className="max-w-[800px] mx-auto px-4 md:px-6 py-12">
 
+        <PolicySectionNav sections={SECTIONS.map(({ title }) => ({ id: slugify(title), label: title }))} />
+
         {/* Highlights */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-10">
           {HIGHLIGHTS.map(({ icon: Icon, title, desc, color }, i) => (
@@ -127,7 +132,7 @@ export default function ShippingPolicyPage() {
         {/* Sections */}
         <div className="flex flex-col gap-5 mb-10">
           {SECTIONS.map(({ icon: Icon, title, content }, i) => (
-            <div key={i} className="bg-white rounded-2xl border border-[#e8e0d5] p-6">
+            <div key={i} id={slugify(title)} className="scroll-mt-24 bg-white rounded-2xl border border-[#e8e0d5] p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-9 h-9 bg-[#c0555a]/10 rounded-xl flex items-center justify-center flex-shrink-0">
                   <Icon size={16} className="text-[#c0555a]" />
@@ -147,7 +152,7 @@ export default function ShippingPolicyPage() {
         </div>
 
         {/* Contact */}
-        <div className="bg-[#f3efe8] border border-[#e8e0d5] rounded-2xl p-6 text-center">
+        <div className="bg-[#f3efe8] border border-[#e8e0d5] rounded-2xl p-6 text-center mb-6">
           <Phone size={20} className="text-[#c0555a] mx-auto mb-3" />
           <h3 className="text-[16px] font-bold text-[#1a1a1a] mb-2">Shipping questions?</h3>
           <p className="text-[13px] text-[#555] mb-4">
@@ -169,6 +174,8 @@ export default function ShippingPolicyPage() {
             </Link>
           </div>
         </div>
+
+        <RelatedPolicies current="/shipping-policy" />
 
       </div>
     </div>

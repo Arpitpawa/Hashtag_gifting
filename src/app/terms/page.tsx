@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { FileText, ShoppingBag, Palette, Truck, CreditCard, Scale, Mail } from "lucide-react";
+import { slugify } from "@/lib/slugify";
+import PolicySectionNav from "@/components/legal/PolicySectionNav";
+import RelatedPolicies from "@/components/legal/RelatedPolicies";
 
 export const metadata: Metadata = {
   title: "Terms & Conditions",
@@ -108,6 +111,8 @@ export default function TermsPage() {
 
       <div className="max-w-[800px] mx-auto px-4 md:px-6 py-12 flex flex-col gap-5">
 
+        <PolicySectionNav sections={SECTIONS.map(({ title }) => ({ id: slugify(title), label: title }))} />
+
         {/* Intro */}
         <div className="bg-white rounded-2xl border border-[#e8e0d5] p-6">
           <p className="text-[14px] text-[#555] leading-relaxed">
@@ -118,7 +123,7 @@ export default function TermsPage() {
         </div>
 
         {SECTIONS.map(({ icon: Icon, title, content }, i) => (
-          <div key={i} className="bg-white rounded-2xl border border-[#e8e0d5] p-6">
+          <div key={i} id={slugify(title)} className="scroll-mt-24 bg-white rounded-2xl border border-[#e8e0d5] p-6">
             <div className="flex items-center gap-3 mb-5">
               <div className="w-9 h-9 bg-[#c0555a]/10 rounded-xl flex items-center justify-center flex-shrink-0">
                 <Icon size={16} className="text-[#c0555a]" />
@@ -151,6 +156,8 @@ export default function TermsPage() {
             Hashtag Gifting, Shop no. 83, Roop Vandana Complex, Arya Samaj Rd, Gurunanakpura, Raja Park, Jaipur, Rajasthan — 302004
           </p>
         </div>
+
+        <RelatedPolicies current="/terms" />
 
       </div>
     </div>

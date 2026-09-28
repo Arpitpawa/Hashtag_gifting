@@ -1,10 +1,19 @@
 import type { Metadata } from "next";
 import { RefreshCw, CheckCircle, XCircle, Clock, Camera, Phone, AlertCircle, ArrowRight } from "lucide-react";
+import PolicySectionNav from "@/components/legal/PolicySectionNav";
+import RelatedPolicies from "@/components/legal/RelatedPolicies";
 
 export const metadata: Metadata = {
   title: "Return & Refund Policy",
   description: "Our return and refund policy. We stand behind every gift we make.",
 };
+
+const NAV_SECTIONS = [
+  { id: "eligible",           label: "Eligible for refund" },
+  { id: "not-eligible",       label: "Not eligible" },
+  { id: "how-to-raise",       label: "How to raise a request" },
+  { id: "refund-timelines",   label: "Refund timelines" },
+];
 
 const ELIGIBLE = [
   "Manufacturing defects (wrong print, blurry text, broken product)",
@@ -45,6 +54,8 @@ export default function ReturnPolicyPage() {
 
       <div className="max-w-[800px] mx-auto px-4 md:px-6 py-12 flex flex-col gap-6">
 
+        <PolicySectionNav sections={NAV_SECTIONS} />
+
         {/* Our Guarantee */}
         <div className="bg-[#c0555a] rounded-2xl p-7 text-white text-center">
           <CheckCircle size={28} className="mx-auto mb-3" strokeWidth={1.5} />
@@ -68,7 +79,7 @@ export default function ReturnPolicyPage() {
         </div>
 
         {/* What's eligible */}
-        <div className="bg-white rounded-2xl border border-[#e8e0d5] p-6">
+        <div id="eligible" className="scroll-mt-24 bg-white rounded-2xl border border-[#e8e0d5] p-6">
           <div className="flex items-center gap-3 mb-5">
             <div className="w-9 h-9 bg-green-100 rounded-xl flex items-center justify-center">
               <CheckCircle size={16} className="text-green-600" />
@@ -86,7 +97,7 @@ export default function ReturnPolicyPage() {
         </div>
 
         {/* What's not eligible */}
-        <div className="bg-white rounded-2xl border border-[#e8e0d5] p-6">
+        <div id="not-eligible" className="scroll-mt-24 bg-white rounded-2xl border border-[#e8e0d5] p-6">
           <div className="flex items-center gap-3 mb-5">
             <div className="w-9 h-9 bg-red-50 rounded-xl flex items-center justify-center">
               <XCircle size={16} className="text-red-500" />
@@ -104,7 +115,7 @@ export default function ReturnPolicyPage() {
         </div>
 
         {/* How to raise a request */}
-        <div className="bg-white rounded-2xl border border-[#e8e0d5] p-6">
+        <div id="how-to-raise" className="scroll-mt-24 bg-white rounded-2xl border border-[#e8e0d5] p-6">
           <h2 className="text-[16px] font-bold text-[#1a1a1a] mb-5">How to raise a return request</h2>
           <div className="flex flex-col gap-4">
             {STEPS.map(({ icon: Icon, step, title, desc }) => (
@@ -124,7 +135,7 @@ export default function ReturnPolicyPage() {
         </div>
 
         {/* Refund timeline */}
-        <div className="bg-white rounded-2xl border border-[#e8e0d5] p-6">
+        <div id="refund-timelines" className="scroll-mt-24 bg-white rounded-2xl border border-[#e8e0d5] p-6">
           <div className="flex items-center gap-3 mb-5">
             <div className="w-9 h-9 bg-[#c0555a]/10 rounded-xl flex items-center justify-center">
               <Clock size={16} className="text-[#c0555a]" />
@@ -167,6 +178,8 @@ export default function ReturnPolicyPage() {
             </a>
           </div>
         </div>
+
+        <RelatedPolicies current="/return-policy" />
 
       </div>
     </div>

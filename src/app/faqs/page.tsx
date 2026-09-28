@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronDown, MessageCircle, ArrowRight, Search } from "lucide-react";
+import { ChevronDown, MessageCircle, ArrowRight, Search, Gift, Truck, RotateCcw, CreditCard, Sparkles, type LucideIcon } from "lucide-react";
+import RelatedPolicies from "@/components/legal/RelatedPolicies";
 
-const FAQS = [
+const FAQS: { category: string; icon: LucideIcon; items: { q: string; a: string }[] }[] = [
   {
     category: "Orders & Customisation",
-    icon: "🎁",
+    icon: Gift,
     items: [
       { q: "How do I personalise my gift?", a: "On the product page, click 'Personalise & Add to Cart'. You'll see fields to enter a name, upload a photo, add a message — whatever that product supports. Our team will use exactly what you enter." },
       { q: "Can I preview my gift before ordering?", a: "Yes! Many of our products have a live preview feature. After entering your customisation details, you'll see a real-time preview of how your gift will look. Some products show a preview after adding to cart." },
@@ -18,9 +19,9 @@ const FAQS = [
   },
   {
     category: "Delivery & Shipping",
-    icon: "🚚",
+    icon: Truck,
     items: [
-      { q: "Do you offer same-day or 3-hour delivery?", a: "Yes! We offer 3-hour express delivery within Jaipur for eligible products. Look for the ⚡ tag on product pages. Orders placed before 6 PM are eligible. Pan India same-day dispatch is available for orders placed before 2 PM." },
+      { q: "Do you offer same-day or 3-hour delivery?", a: "Yes! We offer 3-hour express delivery within Jaipur for eligible products. Look for the express delivery tag on product pages. Orders placed before 6 PM are eligible. Pan India same-day dispatch is available for orders placed before 2 PM." },
       { q: "How long does delivery take?", a: "Within Jaipur: 3 hours (express) or same day. Pan India: 2-5 business days depending on your location. We'll send you tracking details once your order is dispatched." },
       { q: "Do you deliver across India?", a: "Yes, we ship to all major cities and towns across India via trusted courier partners (Delhivery, BlueDart, DTDC). For remote areas, delivery may take slightly longer." },
       { q: "How much does shipping cost?", a: "Shipping charges are calculated at checkout based on your location and order value. Orders above a certain amount qualify for free shipping — you'll see this at checkout." },
@@ -29,7 +30,7 @@ const FAQS = [
   },
   {
     category: "Returns & Refunds",
-    icon: "↩️",
+    icon: RotateCcw,
     items: [
       { q: "Can I return a personalised product?", a: "Since personalised products are made specifically for you, we don't accept returns unless there's a manufacturing defect or damage during delivery. If you received a wrong or defective item, we'll replace it for free." },
       { q: "What if my product arrives damaged?", a: "We're so sorry if that happens! WhatsApp us a photo of the damaged product within 48 hours of delivery. We'll arrange a free replacement or issue a full refund — your choice, no questions asked." },
@@ -39,7 +40,7 @@ const FAQS = [
   },
   {
     category: "Payment & Security",
-    icon: "💳",
+    icon: CreditCard,
     items: [
       { q: "What payment methods do you accept?", a: "We accept all major payment methods — Credit/Debit cards, UPI (GPay, PhonePe, Paytm), Net Banking, Wallets, and Cash on Delivery (for eligible orders). All online payments are secured by Razorpay with 256-bit SSL encryption." },
       { q: "Is Cash on Delivery available?", a: "Yes, COD is available for orders up to a certain value within India. COD availability will be shown at checkout based on your pin code." },
@@ -49,7 +50,7 @@ const FAQS = [
   },
   {
     category: "Products & Quality",
-    icon: "✨",
+    icon: Sparkles,
     items: [
       { q: "What materials do you use?", a: "We use premium food-grade ceramic for mugs, solid MDF/wood for frames and lamps, polyester satin for cushions, and high-quality cotton for tees. Every material is tested for print durability and longevity." },
       { q: "How long will the print/engraving last?", a: "Our prints are done using sublimation (for mugs/cushions) and UV printing (for wooden items), which are extremely durable. With normal care, prints last for years without fading." },
@@ -157,10 +158,12 @@ export default function FAQsPage() {
           </div>
         ) : (
           <div className="flex flex-col gap-10">
-            {filtered.map(({ category, icon, items }) => (
+            {filtered.map(({ category, icon: Icon, items }) => (
               <div key={category}>
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="text-[20px]">{icon}</span>
+                <div className="flex items-center gap-2.5 mb-4">
+                  <div className="w-8 h-8 bg-[#c0555a]/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Icon size={16} className="text-[#c0555a]" strokeWidth={1.8} />
+                  </div>
                   <h2 className="text-[16px] font-bold text-[#1a1a1a]">{category}</h2>
                   <span className="text-[12px] text-[#aaa] ml-1">({items.length})</span>
                 </div>
@@ -194,6 +197,10 @@ export default function FAQsPage() {
               Send us a message <ArrowRight size={13} />
             </Link>
           </div>
+        </div>
+
+        <div className="mt-6">
+          <RelatedPolicies current="/faqs" />
         </div>
 
       </div>
