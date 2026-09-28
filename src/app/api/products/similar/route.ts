@@ -13,9 +13,15 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "productId required" }, { status: 400 });
     }
 
+    // Same productId+categoryId always returns the same public data (no
+    // per-user variation), so this is safe to cache at the CDN/edge level
+    // too -- not just the in-memory getCache below, which only lives inside
+    // one serverless instance and is gone on the next cold start.
+    const CACHE_HEADERS = { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300" };
+
     const cacheKey = `similar:${productId}:${categoryId}`;
     const cached   = getCache(cacheKey);
-    if (cached) return NextResponse.json(cached);
+    if (cached) return NextResponse.json(cached, { headers: CACHE_HEADERS });
 
     // Get current product tags for tag-based similarity
     const currentProduct = await prisma.product.findUnique({
@@ -66,7 +72,7 @@ export async function GET(req: NextRequest) {
     const response = { products: similar };
     setCache(cacheKey, response, 60); // cache 60s
 
-    return NextResponse.json(response);
+    return NextResponse.json(response, { headers: CACHE_HEADERS });
 
   } catch (err) {
     console.error("SIMILAR PRODUCTS ERROR:", err);
