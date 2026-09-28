@@ -23,6 +23,7 @@ import CharmSelector          from "./CharmSelector";
 import ProductStickyCart      from "./ProductStickyCart";
 import ProductPurchasedPopup  from "./ProductPurchasedPopup";
 import SimilarProducts        from "./SimilarProducts";
+import FrequentlyBoughtTogether from "./FrequentlyBoughtTogether";
 import RecentlyViewed         from "./RecentlyViewed";
 import ProductVariantSelector from "./ProductVariantSelector";
 import GiftNoteField           from "@/components/shared/GiftNoteField";
@@ -400,6 +401,11 @@ export default function ProductClient({ product, initialColor }: { product: Prod
             <ProductAccordions product={product} />
           </div>
         </div>
+
+        <FrequentlyBoughtTogether
+          currentProduct={{ id: product.id, name: displayName, price: displayPrice, images }}
+          categoryId={product.category?.id ?? null}
+        />
 
         {/* Below fold */}
         <div ref={reviewsRef}>
