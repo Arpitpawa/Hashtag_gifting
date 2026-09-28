@@ -24,6 +24,7 @@ import ProductStickyCart      from "./ProductStickyCart";
 import ProductPurchasedPopup  from "./ProductPurchasedPopup";
 import SimilarProducts        from "./SimilarProducts";
 import FrequentlyBoughtTogether from "./FrequentlyBoughtTogether";
+import PersonalizationTeaser   from "./PersonalizationTeaser";
 import RecentlyViewed         from "./RecentlyViewed";
 import ProductVariantSelector from "./ProductVariantSelector";
 import GiftNoteField           from "@/components/shared/GiftNoteField";
@@ -307,15 +308,25 @@ export default function ProductClient({ product, initialColor }: { product: Prod
         <div className="grid grid-cols-1 xl:grid-cols-[1fr_480px] gap-12 mb-20">
 
           {/* LEFT — Gallery */}
-          <ProductGallery
-            images={images}
-            productName={displayName}
-            badge={product.badge}
-            activeImg={activeImg}
-            setActiveImg={setActiveImg}
-            onOpenLightbox={() => setLightbox(true)}
-            onShare={handleShare}
-          />
+          <div>
+            <ProductGallery
+              images={images}
+              productName={displayName}
+              badge={product.badge}
+              activeImg={activeImg}
+              setActiveImg={setActiveImg}
+              onOpenLightbox={() => setLightbox(true)}
+              onShare={handleShare}
+            />
+            {product.customizable && (
+              <PersonalizationTeaser
+                previewTemplate={product.previewTemplate}
+                previewZones={product.previewZones}
+                productName={displayName}
+                onOpenPreview={() => setLivePreview(true)}
+              />
+            )}
+          </div>
 
           {/* RIGHT */}
           <div className="flex flex-col gap-5">
